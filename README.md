@@ -1,6 +1,6 @@
-# Anglo Concertina C/G · 键位学习台
+# 30键 Anglo · 入门交互学习
 
-Interactive Anglo concertina (C/G) button layout and jianpu learning page.
+Interactive Anglo concertina (C/G) layout compare, notation toggle, and duplicate-note explorer.
 
 ## Live site
 
@@ -8,4 +8,5 @@ https://spritytang.github.io/anglo-concertina/
 
 ## Local
 
-Open `index.html` in a browser.
+Source: `anglo-intro.html`  
+GitHub Pages serves `index.html` (same page).

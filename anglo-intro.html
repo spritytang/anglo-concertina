@@ -608,12 +608,6 @@
     justify-content: center;
     overflow: hidden;
   }
-  .uni-board .btn.uni.gap {
-    visibility: hidden;
-    pointer-events: none;
-    border-color: transparent;
-    background: transparent;
-  }
   .uni-board .btn.uni.mc-ring {
     z-index: 1;
   }
@@ -621,6 +615,13 @@
   .uni-board .btn.uni .half {
     border: 0 !important;
     flex: none;
+  }
+  .schematic-note {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin: 8px 0 0;
+    line-height: 1.45;
   }
   .side-stack {
     display: grid;
@@ -1663,60 +1664,48 @@
   // —— Layout gallery ——
   const layoutState = { id: "wheatstone" };
 
-  // English 48 treble (24+24). Rows high→low; cols: accidental | natural | natural | accidental.
-  // Pattern from Wheatstone/Gaskins: L has G# G B Bb / C# C E Eb bands; R has Ab A C C# / D# D F F#.
-  // Middle C = left, 2nd col, 2nd row from bottom.
-  const ENGLISH_48 = {
+  // English: sample of inner chromatic rows (unisonoric). Simplified excerpt near middle C.
+  // Rows are whole-tone; adjacent rows differ by semitone. L/R alternate in real playing.
+  const ENGLISH_SAMPLE = {
     left: [
-      ["c#'''", "c'''", "e'''", "eb'''"],
-      ["g#''", "g''", "b''", "bb''"],
-      ["c#''", "c''", "e''", "eb''"],
-      ["g#'", "g'", "b'", "bb'"],
-      ["c#'", "c'", "e'", "eb'"],
-      ["g#", "g", "b", "bb"],
+      ["g#'", "bb'", "c#'", "e'"],
+      ["g'", "bb", "c'", "e"],
+      ["f#'", "a'", "c''", "e''"],
+      ["f'", "a", "b", "d'"],
     ],
     right: [
-      ["ab'''", "a'''", "c''''", "c#''''"],
-      ["d#'''", "d'''", "f'''", "f#'''"],
-      ["ab''", "a''", "c'''", "c#'''"],
-      ["d#''", "d''", "f''", "f#''"],
-      ["ab'", "a'", "c''", "c#''"],
-      ["d#'", "d'", "f'", "f#'"],
+      ["a#'", "c#''", "e''", "g''"],
+      ["a'", "c''", "e'", "g'"],
+      ["g#''", "b'", "d''", "f#''"],
+      ["g''", "b", "d'", "f#'"],
     ],
   };
 
-  // Hayden 46 (21+25). Rows high→low; null = stagger gap. Same note push/pull.
-  const HAYDEN_46 = {
+  // Hayden RH excerpt (isomorphic): right = +P5, up = +M2. Sample around C5 area.
+  const HAYDEN_SAMPLE = {
     left: [
-      ["f'", "g'", "a'", "b'"],
-      ["bb", "c'", "d'", "e'", "f#'", "g#'"],
-      ["f", "g", "a", "b", "c#'", "d#'"],
-      ["c", "d", "e", "f#", "g#"],
+      ["bb", "f", "c'", "g'"],
+      ["c", "g", "d'", "a'"],
+      ["d", "a", "e'", "b'"],
     ],
     right: [
-      ["bb''", "c'''", "d'''"],
-      ["f''", "g''", "a''", "b''", "c#'''"],
-      ["bb'", "c''", "d''", "e''", "f#''", "g#''"],
-      ["f'", "g'", "a'", "b'", "c#''", "d#''"],
-      ["c'", "d'", "e'", "f#'", "g#'"],
+      ["bb'", "f'", "c''", "g''"],
+      ["c'", "g'", "d''", "a''"],
+      ["d'", "a'", "e''", "b''"],
     ],
   };
 
-  // Crane / Triumph 48 (20+28). 5 columns; thirds along the row.
-  const CRANE_48 = {
+  // Crane/Triumph RH excerpt (5 columns, logical thirds) — simplified sample
+  const CRANE_SAMPLE = {
     left: [
-      ["e'", "g'", "b'", "d''", "f#''"],
+      ["c", "e", "g", "b", "d'"],
+      ["d", "f", "a", "c'", "e'"],
+      ["e", "g", "b", "d'", "f#'"],
+    ],
+    right: [
+      ["c'", "e'", "g'", "b'", "d''"],
       ["d'", "f'", "a'", "c''", "e''"],
-      ["c'", "d'", "f'", "a'", "c''"],
-      ["c#", "e", "g", "b", "d'"],
-    ],
-    right: [
-      ["e''", "g''", "b''", "d'''", "f#'''"],
-      ["d''", "f''", "a''", "c'''", "e'''"],
-      ["c''", "d''", "f''", "a''", "c'''"],
-      ["c#'", "e'", "g'", "b'", "d''"],
-      ["f#'", "a'", "c''", "e''", "g''"],
-      ["g'", "b'", "d''"],
+      ["e'", "g'", "b'", "d''", "f#''"],
     ],
   };
 
@@ -1741,30 +1730,30 @@
     },
     {
       id: "english",
-      label: "English · 48键",
+      label: "English",
       kind: "uni",
       kindLabel: "推拉同音",
-      blurb: "同一键推拉同音。音阶左右手交替；内两列自然音、外两列变化音。",
+      blurb: "同一键推拉同音。音在左右手交替；示意片段，非整琴。适合英格兰民谣、读谱。",
       type: "uni",
-      sample: ENGLISH_48,
+      sample: ENGLISH_SAMPLE,
     },
     {
       id: "hayden",
-      label: "Hayden · 46键",
+      label: "Hayden Duet",
       kind: "uni",
       kindLabel: "推拉同音",
-      blurb: "现代 Duet：左低右高。同形指法（右移五度、上移大二度）。",
+      blurb: "现代 Duet：左低右高。同形指法（右移五度、上移大二度）。示意片段。",
       type: "uni",
-      sample: HAYDEN_46,
+      sample: HAYDEN_SAMPLE,
     },
     {
       id: "crane",
-      label: "Crane / Triumph · 48键",
+      label: "Crane / Triumph",
       kind: "uni",
       kindLabel: "推拉同音",
-      blurb: "经典 Duet（救世军称 Triumph）。左伴奏右旋律，五列、同行多按三度。",
+      blurb: "经典 Duet（救世军称 Triumph）。左伴奏右旋律，列向较规整。示意片段。",
       type: "uni",
-      sample: CRANE_48,
+      sample: CRANE_SAMPLE,
     },
   ];
 
@@ -1773,10 +1762,6 @@
     rows.forEach((row) => {
       html += '<div class="row">';
       row.forEach((note) => {
-        if (!note) {
-          html += '<div class="btn uni gap" aria-hidden="true"></div>';
-          return;
-        }
         const isMc = note === "c'";
         html +=
           '<div class="btn uni' +
@@ -1822,6 +1807,9 @@
       L.kind +
       '">' +
       escapeHtml(L.kindLabel) +
+      "</span>" +
+      '<span class="tag-pill">' +
+      escapeHtml(L.label) +
       "</span>";
 
     if (L.type === "anglo") {
@@ -1841,7 +1829,7 @@
       '<div class="card uni-board">' +
       "<h2>" +
       escapeHtml(L.label) +
-      "</h2>" +
+      "（示意）</h2>" +
       '<p class="diff">' +
       escapeHtml(L.blurb) +
       "</p>" +
@@ -1852,7 +1840,9 @@
       '<div><div class="side-label">右手 Right</div>' +
       renderUniSide(L.sample.right, mode) +
       "</div>" +
-      "</div></div>";
+      "</div>" +
+      '<p class="schematic-note">圆钮无红线 = 推拉同音。图为局部示意，键数/音域因琴而异；学琴请以厂家键位图为准。</p>' +
+      "</div>";
   }
 
   // —— Init boards ——
