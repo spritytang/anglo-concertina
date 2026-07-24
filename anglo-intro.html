@@ -625,7 +625,20 @@
     background: var(--accent);
     color: #fff;
   }
-  .card.uni-board {
+  .layout-play-group {
+    display: flex;
+    gap: 6px;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+  }
+  .layout-play-group .layout-play-btn {
+    padding: 6px 11px;
+    font-size: 0.78rem;
+  }
+  .card.uni-board,
+  #layoutAngloBoard {
     position: relative;
   }
   .card.uni-board .layout-play-btn {
@@ -1716,7 +1729,73 @@
 
   // —— Layout gallery ——
   const layoutState = { id: "wheatstone" };
-  const layoutScaleState = { playing: false, timer: null, step: 0 };
+  const layoutScaleState = {
+    playing: false,
+    timer: null,
+    step: 0,
+    mode: null, // "uni" | "octave" | "full"
+    steps: null,
+  };
+
+  // Anglo C major · one octave on RH home (mid) row — same on Wheatstone & Jeffries.
+  const ANGLO_OCTAVE = {
+    title: "C 大调 · 1 个八度",
+    tip: "右手中行：推拉走完一音阶。",
+    delay: 520,
+    noteDur: 0.42,
+    steps: [
+      { side: "R", row: "mid", col: 0, dir: "push", note: "c''" },
+      { side: "R", row: "mid", col: 1, dir: "pull", note: "d''" },
+      { side: "R", row: "mid", col: 1, dir: "push", note: "e''" },
+      { side: "R", row: "mid", col: 2, dir: "pull", note: "f''" },
+      { side: "R", row: "mid", col: 2, dir: "push", note: "g''" },
+      { side: "R", row: "mid", col: 3, dir: "pull", note: "a''" },
+      { side: "R", row: "mid", col: 4, dir: "pull", note: "b''" },
+      { side: "R", row: "mid", col: 3, dir: "push", note: "c'''" },
+    ],
+  };
+
+  function noteMidi(abc) {
+    const p = parseNote(abc);
+    if (!p.letter) return 0;
+    const base = { c: 0, d: 2, e: 4, f: 5, g: 7, a: 9, b: 11 }[p.letter];
+    let acc = 0;
+    if (p.acc === "#") acc = 1;
+    else if (p.acc === "bb") acc = -2;
+    else if (p.acc === "b") acc = -1;
+    return 48 + p.primes * 12 + base + acc;
+  }
+
+  // All push/pull halves on the layout, ascending by pitch (covers whole keyboard).
+  function buildAngloFullWalk(left, right) {
+    const steps = [];
+    collectEntries(left, right).forEach((e) => {
+      steps.push({
+        side: e.side,
+        row: e.row,
+        col: e.col,
+        dir: "push",
+        note: e.push,
+      });
+      steps.push({
+        side: e.side,
+        row: e.row,
+        col: e.col,
+        dir: "pull",
+        note: e.pull,
+      });
+    });
+    steps.sort((a, b) => {
+      const d = noteMidi(a.note) - noteMidi(b.note);
+      if (d !== 0) return d;
+      if (a.side !== b.side) return a.side === "L" ? -1 : 1;
+      const ri = ROW_KEYS.indexOf(a.row) - ROW_KEYS.indexOf(b.row);
+      if (ri !== 0) return ri;
+      if (a.col !== b.col) return a.col - b.col;
+      return a.dir === "push" ? -1 : 1;
+    });
+    return steps;
+  }
 
   // Unisonoric C-major walks (no push/pull). English alternates hands; Duets stay on RH.
   const UNI_SCALES = {
@@ -1929,12 +2008,32 @@
   }
 
   function syncLayoutPlayBtn() {
-    const btn = document.getElementById("layoutScalePlay");
-    if (!btn) return;
-    btn.classList.toggle("on", layoutScaleState.playing);
-    btn.textContent = layoutScaleState.playing
-      ? "■ 停止"
-      : "▶ 播放 · 走音阶";
+    const uniBtn = document.getElementById("layoutScalePlay");
+    if (uniBtn) {
+      uniBtn.classList.toggle("on", layoutScaleState.playing);
+      uniBtn.textContent = layoutScaleState.playing
+        ? "■ 停止"
+        : "▶ 播放 · 走音阶";
+    }
+    const octBtn = document.getElementById("layoutAngloPlayOctave");
+    const fullBtn = document.getElementById("layoutAngloPlayFull");
+    if (octBtn) {
+      const on = layoutScaleState.playing && layoutScaleState.mode === "octave";
+      octBtn.classList.toggle("on", on);
+      octBtn.textContent = on ? "■ 停止" : "▶ 八度";
+    }
+    if (fullBtn) {
+      const on = layoutScaleState.playing && layoutScaleState.mode === "full";
+      fullBtn.classList.toggle("on", on);
+      fullBtn.textContent = on ? "■ 停止" : "▶ 全键";
+    }
+  }
+
+  function layoutPlayBoard() {
+    return (
+      document.getElementById("layoutUniBoard") ||
+      document.getElementById("layoutAngloBoard")
+    );
   }
 
   function stopLayoutScalePlayback() {
@@ -1945,40 +2044,85 @@
     const wasPlaying = layoutScaleState.playing;
     layoutScaleState.playing = false;
     layoutScaleState.step = 0;
+    layoutScaleState.mode = null;
+    layoutScaleState.steps = null;
     syncLayoutPlayBtn();
     if (wasPlaying) {
-      const board = document.getElementById("layoutUniBoard");
+      const board = layoutPlayBoard();
       if (board) clearHighlight(board);
     }
   }
 
-  function playLayoutScaleFromStart() {
-    const scale = UNI_SCALES[layoutState.id];
-    if (!scale) return;
-    const board = document.getElementById("layoutUniBoard");
-    if (!board) return;
+  function runLayoutPlayback(opts) {
+    const board = layoutPlayBoard();
+    const steps = opts.steps;
+    if (!board || !steps || !steps.length) return;
     ensureAudio();
     layoutScaleState.step = 0;
     layoutScaleState.playing = true;
+    layoutScaleState.mode = opts.mode;
+    layoutScaleState.steps = steps;
     syncLayoutPlayBtn();
+
+    const delay = opts.delay || 520;
+    const noteDur = opts.noteDur || 0.42;
+    const isAnglo = opts.mode === "octave" || opts.mode === "full";
 
     function tick() {
       if (!layoutScaleState.playing) return;
-      const step = scale.steps[layoutScaleState.step];
-      if (step) playAbcNote(step.note, 0.42);
-      highlightUniScale(board, scale.steps, layoutScaleState.step);
-      if (layoutScaleState.step >= scale.steps.length - 1) {
+      const step = steps[layoutScaleState.step];
+      if (step) playAbcNote(step.note, noteDur);
+      if (isAnglo) {
+        highlightLesson(board, steps, layoutScaleState.step);
+      } else {
+        highlightUniScale(board, steps, layoutScaleState.step);
+      }
+      if (layoutScaleState.step >= steps.length - 1) {
         layoutScaleState.timer = setTimeout(() => {
           stopLayoutScalePlayback();
-        }, 450);
+        }, Math.min(450, delay));
         return;
       }
       layoutScaleState.timer = setTimeout(() => {
         layoutScaleState.step += 1;
         tick();
-      }, 520);
+      }, delay);
     }
     tick();
+  }
+
+  function playLayoutScaleFromStart() {
+    const scale = UNI_SCALES[layoutState.id];
+    if (!scale) return;
+    runLayoutPlayback({
+      mode: "uni",
+      steps: scale.steps,
+      delay: 520,
+      noteDur: 0.42,
+    });
+  }
+
+  function playAngloLayout(mode) {
+    const L = LAYOUTS.find((x) => x.id === layoutState.id);
+    if (!L || L.type !== "anglo") return;
+    const right = L.right === "jeffries" ? JEFFRIES_RIGHT : WHEATSTONE_RIGHT;
+    if (mode === "octave") {
+      runLayoutPlayback({
+        mode: "octave",
+        steps: ANGLO_OCTAVE.steps,
+        delay: ANGLO_OCTAVE.delay,
+        noteDur: ANGLO_OCTAVE.noteDur,
+      });
+      return;
+    }
+    if (mode === "full") {
+      runLayoutPlayback({
+        mode: "full",
+        steps: buildAngloFullWalk(LEFT, right),
+        delay: 300,
+        noteDur: 0.26,
+      });
+    }
   }
 
   function paintLayoutGallery() {
@@ -2018,7 +2162,8 @@
     if (L.type === "anglo") {
       const right = L.right === "jeffries" ? JEFFRIES_RIGHT : WHEATSTONE_RIGHT;
       view.innerHTML = '<div class="card" id="layoutAngloBoard"></div>';
-      renderBoard(document.getElementById("layoutAngloBoard"), LEFT, right, {
+      const board = document.getElementById("layoutAngloBoard");
+      renderBoard(board, LEFT, right, {
         title: L.label + " · C/G",
         kindLabel: L.kindLabel,
         kind: L.kind,
@@ -2026,6 +2171,48 @@
         showBellowsLegend: true,
         mode: mode,
       });
+      board.insertAdjacentHTML(
+        "afterbegin",
+        '<div class="layout-play-group">' +
+          '<button type="button" id="layoutAngloPlayOctave" class="layout-play-btn">▶ 八度</button>' +
+          '<button type="button" id="layoutAngloPlayFull" class="layout-play-btn">▶ 全键</button>' +
+          "</div>"
+      );
+      const tipAnchor =
+        board.querySelector("p.diff") || board.querySelector("h2");
+      if (tipAnchor) {
+        tipAnchor.insertAdjacentHTML(
+          "afterend",
+          '<p class="layout-scale-tip">' +
+            escapeHtml(ANGLO_OCTAVE.title) +
+            " · " +
+            escapeHtml(ANGLO_OCTAVE.tip) +
+            " · 全键更快走完所有推/拉。</p>"
+        );
+      }
+      syncLayoutPlayBtn();
+      const octBtn = document.getElementById("layoutAngloPlayOctave");
+      const fullBtn = document.getElementById("layoutAngloPlayFull");
+      if (octBtn) {
+        octBtn.addEventListener("click", () => {
+          if (layoutScaleState.playing && layoutScaleState.mode === "octave") {
+            stopLayoutScalePlayback();
+            return;
+          }
+          if (layoutScaleState.playing) stopLayoutScalePlayback();
+          playAngloLayout("octave");
+        });
+      }
+      if (fullBtn) {
+        fullBtn.addEventListener("click", () => {
+          if (layoutScaleState.playing && layoutScaleState.mode === "full") {
+            stopLayoutScalePlayback();
+            return;
+          }
+          if (layoutScaleState.playing) stopLayoutScalePlayback();
+          playAngloLayout("full");
+        });
+      }
       return;
     }
 
