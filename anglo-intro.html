@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>30键 Anglo · 入门交互学习</title>
+<title>30键 Anglo · 入门学习</title>
 <style>
   :root {
     --ink: #1a1a1a;
@@ -584,6 +584,17 @@
     gap: 8px;
     margin-bottom: 12px;
   }
+  .layout-meta:empty { display: none; margin: 0; }
+  .card .layout-kind {
+    display: flex;
+    justify-content: center;
+    margin: 0 0 8px;
+  }
+  .card .bellows-legend {
+    display: flex;
+    justify-content: center;
+    margin: 0 0 12px;
+  }
   .tag-pill {
     display: inline-flex;
     align-items: center;
@@ -598,6 +609,28 @@
   }
   .tag-pill.bi { border-color: var(--opp); color: var(--opp); background: var(--opp-bg); }
   .tag-pill.uni { border-color: var(--same); color: var(--same); background: var(--same-bg); }
+
+  .layout-play-btn {
+    border: 1.5px solid var(--accent);
+    border-radius: 999px;
+    background: #fff;
+    padding: 6px 14px;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--accent);
+  }
+  .layout-play-btn.on {
+    background: var(--accent);
+    color: #fff;
+  }
+  .layout-scale-tip {
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin: 0 0 10px;
+  }
 
   .uni-board .btn.uni {
     display: flex;
@@ -632,7 +665,7 @@
 <body>
   <button type="button" class="global-toggle" id="globalNotationToggle" aria-label="切换记谱方式">123</button>
 
-  <h1>30键 Anglo · 入门交互学习</h1>
+  <h1>30键 Anglo · 入门学习</h1>
 
   <div class="tab-bar" role="tablist">
     <button type="button" class="on" data-panel="duplicates" role="tab" aria-selected="true">重复音</button>
@@ -930,15 +963,30 @@
     const interactive = !!opts.interactive;
     const title = opts.title || "";
     const subtitle = opts.subtitle || "";
+    const kindLabel = opts.kindLabel || "";
+    const kind = opts.kind || "";
     const showMc = opts.showMc !== false;
     const focusSide = opts.focusSide || null;
+    const showBellowsLegend = !!opts.showBellowsLegend;
 
     const entries = collectEntries(left, right);
     const index = buildIndex(entries);
 
     let html = "";
     if (title) html += "<h2>" + escapeHtml(title) + "</h2>";
-    if (subtitle) html += '<p class="diff">' + subtitle + "</p>";
+    if (kindLabel) {
+      html +=
+        '<div class="layout-kind"><span class="tag-pill' +
+        (kind ? " " + kind : "") +
+        '">' +
+        escapeHtml(kindLabel) +
+        "</span></div>";
+    }
+    if (subtitle) html += '<p class="diff">' + escapeHtml(subtitle) + "</p>";
+    if (showBellowsLegend) {
+      html +=
+        '<div class="bellows-legend"><div class="legend-btn"><span>推</span><span>拉</span></div></div>';
+    }
     html +=
       '<div class="sides' +
       (interactive ? " interactive" : "") +
@@ -1659,6 +1707,53 @@
 
   // —— Layout gallery ——
   const layoutState = { id: "wheatstone" };
+  const layoutScaleState = { playing: false, timer: null, step: 0 };
+
+  // Unisonoric C-major walks (no push/pull). English alternates hands; Duets stay on RH.
+  const UNI_SCALES = {
+    english: {
+      title: "C 大调 · 左右手交替",
+      tip: "English：自然音在内两列，音阶左右手交替。",
+      steps: [
+        { side: "L", row: 4, col: 1, note: "c'" },
+        { side: "R", row: 5, col: 1, note: "d'" },
+        { side: "L", row: 4, col: 2, note: "e'" },
+        { side: "R", row: 5, col: 2, note: "f'" },
+        { side: "L", row: 3, col: 1, note: "g'" },
+        { side: "R", row: 4, col: 1, note: "a'" },
+        { side: "L", row: 3, col: 2, note: "b'" },
+        { side: "R", row: 4, col: 2, note: "c''" },
+      ],
+    },
+    hayden: {
+      title: "C 大调 · 右手",
+      tip: "Hayden：右移五度、上移大二度；C 调从右手底行起。",
+      steps: [
+        { side: "R", row: 4, col: 0, note: "c'" },
+        { side: "R", row: 4, col: 1, note: "d'" },
+        { side: "R", row: 4, col: 2, note: "e'" },
+        { side: "R", row: 3, col: 0, note: "f'" },
+        { side: "R", row: 3, col: 1, note: "g'" },
+        { side: "R", row: 3, col: 2, note: "a'" },
+        { side: "R", row: 3, col: 3, note: "b'" },
+        { side: "R", row: 2, col: 1, note: "c''" },
+      ],
+    },
+    crane: {
+      title: "C 大调 · 右手（c''）",
+      tip: "Crane：旋律在右手；沿两行锯齿走上八度。",
+      steps: [
+        { side: "R", row: 2, col: 0, note: "c''" },
+        { side: "R", row: 1, col: 0, note: "d''" },
+        { side: "R", row: 0, col: 0, note: "e''" },
+        { side: "R", row: 1, col: 1, note: "f''" },
+        { side: "R", row: 0, col: 1, note: "g''" },
+        { side: "R", row: 1, col: 2, note: "a''" },
+        { side: "R", row: 0, col: 2, note: "b''" },
+        { side: "R", row: 1, col: 3, note: "c'''" },
+      ],
+    },
+  };
 
   // English 48 treble (24+24). Rows high→low; cols: accidental | natural | natural | accidental.
   // Pattern from Wheatstone/Gaskins: L has G# G B Bb / C# C E Eb bands; R has Ab A C C# / D# D F F#.
@@ -1765,19 +1860,24 @@
     },
   ];
 
-  function renderUniSide(rows, mode) {
+  function renderUniSide(rows, mode, side) {
     let html = "";
-    rows.forEach((row) => {
+    rows.forEach((row, ri) => {
       html += '<div class="row">';
-      row.forEach((note) => {
+      row.forEach((note, ci) => {
         if (!note) {
           html += '<div class="btn uni gap" aria-hidden="true"></div>';
           return;
         }
+        const id = side + "-" + ri + "-" + ci;
         const isMc = note === "c'";
         html +=
           '<div class="btn uni' +
           (isMc ? " mc-ring" : "") +
+          '" data-btn="' +
+          id +
+          '" data-note="' +
+          note +
           '"><div class="half">' +
           formatNote(note, mode) +
           "</div></div>";
@@ -1785,6 +1885,91 @@
       html += "</div>";
     });
     return html;
+  }
+
+  function uniStepId(step) {
+    return step.side + "-" + step.row + "-" + step.col;
+  }
+
+  function highlightUniScale(container, steps, currentIndex) {
+    clearHighlight(container);
+    if (!container || !steps) return;
+    const involved = new Set(steps.map(uniStepId));
+    container.querySelectorAll(".btn.uni:not(.gap)").forEach((b) => {
+      const id = b.getAttribute("data-btn");
+      if (!involved.has(id)) b.classList.add("dim");
+    });
+    steps.forEach((step, i) => {
+      const btn = container.querySelector(
+        '.btn[data-btn="' + uniStepId(step) + '"]'
+      );
+      if (!btn) return;
+      const half = btn.querySelector(".half");
+      if (i === currentIndex) {
+        btn.classList.add("hl-step");
+        if (half) half.classList.add("mark-step");
+        const badge = document.createElement("span");
+        badge.className = "step-badge";
+        badge.textContent = String(i + 1);
+        btn.appendChild(badge);
+      } else if (i < currentIndex) {
+        btn.classList.add("hl-path");
+        if (half) half.classList.add("mark-path");
+      }
+    });
+  }
+
+  function syncLayoutPlayBtn() {
+    const btn = document.getElementById("layoutScalePlay");
+    if (!btn) return;
+    btn.classList.toggle("on", layoutScaleState.playing);
+    btn.textContent = layoutScaleState.playing
+      ? "■ 停止"
+      : "▶ 播放 · 走音阶";
+  }
+
+  function stopLayoutScalePlayback() {
+    if (layoutScaleState.timer) {
+      clearTimeout(layoutScaleState.timer);
+      layoutScaleState.timer = null;
+    }
+    const wasPlaying = layoutScaleState.playing;
+    layoutScaleState.playing = false;
+    layoutScaleState.step = 0;
+    syncLayoutPlayBtn();
+    if (wasPlaying) {
+      const board = document.getElementById("layoutUniBoard");
+      if (board) clearHighlight(board);
+    }
+  }
+
+  function playLayoutScaleFromStart() {
+    const scale = UNI_SCALES[layoutState.id];
+    if (!scale) return;
+    const board = document.getElementById("layoutUniBoard");
+    if (!board) return;
+    ensureAudio();
+    layoutScaleState.step = 0;
+    layoutScaleState.playing = true;
+    syncLayoutPlayBtn();
+
+    function tick() {
+      if (!layoutScaleState.playing) return;
+      const step = scale.steps[layoutScaleState.step];
+      if (step) playAbcNote(step.note, 0.42);
+      highlightUniScale(board, scale.steps, layoutScaleState.step);
+      if (layoutScaleState.step >= scale.steps.length - 1) {
+        layoutScaleState.timer = setTimeout(() => {
+          stopLayoutScalePlayback();
+        }, 450);
+        return;
+      }
+      layoutScaleState.timer = setTimeout(() => {
+        layoutScaleState.step += 1;
+        tick();
+      }, 520);
+    }
+    tick();
   }
 
   function paintLayoutGallery() {
@@ -1808,46 +1993,75 @@
 
     picker.querySelectorAll("button").forEach((btn) => {
       btn.addEventListener("click", () => {
-        layoutState.id = btn.getAttribute("data-layout");
+        const next = btn.getAttribute("data-layout");
+        if (next === layoutState.id) return;
+        stopLayoutScalePlayback();
+        layoutState.id = next;
         paintLayoutGallery();
       });
     });
 
     const L = LAYOUTS.find((x) => x.id === layoutState.id) || LAYOUTS[0];
+    const uniScale = L.type === "uni" ? UNI_SCALES[L.id] : null;
     meta.innerHTML =
-      '<span class="tag-pill ' +
-      L.kind +
-      '">' +
-      escapeHtml(L.kindLabel) +
-      "</span>";
+      L.type === "uni"
+        ? '<span class="tag-pill ' +
+          L.kind +
+          '">' +
+          escapeHtml(L.kindLabel) +
+          "</span>" +
+          (uniScale
+            ? '<button type="button" id="layoutScalePlay" class="layout-play-btn">▶ 播放 · 走音阶</button>'
+            : "")
+        : "";
+
+    const playBtn = document.getElementById("layoutScalePlay");
+    if (playBtn) {
+      syncLayoutPlayBtn();
+      playBtn.addEventListener("click", () => {
+        if (layoutScaleState.playing) {
+          stopLayoutScalePlayback();
+          return;
+        }
+        playLayoutScaleFromStart();
+      });
+    }
 
     if (L.type === "anglo") {
       const right = L.right === "jeffries" ? JEFFRIES_RIGHT : WHEATSTONE_RIGHT;
-      view.innerHTML =
-        '<div class="legend"><div class="legend-btn"><span>推</span><span>拉</span></div><div>' +
-        escapeHtml(L.blurb) +
-        "</div></div><div class=\"card\" id=\"layoutAngloBoard\"></div>";
+      view.innerHTML = '<div class="card" id="layoutAngloBoard"></div>';
       renderBoard(document.getElementById("layoutAngloBoard"), LEFT, right, {
         title: L.label + " · C/G",
+        kindLabel: L.kindLabel,
+        kind: L.kind,
+        subtitle: L.blurb,
+        showBellowsLegend: true,
         mode: mode,
       });
       return;
     }
 
     view.innerHTML =
-      '<div class="card uni-board">' +
+      '<div class="card uni-board" id="layoutUniBoard">' +
       "<h2>" +
       escapeHtml(L.label) +
       "</h2>" +
       '<p class="diff">' +
       escapeHtml(L.blurb) +
       "</p>" +
+      (uniScale
+        ? '<p class="layout-scale-tip">' +
+          escapeHtml(uniScale.title) +
+          " · " +
+          escapeHtml(uniScale.tip) +
+          "</p>"
+        : "") +
       '<div class="side-stack">' +
       '<div><div class="side-label">左手 Left</div>' +
-      renderUniSide(L.sample.left, mode) +
+      renderUniSide(L.sample.left, mode, "L") +
       "</div>" +
       '<div><div class="side-label">右手 Right</div>' +
-      renderUniSide(L.sample.right, mode) +
+      renderUniSide(L.sample.right, mode, "R") +
       "</div>" +
       "</div></div>";
   }
@@ -1925,6 +2139,7 @@
   document.querySelectorAll(".tab-bar button").forEach((btn) => {
     btn.addEventListener("click", () => {
       stopScalePlayback();
+      stopLayoutScalePlayback();
       const name = btn.getAttribute("data-panel");
       document.querySelectorAll(".panel").forEach((p) => {
         p.classList.toggle("active", p.getAttribute("data-panel") === name);
@@ -1939,6 +2154,7 @@
 
   document.getElementById("globalNotationToggle").addEventListener("click", () => {
     stopScalePlayback();
+    stopLayoutScalePlayback();
     notationMode.current = notationMode.current === "abc" ? "jianpu" : "abc";
     paintAll();
   });
