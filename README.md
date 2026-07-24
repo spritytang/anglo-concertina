@@ -4,9 +4,7 @@ Interactive Anglo concertina (C/G) button layout and jianpu learning page.
 
 ## Live site
 
-After GitHub Pages is enabled, open:
-
-`https://<username>.github.io/anglo-concertina/`
+https://spritytang.github.io/anglo-concertina/
 
 ## Local
 
