@@ -2012,14 +2012,8 @@
 
     const L = LAYOUTS.find((x) => x.id === layoutState.id) || LAYOUTS[0];
     const uniScale = L.type === "uni" ? UNI_SCALES[L.id] : null;
-    meta.innerHTML =
-      L.type === "uni"
-        ? '<span class="tag-pill ' +
-          L.kind +
-          '">' +
-          escapeHtml(L.kindLabel) +
-          "</span>"
-        : "";
+    // Kind pill / blurb / legend live inside the card — never in layoutMeta.
+    meta.innerHTML = "";
 
     if (L.type === "anglo") {
       const right = L.right === "jeffries" ? JEFFRIES_RIGHT : WHEATSTONE_RIGHT;
@@ -2043,6 +2037,11 @@
       "<h2>" +
       escapeHtml(L.label) +
       "</h2>" +
+      '<div class="layout-kind"><span class="tag-pill ' +
+      L.kind +
+      '">' +
+      escapeHtml(L.kindLabel) +
+      "</span></div>" +
       '<p class="diff">' +
       escapeHtml(L.blurb) +
       "</p>" +
