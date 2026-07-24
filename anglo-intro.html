@@ -625,6 +625,15 @@
     background: var(--accent);
     color: #fff;
   }
+  .card.uni-board {
+    position: relative;
+  }
+  .card.uni-board .layout-play-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+  }
   .layout-scale-tip {
     text-align: center;
     font-size: 0.78rem;
@@ -668,14 +677,14 @@
   <h1>30键 Anglo · 入门学习</h1>
 
   <div class="tab-bar" role="tablist">
-    <button type="button" class="on" data-panel="duplicates" role="tab" aria-selected="true">重复音</button>
+    <button type="button" class="on" data-panel="compare" role="tab" aria-selected="true">常见布局</button>
+    <button type="button" data-panel="duplicates" role="tab" aria-selected="false">重复音</button>
     <button type="button" data-panel="scales" role="tab" aria-selected="false">右手走音</button>
     <button type="button" data-panel="chords" role="tab" aria-selected="false">左手和弦</button>
-    <button type="button" data-panel="compare" role="tab" aria-selected="false">布局对照</button>
   </div>
 
   <!-- ========== TAB: Duplicates ========== -->
-  <section class="panel active" id="panel-duplicates" data-panel="duplicates">
+  <section class="panel" id="panel-duplicates" data-panel="duplicates">
     <div class="card prose">
       <p style="margin:0 0 8px"><strong>重复音不是浪费。</strong>推的时候只能出「推」侧的音，拉同理。一句若一直在推，而所需音<strong>只有拉</strong>，就得倒风箱，气和节奏会断一下。</p>
       <ul style="margin:0 0 8px">
@@ -738,8 +747,8 @@
     <div class="card" id="chordBoard"></div>
   </section>
 
-  <!-- ========== TAB: Layout compare (last) ========== -->
-  <section class="panel" id="panel-compare" data-panel="compare">
+  <!-- ========== TAB: Common layouts (first) ========== -->
+  <section class="panel active" id="panel-compare" data-panel="compare">
     <div class="card prose">
       <p style="margin:0">常见六角琴家族。你的 Wren 2 是 <strong>Anglo · Wheatstone</strong>（推拉异音）。English / Duet 是<strong>推拉同音</strong>。</p>
     </div>
@@ -2009,23 +2018,8 @@
           L.kind +
           '">' +
           escapeHtml(L.kindLabel) +
-          "</span>" +
-          (uniScale
-            ? '<button type="button" id="layoutScalePlay" class="layout-play-btn">▶ 播放 · 走音阶</button>'
-            : "")
+          "</span>"
         : "";
-
-    const playBtn = document.getElementById("layoutScalePlay");
-    if (playBtn) {
-      syncLayoutPlayBtn();
-      playBtn.addEventListener("click", () => {
-        if (layoutScaleState.playing) {
-          stopLayoutScalePlayback();
-          return;
-        }
-        playLayoutScaleFromStart();
-      });
-    }
 
     if (L.type === "anglo") {
       const right = L.right === "jeffries" ? JEFFRIES_RIGHT : WHEATSTONE_RIGHT;
@@ -2043,6 +2037,9 @@
 
     view.innerHTML =
       '<div class="card uni-board" id="layoutUniBoard">' +
+      (uniScale
+        ? '<button type="button" id="layoutScalePlay" class="layout-play-btn">▶ 播放 · 走音阶</button>'
+        : "") +
       "<h2>" +
       escapeHtml(L.label) +
       "</h2>" +
@@ -2064,6 +2061,18 @@
       renderUniSide(L.sample.right, mode, "R") +
       "</div>" +
       "</div></div>";
+
+    const playBtn = document.getElementById("layoutScalePlay");
+    if (playBtn) {
+      syncLayoutPlayBtn();
+      playBtn.addEventListener("click", () => {
+        if (layoutScaleState.playing) {
+          stopLayoutScalePlayback();
+          return;
+        }
+        playLayoutScaleFromStart();
+      });
+    }
   }
 
   // —— Init boards ——

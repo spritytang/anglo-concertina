@@ -1,4 +1,4 @@
-# 30键 Anglo · 入门交互学习
+# 30键 Anglo · 入门学习
 
 Interactive Anglo concertina (C/G) layout compare, notation toggle, and duplicate-note explorer.
 
