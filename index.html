@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>30键 Anglo Concertina · 入门学习</title>
+<title>Anglo Concertina · 入门学习</title>
 <style>
   :root {
     --ink: #1a1a1a;
@@ -227,6 +227,32 @@
   .prose p { margin: 0 0 10px; }
   .prose ul { margin: 0 0 10px; padding-left: 1.2em; }
   .prose li { margin-bottom: 6px; }
+  .prose p:last-child,
+  .prose ul:last-child { margin-bottom: 0; }
+  .prose .key-compare {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+    margin: 0;
+  }
+  .prose .key-compare th,
+  .prose .key-compare td {
+    border-bottom: 1px solid var(--border);
+    padding: 7px 8px;
+    text-align: left;
+    vertical-align: top;
+  }
+  .prose .key-compare th {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+  .prose .key-compare td:first-child {
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--accent);
+  }
 
   .toolbar {
     display: flex;
@@ -399,6 +425,18 @@
   .btn.mc-ring.hl-same { box-shadow: 0 0 0 3px #e6b422, 0 0 0 6px var(--same); }
   .btn.mc-ring.hl-opp { box-shadow: 0 0 0 3px #e6b422, 0 0 0 6px var(--opp); }
   .btn.mc-ring.hl-active { box-shadow: 0 0 0 3px #e6b422, 0 0 0 6px var(--active); }
+  /* C/G home-row anchors（右手中①推 C / 底①推 G） */
+  .btn.cg-ring {
+    box-shadow: 0 0 0 3px #3a7d6e;
+    overflow: hidden;
+    z-index: 1;
+  }
+  .btn.cg-ring .half.push {
+    background: rgba(58, 125, 110, 0.2);
+  }
+  .btn.cg-ring.hl-same { box-shadow: 0 0 0 3px #3a7d6e, 0 0 0 6px var(--same); }
+  .btn.cg-ring.hl-opp { box-shadow: 0 0 0 3px #3a7d6e, 0 0 0 6px var(--opp); }
+  .btn.cg-ring.hl-active { box-shadow: 0 0 0 3px #3a7d6e, 0 0 0 6px var(--active); }
 
   .half {
     flex: 1;
@@ -803,7 +841,8 @@
   .btn.hl-step .half.pull {
     border-radius: 0 0 999px 999px;
   }
-  .btn.hl-step.mc-ring {
+  .btn.hl-step.mc-ring,
+  .btn.hl-step.cg-ring {
     overflow: visible;
     z-index: 8;
     background: transparent;
@@ -1127,7 +1166,7 @@
 
   <div class="app-shell">
     <aside class="sidebar" id="sidebar" aria-label="导航">
-      <div class="sidebar-brand">30键 Anglo Concertina<span>入门学习</span></div>
+      <div class="sidebar-brand">Anglo Concertina<span>入门学习</span></div>
       <nav class="side-nav" role="tablist" aria-orientation="vertical">
         <div class="nav-group">
           <div class="nav-label">认识琴</div>
@@ -1155,7 +1194,7 @@
     <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
 
     <main class="main">
-  <h1>30键 Anglo Concertina · 入门学习</h1>
+  <h1>Anglo Concertina · 入门学习</h1>
 
 
   <!-- ========== TAB: Rhythm ========== -->
@@ -1236,6 +1275,21 @@
     <div class="layout-picker" id="layoutPicker" role="tablist" aria-label="选择布局"></div>
     <div class="layout-meta" id="layoutMeta"></div>
     <div id="layoutView"></div>
+    <section class="card prose" id="layoutKeyCompare" aria-label="各布局调性">
+      <p><strong>C/G 不是「音程限制」</strong>，而是 Anglo 的 <strong>home-row keys</strong>：中行按 C 大调排、底行按 G 大调排。推/拉是两个不同音。Irish/Folk 里围着 C、G、Am、D 等调很顺；别的调也能弹，但更依赖顶行变化音和跨行。</p>
+      <p>另外三种<strong>没有 C/G home rows</strong>，各调更平等，但仍有弱偏好：</p>
+      <table class="key-compare">
+        <thead>
+          <tr><th>布局</th><th>更顺的调？</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Anglo C/G</td><td>home keys 很明显：C / G（及相关调）。Wheatstone 与 Jeffries 同构，主要差顶行。</td></tr>
+          <tr><td>English</td><td>少升降号更顺（自然音在内列）；升/降号多的调要多摸外侧。</td></tr>
+          <tr><td>Hayden</td><td>指法形状各调一样（平移换调）；限制多在音域够不够。</td></tr>
+          <tr><td>Crane</td><td>有规律但不完全同形；中间音区、常见调更舒服。</td></tr>
+        </tbody>
+      </table>
+    </section>
   </section>
 
 
@@ -1412,14 +1466,14 @@
       { push: "a'''", pull: "d''''" },
     ],
     mid: [
-      { push: "c''", pull: "b'" },
+      { push: "c''", pull: "b'", cg: true },
       { push: "e''", pull: "d''" },
       { push: "g''", pull: "f''" },
       { push: "c'''", pull: "a''" },
       { push: "e'''", pull: "b''" },
     ],
     bot: [
-      { push: "g''", pull: "f#''" },
+      { push: "g''", pull: "f#''", cg: true },
       { push: "b''", pull: "a''" },
       { push: "d'''", pull: "c'''" },
       { push: "g'''", pull: "e'''" },
@@ -1436,14 +1490,14 @@
       { push: "a'''", pull: "f'''" },
     ],
     mid: [
-      { push: "c''", pull: "b'" },
+      { push: "c''", pull: "b'", cg: true },
       { push: "e''", pull: "d''" },
       { push: "g''", pull: "f''" },
       { push: "c'''", pull: "a''" },
       { push: "e'''", pull: "b''" },
     ],
     bot: [
-      { push: "g''", pull: "f#''" },
+      { push: "g''", pull: "f#''", cg: true },
       { push: "b''", pull: "a''" },
       { push: "d'''", pull: "c'''" },
       { push: "g'''", pull: "e'''" },
@@ -1596,6 +1650,7 @@
     const kindLabel = opts.kindLabel || "";
     const kind = opts.kind || "";
     const showMc = opts.showMc !== false;
+    const showCg = !!opts.showCg;
     const focusSide = opts.focusSide || null;
     const hideOtherSide = !!opts.hideOtherSide;
     const showBellowsLegend = !!opts.showBellowsLegend;
@@ -1646,8 +1701,10 @@
         rows[rk].forEach((btn, i) => {
           const id = side + "-" + rk + "-" + i;
           const mc = showMc && btn.mc;
+          const cg = showCg && btn.cg;
           const classes = ["btn"];
           if (mc) classes.push("mc-ring");
+          if (cg) classes.push("cg-ring");
           html +=
             '<div class="' +
             classes.join(" ") +
@@ -5663,6 +5720,7 @@
         kind: L.kind,
         subtitle: L.blurb,
         showBellowsLegend: true,
+        showCg: true,
         mode: mode,
       });
       board.insertAdjacentHTML("afterbegin", playGroupHtml);
