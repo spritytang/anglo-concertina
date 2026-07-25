@@ -85,6 +85,22 @@
     flex-direction: column;
     gap: 6px;
   }
+  .side-nav .nav-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 10px;
+  }
+  .side-nav .nav-group:first-child { margin-top: 0; }
+  .side-nav .nav-label {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0.85;
+    padding: 4px 10px 2px;
+  }
   .side-nav button {
     border: 1.5px solid transparent;
     border-radius: 10px;
@@ -547,6 +563,11 @@
     background: var(--accent);
     color: #fff;
   }
+  .lesson-controls .nav-btns button.on:not(.play-btn) {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
   .step-rail {
     display: flex;
     flex-wrap: wrap;
@@ -554,12 +575,42 @@
     gap: 6px;
     margin: 0 0 12px;
   }
+  .dir-legend {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin: 0 0 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .dir-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dir-legend i {
+    display: inline-block;
+    width: 1.05rem;
+    height: 1.05rem;
+    border-radius: 6px;
+    border: 1.5px solid;
+  }
+  .dir-legend .push i {
+    border-color: var(--accent);
+    background: rgba(47, 93, 80, 0.16);
+  }
+  .dir-legend .pull i {
+    border-color: var(--opp);
+    background: rgba(196, 92, 38, 0.16);
+  }
   .step-rail .step {
     display: inline-flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-width: 2.6rem;
+    gap: 2px;
+    min-width: 2.4rem;
     padding: 5px 8px;
     border-radius: 10px;
     border: 1.5px solid var(--border);
@@ -567,25 +618,51 @@
     font-size: 0.72rem;
     font-weight: 700;
     cursor: pointer;
-    line-height: 1.2;
-    color: var(--muted);
+    line-height: 1.15;
+    color: var(--ink);
   }
-  .step-rail .step .dir {
-    font-size: 0.62rem;
+  .step-rail .step .ly {
+    font-size: 0.68rem;
+    font-weight: 700;
+  }
+  .step-rail .step .ly.fill {
+    opacity: 0.4;
     font-weight: 800;
   }
-  .step-rail .step.push .dir { color: var(--accent); }
-  .step-rail .step.pull .dir { color: var(--opp); }
+  .step-rail .step .pitch {
+    font-size: 0.78rem;
+    font-weight: 800;
+    font-family: "SF Mono", "Menlo", "Consolas", "PingFang SC", monospace;
+  }
+  /* 推/拉：描边 + 底色（不写文字）；宽窄表节奏长短 */
+  .step-rail .step.push {
+    border-color: var(--accent);
+    background: rgba(47, 93, 80, 0.12);
+  }
+  .step-rail .step.pull {
+    border-color: var(--opp);
+    background: rgba(196, 92, 38, 0.12);
+  }
+  .step-rail .step.beats-05 { min-width: 1.65rem; padding-left: 5px; padding-right: 5px; }
+  .step-rail .step.beats-15 { min-width: 3.3rem; }
+  .step-rail .step.beats-2 { min-width: 4.4rem; }
+  .step-rail .step.beats-3 { min-width: 5.6rem; }
   .step-rail .step.on {
     border-color: var(--active);
     background: var(--active-bg);
     color: var(--ink);
     box-shadow: 0 0 0 2px rgba(61, 90, 128, 0.25);
   }
-  .step-rail .step.done {
+  .step-rail .step.done.push {
     border-color: var(--same);
     background: var(--same-bg);
     color: var(--same);
+  }
+  .step-rail .step.done.pull {
+    border-color: var(--opp);
+    background: rgba(196, 92, 38, 0.1);
+    color: var(--opp);
+    opacity: 0.85;
   }
   .chord-grid {
     display: grid;
@@ -645,14 +722,31 @@
   .btn.hl-step .half.pull {
     border-radius: 0 0 999px 999px;
   }
-  .btn.hl-step.mc-ring,
-  .uni-board .btn.uni.hl-step {
+  .btn.hl-step.mc-ring {
     overflow: visible;
     z-index: 8;
     background: transparent;
   }
-  .uni-board .btn.uni.hl-step .half {
-    border-radius: 50%;
+  /* 推拉同音：整圆填色（裁在圆内），序号收进圈内以免再开 overflow */
+  .uni-board .btn.uni.hl-step,
+  .uni-board .btn.uni.hl-path {
+    overflow: hidden;
+    isolation: auto;
+    z-index: 8;
+  }
+  .uni-board .btn.uni.hl-step {
+    background: var(--active-bg);
+  }
+  .uni-board .btn.uni.hl-path {
+    background: var(--same-bg);
+  }
+  .uni-board .btn.uni.hl-step .half.mark-step,
+  .uni-board .btn.uni.hl-path .half.mark-path {
+    background: transparent;
+  }
+  .uni-board .btn.uni.hl-step .step-badge {
+    top: 2px;
+    right: 2px;
   }
   .btn.hl-path {
     box-shadow: 0 0 0 2px var(--same);
@@ -806,7 +900,11 @@
   .uni-board .btn.uni::after { display: none; }
   .uni-board .btn.uni .half {
     border: 0 !important;
-    flex: none;
+    flex: 1 1 auto;
+    align-self: stretch;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
   }
   .side-stack {
     display: grid;
@@ -826,11 +924,25 @@
     <aside class="sidebar" id="sidebar" aria-label="导航">
       <div class="sidebar-brand">30键 Anglo<span>入门学习</span></div>
       <nav class="side-nav" role="tablist" aria-orientation="vertical">
-        <button type="button" class="on" data-panel="compare" role="tab" aria-selected="true" aria-controls="panel-compare">常见布局</button>
-        <button type="button" data-panel="duplicates" role="tab" aria-selected="false" aria-controls="panel-duplicates">重复音</button>
-        <button type="button" data-panel="scales" role="tab" aria-selected="false" aria-controls="panel-scales">右手走音</button>
-        <button type="button" data-panel="chords" role="tab" aria-selected="false" aria-controls="panel-chords">左手和弦</button>
-        <button type="button" data-panel="flyme" role="tab" aria-selected="false" aria-controls="panel-flyme">Fly Me</button>
+        <div class="nav-group">
+          <div class="nav-label">认识琴</div>
+          <button type="button" class="on" data-panel="compare" role="tab" aria-selected="true" aria-controls="panel-compare">常见布局</button>
+          <button type="button" data-panel="duplicates" role="tab" aria-selected="false" aria-controls="panel-duplicates">重复音</button>
+        </div>
+        <div class="nav-group">
+          <div class="nav-label">技巧</div>
+          <button type="button" data-panel="scales" role="tab" aria-selected="false" aria-controls="panel-scales">右手走音</button>
+          <button type="button" data-panel="bellows" role="tab" aria-selected="false" aria-controls="panel-bellows">推拉换向</button>
+          <button type="button" data-panel="crossrow" role="tab" aria-selected="false" aria-controls="panel-crossrow">跨行换指</button>
+          <button type="button" data-panel="chords" role="tab" aria-selected="false" aria-controls="panel-chords">左手和弦</button>
+          <button type="button" data-panel="progress" role="tab" aria-selected="false" aria-controls="panel-progress">左手进行</button>
+          <button type="button" data-panel="rhythm" role="tab" aria-selected="false" aria-controls="panel-rhythm">节奏伴奏</button>
+        </div>
+        <div class="nav-group">
+          <div class="nav-label">曲目</div>
+          <button type="button" data-panel="tunes" role="tab" aria-selected="false" aria-controls="panel-tunes">短曲入门</button>
+          <button type="button" data-panel="flyme" role="tab" aria-selected="false" aria-controls="panel-flyme">Fly Me</button>
+        </div>
       </nav>
       <button type="button" class="sidebar-close" id="navClose">关闭目录</button>
     </aside>
@@ -838,6 +950,28 @@
 
     <main class="main">
   <h1>30键 Anglo · 入门学习</h1>
+
+
+  <!-- ========== TAB: Rhythm ========== -->
+  <section class="panel" id="panel-rhythm" data-panel="rhythm" role="tabpanel">
+    <div class="card prose">
+      <p>左手伴奏不止 oom-pah：先<strong>根音</strong>再<strong>三和弦</strong>，也可练 3/4、切分（先和弦后根音）、以及走音根音。每一步高亮该按的键；可循环。</p>
+    </div>
+    <div class="lesson-controls">
+      <div class="seg" id="rhythmSeg" role="group" aria-label="节奏型"></div>
+      <div class="nav-btns">
+        <button type="button" id="rhythmPrev">上一步</button>
+        <button type="button" id="rhythmNext">下一步</button>
+        <button type="button" id="rhythmReset">重来</button>
+        <button type="button" id="rhythmPlay" class="play-btn">▶ 播放</button>
+        <button type="button" id="rhythmLoop" aria-pressed="false">循环</button>
+      </div>
+    </div>
+    <div class="dir-legend" aria-label="推拉图例"><span class="push"><i aria-hidden="true"></i>推</span><span class="pull"><i aria-hidden="true"></i>拉</span></div>
+    <div class="step-rail" id="rhythmRail"></div>
+    <div class="info-box" id="rhythmInfo"></div>
+    <div class="card" id="rhythmBoard"></div>
+  </section>
 
   <!-- ========== TAB: Duplicates ========== -->
   <section class="panel" id="panel-duplicates" data-panel="duplicates" role="tabpanel">
@@ -862,7 +996,7 @@
   <!-- ========== TAB 3: Scales ========== -->
   <section class="panel" id="panel-scales" data-panel="scales" role="tabpanel">
     <div class="card prose">
-      <p>右手三行都能用：先一行内，再跨行（D 调），再练顶行。可开声音跟练。</p>
+      <p>右手流畅度：家行 C/G 打底，再练跨行、琶音、G 混合利底亚等 Irish/session 向路径，最后扫一遍顶行。可开声音跟练。</p>
     </div>
     <div class="lesson-controls">
       <div class="seg" id="scaleSeg" role="group" aria-label="课程"></div>
@@ -881,7 +1015,7 @@
   <!-- ========== TAB 4: Chords ========== -->
   <section class="panel" id="panel-chords" data-panel="chords" role="tabpanel">
     <div class="card prose">
-      <p>左手垫和声。下面四个是 C/G 上最常用、且<strong>同一推拉方向</strong>能按满的三和弦。点选后高亮要同时按住的键。</p>
+      <p>左手垫和声。下列形状都在<strong>同一推拉方向</strong>内可同时按满（Anglo 不能推拉混按）。含常用 C/G/F/Am，以及 Em、Dm、省根或全形的 G7。点选后高亮要同时按住的键。</p>
     </div>
     <div class="chord-grid" id="chordGrid"></div>
     <div class="info-box" id="chordInfo">点上方和弦开始。</div>
@@ -898,13 +1032,108 @@
     <div id="layoutView"></div>
   </section>
 
-  <!-- ========== TAB: Fly Me stub ========== -->
+
+  <!-- ========== TAB: Bellows ========== -->
+  <section class="panel" id="panel-bellows" data-panel="bellows" role="tabpanel">
+    <div class="card prose">
+      <p>Anglo 的核心技能是<strong>推拉换向与风箱行程规划</strong>。同一键推/拉是不同音；乐句里该掉头就掉头，不该掉头就用重复音或跨行换键。下面从同键掉头练到中+底混合乐句。</p>
+    </div>
+    <div class="lesson-controls">
+      <div class="seg" id="bellowsSeg" role="group" aria-label="练习"></div>
+      <div class="nav-btns">
+        <button type="button" id="bellowsPrev">上一步</button>
+        <button type="button" id="bellowsNext">下一步</button>
+        <button type="button" id="bellowsReset">重来</button>
+        <button type="button" id="bellowsPlay" class="play-btn">▶ 播放</button>
+      </div>
+    </div>
+    <div class="dir-legend" aria-label="推拉图例"><span class="push"><i aria-hidden="true"></i>推</span><span class="pull"><i aria-hidden="true"></i>拉</span></div>
+    <div class="step-rail" id="bellowsRail"></div>
+    <div class="info-box" id="bellowsInfo"></div>
+    <div class="card" id="bellowsBoard"></div>
+  </section>
+
+  <!-- ========== TAB: Cross-row ========== -->
+  <section class="panel" id="panel-crossrow" data-panel="crossrow" role="tabpanel">
+    <div class="card prose">
+      <p>同一音常有多处可按。跨到<strong>底行 / 顶行</strong>，是为了少倒风箱、给加花留手。先认清 G/A 备选，再练整句级换指。</p>
+    </div>
+    <div class="lesson-controls">
+      <div class="seg" id="crossrowSeg" role="group" aria-label="练习"></div>
+      <div class="nav-btns">
+        <button type="button" id="crossrowPrev">上一步</button>
+        <button type="button" id="crossrowNext">下一步</button>
+        <button type="button" id="crossrowReset">重来</button>
+        <button type="button" id="crossrowPlay" class="play-btn">▶ 播放</button>
+      </div>
+    </div>
+    <div class="dir-legend" aria-label="推拉图例"><span class="push"><i aria-hidden="true"></i>推</span><span class="pull"><i aria-hidden="true"></i>拉</span></div>
+    <div class="step-rail" id="crossrowRail"></div>
+    <div class="info-box" id="crossrowInfo"></div>
+    <div class="card" id="crossrowBoard"></div>
+  </section>
+
+  <!-- ========== TAB: Progressions ========== -->
+  <section class="panel" id="panel-progress" data-panel="progress" role="tabpanel">
+    <div class="card prose">
+      <p>会和弦形状后，练<strong>换和弦与更长循环</strong>（含 Dm / G7）。先听进行，再跟高亮挪手指；风箱方向看每个和弦是推还是拉。</p>
+    </div>
+    <div class="lesson-controls">
+      <div class="seg" id="progressSeg" role="group" aria-label="进行"></div>
+      <div class="nav-btns">
+        <button type="button" id="progressPrev">上一步</button>
+        <button type="button" id="progressNext">下一步</button>
+        <button type="button" id="progressReset">重来</button>
+        <button type="button" id="progressPlay" class="play-btn">▶ 播放</button>
+        <button type="button" id="progressLoop" aria-pressed="false">循环</button>
+      </div>
+    </div>
+    <div class="dir-legend" aria-label="推拉图例"><span class="push"><i aria-hidden="true"></i>推</span><span class="pull"><i aria-hidden="true"></i>拉</span></div>
+    <div class="step-rail" id="progressRail"></div>
+    <div class="info-box" id="progressInfo"></div>
+    <div class="card" id="progressBoard"></div>
+  </section>
+
+  <!-- ========== TAB: Tunes ========== -->
+  <section class="panel" id="panel-tunes" data-panel="tunes" role="tabpanel">
+    <div class="card prose">
+      <p>几首<strong>公有领域</strong>民谣 / session 向短曲（非儿歌主线）。右手以中行为主；Simple Gifts 用底/顶少倒风箱。需要三音热身时再用「极简」。练熟后回 Fly Me。</p>
+    </div>
+    <div class="lesson-controls">
+      <div class="seg" id="tunesSeg" role="group" aria-label="曲目"></div>
+      <div class="nav-btns">
+        <button type="button" id="tunesPrev">上一步</button>
+        <button type="button" id="tunesNext">下一步</button>
+        <button type="button" id="tunesReset">重来</button>
+        <button type="button" id="tunesPlay" class="play-btn">▶ 播放</button>
+      </div>
+    </div>
+    <div class="dir-legend" aria-label="推拉图例"><span class="push"><i aria-hidden="true"></i>推</span><span class="pull"><i aria-hidden="true"></i>拉</span></div>
+    <div class="step-rail" id="tunesRail"></div>
+    <div class="info-box" id="tunesInfo"></div>
+    <div class="card" id="tunesBoard"></div>
+  </section>
+
+  <!-- ========== TAB: Fly Me ========== -->
   <section class="panel" id="panel-flyme" data-panel="flyme" role="tabpanel">
     <div class="card prose">
       <h2 style="margin-top:0;text-align:left">Fly Me to the Moon</h2>
-      <p>C 大调 · 4/4 · 适合 C/G Anglo 初学。右手主旋律 + 可选左手简单伴奏（Wheatstone 30 键）。</p>
-      <p style="margin:0;color:var(--muted);font-size:0.88rem">互动指法谱尚未接入（占位页）。可先看仓库里的 <code>fly-me-to-the-moon.md</code> / <code>fly-me-to-the-moon.abc</code>。</p>
+      <p>C 大调 / 关系小调 Am · 4/4 · 爵士标准旋律轮廓（非简化儿歌版）。右手以<strong>中行</strong>为主，B 可用底行同向推；高 C 在中行④推。先跟谱推拉，再可选左手根音。</p>
     </div>
+    <div class="lesson-controls">
+      <div class="seg" id="flymeSeg" role="group" aria-label="段落"></div>
+      <div class="nav-btns">
+        <button type="button" id="flymePrev">上一步</button>
+        <button type="button" id="flymeNext">下一步</button>
+        <button type="button" id="flymeReset">重来</button>
+        <button type="button" id="flymePlay" class="play-btn">▶ 播放</button>
+        <button type="button" id="flymeLh" aria-pressed="false">左手根音</button>
+      </div>
+    </div>
+    <div class="dir-legend" aria-label="推拉图例"><span class="push"><i aria-hidden="true"></i>推</span><span class="pull"><i aria-hidden="true"></i>拉</span></div>
+    <div class="step-rail" id="flymeRail"></div>
+    <div class="info-box" id="flymeInfo"></div>
+    <div class="card" id="flymeBoard"></div>
   </section>
     </main>
   </div>
@@ -1435,9 +1664,9 @@
   // —— Lessons: scales & chords ——
   const SCALES = {
     C: {
-      short: "C行·基础",
-      title: "C 大调 · 只走中间行",
-      tip: "一行内最稳。多数相邻音是同一键推↔拉；到 6、7 再换键。",
+      short: "C家行",
+      title: "C 大调 · 中行家行（上行+下行）",
+      tip: "先把中行推拉点背熟。多数邻音同键掉头；6→7 换键仍拉，7→高1 改推。上下行各走一遍。",
       steps: [
         { side: "R", row: "mid", col: 0, dir: "push", note: "c''", solf: "1" },
         { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2" },
@@ -1447,12 +1676,19 @@
         { side: "R", row: "mid", col: 3, dir: "pull", note: "a''", solf: "6" },
         { side: "R", row: "mid", col: 4, dir: "pull", note: "b''", solf: "7" },
         { side: "R", row: "mid", col: 3, dir: "push", note: "c'''", solf: "1" },
+        { side: "R", row: "mid", col: 4, dir: "pull", note: "b''", solf: "7" },
+        { side: "R", row: "mid", col: 3, dir: "pull", note: "a''", solf: "6" },
+        { side: "R", row: "mid", col: 2, dir: "push", note: "g''", solf: "5" },
+        { side: "R", row: "mid", col: 2, dir: "pull", note: "f''", solf: "4" },
+        { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3" },
+        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2" },
+        { side: "R", row: "mid", col: 0, dir: "push", note: "c''", solf: "1" },
       ],
     },
     G: {
-      short: "G行·基础",
-      title: "G 大调 · 只走底行",
-      tip: "底行 G 调。♯4（F#）在底行①拉——和推 G 是同一键。",
+      short: "G家行",
+      title: "G 大调 · 底行家行（上行+下行）",
+      tip: "底行 G 调是 session 第二家行。♯4（F#）在底行①拉——与推 G 同键。上下行练匀速。",
       steps: [
         { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5" },
         { side: "R", row: "bot", col: 1, dir: "pull", note: "a''", solf: "6" },
@@ -1462,44 +1698,19 @@
         { side: "R", row: "bot", col: 3, dir: "pull", note: "e'''", solf: "3" },
         { side: "R", row: "bot", col: 0, dir: "pull", note: "f#''", solf: "♯4" },
         { side: "R", row: "bot", col: 3, dir: "push", note: "g'''", solf: "5" },
-      ],
-    },
-    D: {
-      short: "D大调·跨行",
-      title: "D 大调 · 中+底+顶（爱尔兰常用）",
-      tip: "F# 用底行，A 和 C# 用顶行——这是顶行真正开始干活的地方。",
-      steps: [
-        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "中行②拉" },
-        { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3", why: "同键改推" },
-        { side: "R", row: "bot", col: 0, dir: "pull", note: "f#''", solf: "♯4", why: "底行①拉 = F#" },
-        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "同键改推 = G" },
-        { side: "R", row: "top", col: 1, dir: "push", note: "a''", solf: "6", why: "顶行②推 = A（跨到顶行）" },
-        { side: "R", row: "bot", col: 1, dir: "push", note: "b''", solf: "7", why: "底行②推 = B" },
-        { side: "R", row: "top", col: 3, dir: "push", note: "c#'''", solf: "♯1", why: "顶行④推 = 高 C#（导音）" },
-        { side: "R", row: "bot", col: 2, dir: "push", note: "d'''", solf: "2", why: "底行③推 = 高 D" },
-      ],
-    },
-    TOP: {
-      short: "顶行导览",
-      title: "右手顶行 · 每个键推/拉是什么",
-      tip: "顶行 = accidentals + 备用音。Wheatstone 与 Jeffries 这里差别最大；你是 Wheatstone。",
-      steps: [
-        { side: "R", row: "top", col: 0, dir: "push", note: "c#''", solf: "♯1", why: "升 Do（中音区）· D 调导音之一" },
-        { side: "R", row: "top", col: 0, dir: "pull", note: "d#''", solf: "♯2", why: "升 Re" },
-        { side: "R", row: "top", col: 1, dir: "push", note: "a''", solf: "6", why: "La 的推备用 · 跨行常用来避免倒风箱" },
-        { side: "R", row: "top", col: 1, dir: "pull", note: "g''", solf: "5", why: "Sol 的拉备用" },
-        { side: "R", row: "top", col: 2, dir: "push", note: "g#''", solf: "♯5", why: "升 Sol" },
-        { side: "R", row: "top", col: 2, dir: "pull", note: "bb''", solf: "♭7", why: "降 Si · 布鲁斯/小调常用" },
-        { side: "R", row: "top", col: 3, dir: "push", note: "c#'''", solf: "♯1", why: "高八度升 Do · D 大调上行关键" },
-        { side: "R", row: "top", col: 3, dir: "pull", note: "d#'''", solf: "♯2", why: "高升 Re" },
-        { side: "R", row: "top", col: 4, dir: "push", note: "a'''", solf: "6", why: "更高 La" },
-        { side: "R", row: "top", col: 4, dir: "pull", note: "f''''", solf: "4", why: "极高 Fa（很少用到）" },
+        { side: "R", row: "bot", col: 3, dir: "pull", note: "e'''", solf: "3" },
+        { side: "R", row: "bot", col: 2, dir: "push", note: "d'''", solf: "2" },
+        { side: "R", row: "bot", col: 2, dir: "pull", note: "c'''", solf: "1" },
+        { side: "R", row: "bot", col: 1, dir: "push", note: "b''", solf: "7" },
+        { side: "R", row: "bot", col: 1, dir: "pull", note: "a''", solf: "6" },
+        { side: "R", row: "bot", col: 0, dir: "pull", note: "f#''", solf: "♯4", why: "下行导音：底①拉 F#（无顺手的 f#'''）" },
+        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5" },
       ],
     },
     Cx: {
-      short: "C跨行备选",
-      title: "C 大调 · 跨行指法（用顶行 La）",
-      tip: "同一音阶的另一条路：G 用底行、A 用顶行推——少倒风箱，为加花留手。",
+      short: "C跨行",
+      title: "C 大调 · 跨行指法（底 G + 顶 A）",
+      tip: "同一音阶的另一条路：G 走底、A 走顶推——少倒风箱，为加花留手。成人曲目里比死守中行更常用。",
       steps: [
         { side: "R", row: "mid", col: 0, dir: "push", note: "c''", solf: "1", why: "中行①推" },
         { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "中行②拉" },
@@ -1511,15 +1722,98 @@
         { side: "R", row: "mid", col: 3, dir: "push", note: "c'''", solf: "1", why: "回中行④推高 Do" },
       ],
     },
+    arp: {
+      short: "C琶音",
+      title: "C 大调琶音 · 中+底+顶往返",
+      tip: "分解和弦比音阶更接近真曲子。G/A 故意跨行，练「同向多键」手感。",
+      steps: [
+        { side: "R", row: "mid", col: 0, dir: "push", note: "c''", solf: "1", why: "中①推 C" },
+        { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3", why: "中②推 E" },
+        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "底①推 G" },
+        { side: "R", row: "mid", col: 3, dir: "push", note: "c'''", solf: "1", why: "中④推高 C" },
+        { side: "R", row: "bot", col: 1, dir: "push", note: "b''", solf: "7", why: "底②推 B（同向）" },
+        { side: "R", row: "top", col: 1, dir: "push", note: "a''", solf: "6", why: "顶②推 A" },
+        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "底①推 G" },
+        { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3", why: "中②推 E" },
+        { side: "R", row: "mid", col: 0, dir: "push", note: "c''", solf: "1", why: "中①推收" },
+        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "掉头拉 D" },
+        { side: "R", row: "mid", col: 2, dir: "pull", note: "f''", solf: "4", why: "中③拉 F" },
+        { side: "R", row: "mid", col: 3, dir: "pull", note: "a''", solf: "6", why: "中④拉 A" },
+        { side: "R", row: "mid", col: 2, dir: "pull", note: "f''", solf: "4", why: "回 F" },
+        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "回 D" },
+        { side: "R", row: "mid", col: 0, dir: "push", note: "c''", solf: "1", why: "推回 C" },
+      ],
+    },
+    D: {
+      short: "D跨行",
+      title: "D 大调 · 中+底+顶（爱尔兰常用）",
+      tip: "F# 用底行，A 和 C# 用顶行——顶行真正开始干活。session 里 D 调极常见。",
+      steps: [
+        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "中行②拉" },
+        { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3", why: "同键改推" },
+        { side: "R", row: "bot", col: 0, dir: "pull", note: "f#''", solf: "♯4", why: "底行①拉 = F#" },
+        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "同键改推 = G" },
+        { side: "R", row: "top", col: 1, dir: "push", note: "a''", solf: "6", why: "顶行②推 = A（跨到顶行）" },
+        { side: "R", row: "bot", col: 1, dir: "push", note: "b''", solf: "7", why: "底行②推 = B" },
+        { side: "R", row: "top", col: 3, dir: "push", note: "c#'''", solf: "♯1", why: "顶行④推 = 高 C#（导音）" },
+        { side: "R", row: "bot", col: 2, dir: "push", note: "d'''", solf: "2", why: "底行③推 = 高 D" },
+        { side: "R", row: "top", col: 3, dir: "push", note: "c#'''", solf: "♯1", why: "下行：高 C#" },
+        { side: "R", row: "bot", col: 1, dir: "push", note: "b''", solf: "7", why: "底②推 B" },
+        { side: "R", row: "top", col: 1, dir: "push", note: "a''", solf: "6", why: "顶②推 A" },
+        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "底①推 G" },
+        { side: "R", row: "bot", col: 0, dir: "pull", note: "f#''", solf: "♯4", why: "同键改拉 F#" },
+        { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3", why: "中②推 E" },
+        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "同键改拉收" },
+      ],
+    },
+    mixo: {
+      short: "G混合利",
+      title: "G 混合利底亚乐句 · 底行+中行 F♮",
+      tip: "Irish 常见「降 7」色彩。高八度没有顺手的 f'''，所以 F♮ 走中行拉 f''——这是 C/G Anglo 的真实指法，不是简化错误。",
+      steps: [
+        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "底①推 G" },
+        { side: "R", row: "bot", col: 1, dir: "pull", note: "a''", solf: "6", why: "底②拉 A" },
+        { side: "R", row: "bot", col: 1, dir: "push", note: "b''", solf: "7", why: "底②推 B" },
+        { side: "R", row: "bot", col: 1, dir: "pull", note: "a''", solf: "6", why: "回 A" },
+        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "回 G" },
+        { side: "R", row: "mid", col: 2, dir: "pull", note: "f''", solf: "♭7", why: "中③拉 F♮（混合利关键）" },
+        { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3", why: "中②推 E" },
+        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "中②拉 D" },
+        { side: "R", row: "mid", col: 0, dir: "push", note: "c''", solf: "1", why: "中①推 C" },
+        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "D" },
+        { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3", why: "E" },
+        { side: "R", row: "mid", col: 2, dir: "pull", note: "f''", solf: "♭7", why: "再点 F♮" },
+        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "底①推 G 收" },
+        { side: "R", row: "bot", col: 1, dir: "pull", note: "a''", solf: "6", why: "加花 A" },
+        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "回 G" },
+      ],
+    },
+    TOP: {
+      short: "顶行扫一遍",
+      title: "右手顶行 · accidentals 与备用音",
+      tip: "顶行 = 变化音 + 跨行备用。Wheatstone 与 Jeffries 差别最大处；你是 Wheatstone——把推/拉各摸一遍即可。",
+      steps: [
+        { side: "R", row: "top", col: 0, dir: "push", note: "c#''", solf: "♯1", why: "升 Do · D 调导音之一" },
+        { side: "R", row: "top", col: 0, dir: "pull", note: "d#''", solf: "♯2", why: "升 Re" },
+        { side: "R", row: "top", col: 1, dir: "push", note: "a''", solf: "6", why: "La 的推备用 · 少倒风箱" },
+        { side: "R", row: "top", col: 1, dir: "pull", note: "g''", solf: "5", why: "Sol 的拉备用" },
+        { side: "R", row: "top", col: 2, dir: "push", note: "g#''", solf: "♯5", why: "升 Sol" },
+        { side: "R", row: "top", col: 2, dir: "pull", note: "bb''", solf: "♭7", why: "降 Si · 布鲁斯/小调" },
+        { side: "R", row: "top", col: 3, dir: "push", note: "c#'''", solf: "♯1", why: "高升 Do · D 上行关键" },
+        { side: "R", row: "top", col: 3, dir: "pull", note: "d#'''", solf: "♯2", why: "高升 Re" },
+        { side: "R", row: "top", col: 4, dir: "push", note: "a'''", solf: "6", why: "更高 La" },
+        { side: "R", row: "top", col: 4, dir: "pull", note: "f''''", solf: "4", why: "极高 Fa（少用）" },
+      ],
+    },
   };
 
-  const SCALE_ORDER = ["C", "G", "D", "Cx", "TOP"];
+  const SCALE_ORDER = ["C", "G", "Cx", "arp", "D", "mixo", "TOP"];
 
   const CHORDS = {
     C: {
       name: "C",
       dir: "push",
-      tip: "主和弦 I。左手 C 行③④⑤ 同时推：1–3–5。",
+      tip: "主和弦 I。左手中行③④⑤ 同时推：C–E–G。",
       buttons: [
         { side: "L", row: "mid", col: 2, dir: "push", note: "c'" },
         { side: "L", row: "mid", col: 3, dir: "push", note: "e'" },
@@ -1529,7 +1823,7 @@
     G: {
       name: "G",
       dir: "push",
-      tip: "属和弦 V。左手 G 行③④⑤ 同时推。",
+      tip: "属和弦 V。左手底行③④⑤ 同时推：G–B–D。",
       buttons: [
         { side: "L", row: "bot", col: 2, dir: "push", note: "g'" },
         { side: "L", row: "bot", col: 3, dir: "push", note: "b'" },
@@ -1539,7 +1833,7 @@
     F: {
       name: "F",
       dir: "pull",
-      tip: "下属 IV。三个键都是拉：4–6–1。",
+      tip: "下属 IV。三键同拉：F–A–C。",
       buttons: [
         { side: "L", row: "mid", col: 3, dir: "pull", note: "f'" },
         { side: "L", row: "mid", col: 4, dir: "pull", note: "a'" },
@@ -1549,13 +1843,170 @@
     Am: {
       name: "Am",
       dir: "pull",
-      tip: "小和弦 vi。拉。常接 C / F / G。",
+      tip: "关系小调 vi。同拉：A–C–E。常接 C / F / G。",
       buttons: [
         { side: "L", row: "mid", col: 4, dir: "pull", note: "a'" },
         { side: "L", row: "bot", col: 3, dir: "pull", note: "c''" },
         { side: "L", row: "bot", col: 4, dir: "pull", note: "e''" },
       ],
     },
+    Em: {
+      name: "Em",
+      dir: "push",
+      tip: "iii / 关系小向。中③④ + 底④ 同推：E–G–B。",
+      buttons: [
+        { side: "L", row: "mid", col: 3, dir: "push", note: "e'" },
+        { side: "L", row: "mid", col: 4, dir: "push", note: "g'" },
+        { side: "L", row: "bot", col: 3, dir: "push", note: "b'" },
+      ],
+    },
+    Dm: {
+      name: "Dm",
+      dir: "pull",
+      tip: "ii。中行②③④ 同拉：D–F–A（完整小三和弦，不必推拉混按）。",
+      buttons: [
+        { side: "L", row: "mid", col: 2, dir: "pull", note: "d'" },
+        { side: "L", row: "mid", col: 3, dir: "pull", note: "f'" },
+        { side: "L", row: "mid", col: 4, dir: "pull", note: "a'" },
+      ],
+    },
+    G7: {
+      name: "G7",
+      dir: "pull",
+      tip: "属七。中行①–④ 同拉：G–B–D–F。音区偏低，作回合属七很够用；与推的 G 三和弦形成推↔拉对比。",
+      buttons: [
+        { side: "L", row: "mid", col: 0, dir: "pull", note: "g" },
+        { side: "L", row: "mid", col: 1, dir: "pull", note: "b" },
+        { side: "L", row: "mid", col: 2, dir: "pull", note: "d'" },
+        { side: "L", row: "mid", col: 3, dir: "pull", note: "f'" },
+      ],
+    },
+  };
+
+  // —— Fly Me to the Moon (jazz contour; Wheatstone RH + optional LH roots) ——
+  // Letters: C=c'' · c=c''' · B=b''(中⑤拉) · b=b''(底②推，与高 C 同向) · e=e'''
+  const FLYME_RH = {
+    C: { row: "mid", col: 0, dir: "push", note: "c''", solf: "1" },
+    D: { row: "mid", col: 1, dir: "pull", note: "d''", solf: "2" },
+    E: { row: "mid", col: 1, dir: "push", note: "e''", solf: "3" },
+    F: { row: "mid", col: 2, dir: "pull", note: "f''", solf: "4" },
+    G: { row: "mid", col: 2, dir: "push", note: "g''", solf: "5" },
+    A: { row: "mid", col: 3, dir: "pull", note: "a''", solf: "6" },
+    B: { row: "mid", col: 4, dir: "pull", note: "b''", solf: "7" },
+    b: { row: "bot", col: 1, dir: "push", note: "b''", solf: "7" },
+    c: { row: "mid", col: 3, dir: "push", note: "c'''", solf: "1" },
+    e: { row: "mid", col: 4, dir: "push", note: "e'''", solf: "3" },
+    // Cross-row / bot helpers for tunes & drills (not used by Fly Me letter strings)
+    g: { row: "bot", col: 0, dir: "push", note: "g''", solf: "5" },
+    a: { row: "top", col: 1, dir: "push", note: "a''", solf: "6" },
+    d: { row: "bot", col: 2, dir: "push", note: "d'''", solf: "2" },
+    x: { row: "bot", col: 0, dir: "pull", note: "f#''", solf: "♯4" },
+  };
+
+  const FLYME_LH = {
+    C: { side: "L", row: "mid", col: 2, dir: "push", note: "c'", name: "C" },
+    F: { side: "L", row: "mid", col: 3, dir: "pull", note: "f'", name: "F" },
+    G: { side: "L", row: "bot", col: 2, dir: "push", note: "g'", name: "G" },
+    Dm: { side: "L", row: "bot", col: 1, dir: "push", note: "d'", name: "Dm" },
+    Am: { side: "L", row: "mid", col: 4, dir: "pull", note: "a'", name: "Am" },
+    E: { side: "L", row: "mid", col: 3, dir: "push", note: "e'", name: "E" },
+  };
+
+  function flymeStep(letter, lyric, chord) {
+    const m = FLYME_RH[letter];
+    return {
+      side: "R",
+      row: m.row || "mid",
+      col: m.col,
+      dir: m.dir,
+      note: m.note,
+      solf: m.solf,
+      lyric: lyric || "",
+      chord: chord || "C",
+    };
+  }
+
+  function flymePhrase(letters, lyrics, chordsByBar, beatsStr) {
+    const beatList = beatsStr
+      ? String(beatsStr)
+          .trim()
+          .split(/\s+/)
+          .map((x) => Number(x))
+      : null;
+    const out = [];
+    for (let i = 0; i < letters.length; i++) {
+      const bar = Math.floor(i / 4);
+      const st = flymeStep(letters[i], lyrics[i] || "", chordsByBar[bar] || "C");
+      st.beats =
+        beatList && beatList[i] > 0 && !Number.isNaN(beatList[i])
+          ? beatList[i]
+          : 1;
+      out.push(st);
+    }
+    return out;
+  }
+
+  const FLYME = {
+    A: {
+      short: "A · Verse",
+      title: "A 段 · Verse（Fly me…）",
+      tip: "开头下行 c'''–b''–a''–g''–f''（Fly me to the moon）。moon 后三个「· + 4」是同音过门，不是节奏标记；节奏看格子宽窄。",
+      chords: "Am–Dm–G–C–F–Dm–E–Am",
+      steps: flymePhrase(
+        "cbAG FFFF FGAc BAGE AGFE DEFA GFED CCCC".replace(/\s/g, "").split(""),
+        [
+          "Fly", "me", "to", "the", "moon", "", "", "",
+          "And", "let", "me", "play", "a-", "mong", "the", "stars",
+          "Let", "me", "see", "what", "spring", "is", "like", "on",
+          "Ju-", "pi-", "ter", "and", "Mars", "", "", "",
+        ],
+        ["Am", "Dm", "G", "C", "F", "Dm", "E", "Am"],
+        "1 1 1 1 2 1 1 1  1 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1  1 1 1 1 2 1 1 1"
+      ),
+    },
+    B: {
+      short: "B · Chorus",
+      title: "B 段 · In other words",
+      tip: "「In other words」从 D（中②拉）起跳到 A。Fill my heart 可走到高 E（中⑤推）。空词格子是过门音。",
+      chords: "Dm–G–F–G–Dm–E–Dm–C",
+      steps: flymePhrase(
+        "DAAA AcBG CFFF FAGE DAAA AcBe DAAA ABDC".replace(/\s/g, "").split(""),
+        [
+          "In", "oth-", "er", "words", "hold", "my", "hand", "",
+          "In", "oth-", "er", "words", "ba-", "by", "kiss", "me",
+          "Fill", "my", "heart", "with", "song", "", "", "",
+          "And", "let", "me", "sing", "for-", "e-", "ver", "more",
+        ],
+        ["Dm", "G", "F", "G", "Dm", "E", "Dm", "C"],
+        "1 1 1 2 1 1 2 1  1 1 1 2 1 1 1 2  1 1 1 1 2 1 1 1  1 1 1 1 1 1 1 2"
+      ),
+    },
+    C: {
+      short: "C · Bridge",
+      title: "C 段 · Adore / I love you",
+      tip: "前半接 A 段后半的下行（A–G–F–E…）；结尾「I love you」= D–A–A–A | A–B–D–C。",
+      chords: "F–Dm–E–Am–Dm–G–Dm–C",
+      steps: flymePhrase(
+        "AGFE DEFA GFED CCCC DAAA AcBG DAAA ABDC".replace(/\s/g, "").split(""),
+        [
+          "You", "are", "all", "I", "long", "for", "", "",
+          "All", "I", "wor-", "ship", "and", "a-", "dore", "",
+          "In", "oth-", "er", "words", "please", "be", "true", "",
+          "In", "oth-", "er", "words", "I", "love", "you", "",
+        ],
+        ["F", "Dm", "E", "Am", "Dm", "G", "Dm", "C"],
+        "1 1 1 1 1 2 1 1  1 1 1 1 1 1 2 1  1 1 1 2 1 1 2 1  1 1 1 2 1 1 2 1"
+      ),
+    },
+  };
+
+  const FLYME_ORDER = ["A", "B", "C"];
+  const flymeState = {
+    key: "A",
+    step: 0,
+    playing: false,
+    timer: null,
+    showLh: false,
   };
 
   const scaleState = { key: "C", step: 0, playing: false, timer: null };
@@ -1954,6 +2405,1777 @@
       escapeHtml(chord.tip);
 
     highlightChord(board, chord);
+  }
+
+  function stopFlymePlayback() {
+    if (flymeState.timer) {
+      clearTimeout(flymeState.timer);
+      flymeState.timer = null;
+    }
+    flymeState.playing = false;
+    const btn = document.getElementById("flymePlay");
+    if (btn) {
+      btn.classList.remove("on");
+      btn.textContent = "▶ 播放";
+    }
+  }
+
+  function highlightFlyme(container, steps, currentIndex, lh) {
+    clearHighlight(container);
+    const involved = new Set(steps.map(stepId));
+    if (lh) involved.add(stepId(lh));
+    container.querySelectorAll(".btn").forEach((b) => {
+      const id = b.getAttribute("data-btn");
+      if (!involved.has(id)) b.classList.add("dim");
+    });
+    steps.forEach((step, i) => {
+      const id = stepId(step);
+      const btn = container.querySelector('.btn[data-btn="' + id + '"]');
+      const half = container.querySelector(
+        '.half[data-btn="' + id + '"][data-dir="' + step.dir + '"]'
+      );
+      if (!btn || !half) return;
+      if (i === currentIndex) {
+        btn.classList.add("hl-step");
+        half.classList.add("mark-step");
+        const badge = document.createElement("span");
+        badge.className = "step-badge";
+        badge.textContent = String(i + 1);
+        btn.appendChild(badge);
+      } else if (i < currentIndex) {
+        btn.classList.add("hl-path");
+        half.classList.add("mark-path");
+      }
+    });
+    if (lh) {
+      const id = stepId(lh);
+      const btn = container.querySelector('.btn[data-btn="' + id + '"]');
+      const half = container.querySelector(
+        '.half[data-btn="' + id + '"][data-dir="' + lh.dir + '"]'
+      );
+      if (btn) btn.classList.add("hl-path");
+      if (half) half.classList.add("mark-path");
+    }
+  }
+
+  function playFlymeFromStart() {
+    const song = FLYME[flymeState.key];
+    if (!song) return;
+    ensureAudio();
+    flymeState.step = 0;
+    flymeState.playing = true;
+    const btn = document.getElementById("flymePlay");
+    if (btn) {
+      btn.classList.add("on");
+      btn.textContent = "■ 停止";
+    }
+
+    function tick() {
+      if (!flymeState.playing) return;
+      const step = song.steps[flymeState.step];
+      if (step) {
+        playAbcNote(step.note, 0.4);
+        if (flymeState.showLh) {
+          const lh = FLYME_LH[step.chord];
+          if (lh) playAbcNote(lh.note, 0.45);
+        }
+      }
+      paintFlymeLesson({ silent: true });
+      if (flymeState.step >= song.steps.length - 1) {
+        flymeState.timer = setTimeout(() => stopFlymePlayback(), 480);
+        return;
+      }
+      flymeState.timer = setTimeout(() => {
+        flymeState.step += 1;
+        tick();
+      }, 560);
+    }
+    tick();
+  }
+
+  function paintFlymeLesson(opts) {
+    opts = opts || {};
+    const mode = notationMode.current;
+    const song = FLYME[flymeState.key] || FLYME.A;
+    if (!FLYME[flymeState.key]) flymeState.key = "A";
+    const board = document.getElementById("flymeBoard");
+    const seg = document.getElementById("flymeSeg");
+    if (!board || !seg) return;
+
+    seg.innerHTML = FLYME_ORDER.map((key) => {
+      const s = FLYME[key];
+      return (
+        '<button type="button" data-flyme="' +
+        key +
+        '"' +
+        (key === flymeState.key ? ' class="on"' : "") +
+        ">" +
+        escapeHtml(s.short) +
+        "</button>"
+      );
+    }).join("");
+
+    renderBoard(board, LEFT, WHEATSTONE_RIGHT, {
+      title: song.title,
+      mode: mode,
+      focusSide: flymeState.showLh ? null : "R",
+      showMc: false,
+    });
+
+    const rail = document.getElementById("flymeRail");
+    rail.innerHTML = song.steps
+      .map((step, i) =>
+        railStepButton(
+          Object.assign({}, step, { beats: step.beats || 1 }),
+          i,
+          flymeState.step,
+          mode
+        )
+      )
+      .join("");
+
+    rail.querySelectorAll(".step").forEach((el) => {
+      el.addEventListener("click", () => {
+        stopFlymePlayback();
+        flymeState.step = +el.getAttribute("data-step");
+        const st = song.steps[flymeState.step];
+        if (st) {
+          playAbcNote(st.note);
+          if (flymeState.showLh) {
+            const lh = FLYME_LH[st.chord];
+            if (lh) playAbcNote(lh.note, 0.4);
+          }
+        }
+        paintFlymeLesson({ silent: true });
+      });
+    });
+
+    const step = song.steps[flymeState.step];
+    const lh = FLYME_LH[step.chord];
+    const lyricBits = [];
+    const barStart = Math.floor(flymeState.step / 4) * 4;
+    for (let i = barStart; i < Math.min(barStart + 8, song.steps.length); i++) {
+      if (song.steps[i].lyric) lyricBits.push(song.steps[i].lyric);
+    }
+    const lyricLine = lyricBits.length
+      ? lyricBits.join(" ")
+      : "（此拍无歌词音节）";
+
+    document.getElementById("flymeInfo").innerHTML =
+      "<strong>第 " +
+      (flymeState.step + 1) +
+      " / " +
+      song.steps.length +
+      "</strong> · " +
+      escapeHtml(noteName(step.note, mode)) +
+      "（<kbd>" +
+      escapeHtml(step.note) +
+      "</kbd>）· <strong>" +
+      (step.dir === "push" ? "推" : "拉") +
+      "</strong> · " +
+      (ROW_LABEL[step.row] || "中") +
+      "行" +
+      (step.col + 1) +
+      (step.lyric
+        ? " · 「" + escapeHtml(step.lyric) + "」"
+        : "") +
+      (flymeState.showLh && lh
+        ? " · 左手根音 <strong>" +
+          escapeHtml(lh.name) +
+          "</strong>（" +
+          (lh.dir === "push" ? "推" : "拉") +
+          "）"
+        : "") +
+      "<br><em>" +
+      escapeHtml(lyricLine) +
+      "</em> · 小节根音进行：" +
+      escapeHtml(song.chords) +
+      "<br>" +
+      escapeHtml(song.tip);
+
+    highlightFlyme(
+      board,
+      song.steps,
+      flymeState.step,
+      flymeState.showLh ? lh : null
+    );
+
+    document.getElementById("flymePrev").disabled = flymeState.step <= 0;
+    document.getElementById("flymeNext").disabled =
+      flymeState.step >= song.steps.length - 1;
+
+    const playBtn = document.getElementById("flymePlay");
+    if (playBtn) {
+      playBtn.classList.toggle("on", flymeState.playing);
+      playBtn.textContent = flymeState.playing ? "■ 停止" : "▶ 播放";
+    }
+    const lhBtn = document.getElementById("flymeLh");
+    if (lhBtn) {
+      lhBtn.classList.toggle("on", flymeState.showLh);
+      lhBtn.setAttribute("aria-pressed", flymeState.showLh ? "true" : "false");
+    }
+  }
+
+  // —— Generic step lesson engine (bellows / crossrow / tunes) ——
+  function rhMid(letter, why, solf) {
+    const m = FLYME_RH[letter];
+    return {
+      side: "R",
+      row: m.row || "mid",
+      col: m.col,
+      dir: m.dir,
+      note: m.note,
+      solf: solf || m.solf,
+      why: why || "",
+      label: solf || m.solf,
+      beats: 1,
+    };
+  }
+
+  function beatClass(beats) {
+    const b = Number(beats) || 1;
+    if (b <= 0.5) return " beats-05";
+    if (b >= 2.75) return " beats-3";
+    if (b >= 1.75) return " beats-2";
+    if (b >= 1.25) return " beats-15";
+    return "";
+  }
+
+  function railStepButton(step, i, currentStep, mode) {
+    const cls =
+      "step " +
+      (step.dir || "push") +
+      beatClass(step.beats) +
+      (i === currentStep ? " on" : "") +
+      (i < currentStep ? " done" : "");
+    const m = mode || notationMode.current;
+    const lyric = step.lyric || "";
+    const pitchHtml = step.note
+      ? formatNote(step.note, m)
+      : step.solf
+        ? escapeHtml(step.solf)
+        : "";
+    const pitchPlain = step.note
+      ? m === "abc"
+        ? abcPlain(step.note)
+        : noteName(step.note, "jianpu")
+      : step.solf || "";
+    const fallback = step.label || step.name || pitchPlain || lyric || String(i + 1);
+    let body;
+    if (lyric && pitchHtml) {
+      body =
+        '<span class="ly">' +
+        escapeHtml(lyric) +
+        '</span><span class="pitch">' +
+        pitchHtml +
+        "</span>";
+    } else if (pitchHtml && !lyric) {
+      // 过门/填空音：上面 ·，下面音高（不是节奏数字）
+      body =
+        '<span class="ly fill">·</span><span class="pitch">' +
+        pitchHtml +
+        "</span>";
+    } else {
+      body = "<span>" + escapeHtml(fallback) + "</span>";
+    }
+    return (
+      '<button type="button" class="' +
+      cls +
+      '" data-step="' +
+      i +
+      '" title="' +
+      escapeHtml(
+        (step.dir === "pull" ? "拉" : "推") +
+          (pitchPlain ? " · " + pitchPlain : "") +
+          (step.beats && step.beats !== 1 ? " · " + step.beats + "拍" : "")
+      ) +
+      '">' +
+      body +
+      "</button>"
+    );
+  }
+
+  function createStepLesson(cfg) {
+    const state = {
+      key: cfg.order[0],
+      step: 0,
+      playing: false,
+      timer: null,
+    };
+    const ids = {
+      seg: cfg.id + "Seg",
+      rail: cfg.id + "Rail",
+      info: cfg.id + "Info",
+      board: cfg.id + "Board",
+      prev: cfg.id + "Prev",
+      next: cfg.id + "Next",
+      reset: cfg.id + "Reset",
+      play: cfg.id + "Play",
+    };
+
+    function stop() {
+      if (state.timer) {
+        clearTimeout(state.timer);
+        state.timer = null;
+      }
+      state.playing = false;
+      const btn = document.getElementById(ids.play);
+      if (btn) {
+        btn.classList.remove("on");
+        btn.textContent = "▶ 播放";
+      }
+    }
+
+    function currentLesson() {
+      return cfg.catalog[state.key] || cfg.catalog[cfg.order[0]];
+    }
+
+    function stepBeats(step) {
+      return step && step.beats ? Number(step.beats) : 1;
+    }
+    function stepWaitMs(step) {
+      return Math.round((cfg.delay || 560) * stepBeats(step));
+    }
+    function stepNoteDur(step) {
+      const base = cfg.noteDur || 0.38;
+      return Math.min(1.15, Math.max(0.12, base * stepBeats(step) * 0.9));
+    }
+
+    function playStepSound(step) {
+      if (!step) return;
+      if (cfg.playStep) cfg.playStep(step);
+      else if (step.note) playAbcNote(step.note, stepNoteDur(step));
+      else if (step.notes)
+        step.notes.forEach((n) => playAbcNote(n, stepNoteDur(step)));
+    }
+
+    function paint(opts) {
+      opts = opts || {};
+      const mode = notationMode.current;
+      const lesson = currentLesson();
+      if (!cfg.catalog[state.key]) state.key = cfg.order[0];
+      const board = document.getElementById(ids.board);
+      const seg = document.getElementById(ids.seg);
+      if (!board || !seg) return;
+
+      seg.innerHTML = cfg.order
+        .map((key) => {
+          const s = cfg.catalog[key];
+          return (
+            '<button type="button" data-lesson="' +
+            key +
+            '"' +
+            (key === state.key ? ' class="on"' : "") +
+            ">" +
+            escapeHtml(s.short) +
+            "</button>"
+          );
+        })
+        .join("");
+
+      const focusSide =
+        typeof cfg.focusSide === "function"
+          ? cfg.focusSide(lesson, state)
+          : cfg.focusSide !== undefined
+            ? cfg.focusSide
+            : "R";
+
+      renderBoard(board, LEFT, WHEATSTONE_RIGHT, {
+        title: cfg.hideTitle ? "" : lesson.title,
+        mode: mode,
+        focusSide: focusSide,
+        showMc: !!cfg.showMc,
+      });
+
+      const rail = document.getElementById(ids.rail);
+      rail.innerHTML = lesson.steps
+        .map((step, i) => railStepButton(step, i, state.step, mode))
+        .join("");
+
+      rail.querySelectorAll(".step").forEach((el) => {
+        el.addEventListener("click", () => {
+          stop();
+          state.step = +el.getAttribute("data-step");
+          playStepSound(lesson.steps[state.step]);
+          paint({ silent: true });
+        });
+      });
+
+      const step = lesson.steps[state.step];
+      let info =
+        "<strong>第 " +
+        (state.step + 1) +
+        " / " +
+        lesson.steps.length +
+        "</strong>";
+      if (step) {
+        if (step.note) {
+          info +=
+            " · " +
+            escapeHtml(noteName(step.note, mode)) +
+            "（<kbd>" +
+            escapeHtml(step.note) +
+            "</kbd>）";
+        }
+        if (step.dir) {
+          info +=
+            " · <strong>" + (step.dir === "push" ? "推" : "拉") + "</strong>";
+        }
+        if (step.row) {
+          const rowLabel = { top: "顶行", mid: "中行", bot: "底行" }[step.row];
+          info +=
+            " · " +
+            (step.side === "L" ? "左" : "右") +
+            rowLabel +
+            (step.col + 1);
+        }
+        if (step.why) info += " · " + escapeHtml(step.why);
+      }
+      info += "<br>" + escapeHtml(lesson.tip || "");
+      document.getElementById(ids.info).innerHTML = info;
+
+      if (cfg.highlight) cfg.highlight(board, lesson, state.step, step);
+      else if (step && step.side) highlightLesson(board, lesson.steps, state.step);
+      else if (step && step.buttons) highlightChord(board, step);
+
+      document.getElementById(ids.prev).disabled = state.step <= 0;
+      document.getElementById(ids.next).disabled =
+        state.step >= lesson.steps.length - 1;
+      const playBtn = document.getElementById(ids.play);
+      if (playBtn) {
+        playBtn.classList.toggle("on", state.playing);
+        playBtn.textContent = state.playing ? "■ 停止" : "▶ 播放";
+      }
+    }
+
+    function playFromStart() {
+      const lesson = currentLesson();
+      ensureAudio();
+      state.step = 0;
+      state.playing = true;
+      const btn = document.getElementById(ids.play);
+      if (btn) {
+        btn.classList.add("on");
+        btn.textContent = "■ 停止";
+      }
+      function tick() {
+        if (!state.playing) return;
+        const step = lesson.steps[state.step];
+        const wait = stepWaitMs(step);
+        playStepSound(step);
+        paint({ silent: true });
+        if (state.step >= lesson.steps.length - 1) {
+          state.timer = setTimeout(() => stop(), Math.max(120, wait - 60));
+          return;
+        }
+        state.timer = setTimeout(() => {
+          state.step += 1;
+          tick();
+        }, wait);
+      }
+      tick();
+    }
+
+    function bind() {
+      const seg = document.getElementById(ids.seg);
+      if (!seg) return;
+      seg.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-lesson]");
+        if (!btn) return;
+        stop();
+        state.key = btn.getAttribute("data-lesson");
+        state.step = 0;
+        paint({ silent: true });
+        playStepSound(currentLesson().steps[0]);
+      });
+      document.getElementById(ids.prev).addEventListener("click", () => {
+        stop();
+        if (state.step > 0) {
+          state.step -= 1;
+          playStepSound(currentLesson().steps[state.step]);
+          paint({ silent: true });
+        }
+      });
+      document.getElementById(ids.next).addEventListener("click", () => {
+        stop();
+        const max = currentLesson().steps.length - 1;
+        if (state.step < max) {
+          state.step += 1;
+          playStepSound(currentLesson().steps[state.step]);
+          paint({ silent: true });
+        }
+      });
+      document.getElementById(ids.reset).addEventListener("click", () => {
+        stop();
+        state.step = 0;
+        paint({ silent: true });
+        playStepSound(currentLesson().steps[0]);
+      });
+      document.getElementById(ids.play).addEventListener("click", () => {
+        if (state.playing) {
+          stop();
+          paint({ silent: true });
+          return;
+        }
+        playFromStart();
+      });
+    }
+
+    return { state, paint, stop, bind, playFromStart };
+  }
+
+  const BELLOWS = {
+    flip: {
+      short: "同键掉头",
+      title: "同键推↔拉 · 加长乐句",
+      tip: "中行邻音多半同键掉头。把 E↔D、G↔F、高区来回串成一句，风箱短促、手指少挪。",
+      steps: [
+        rhMid("E", "②推 = E", "3"),
+        rhMid("D", "同键改拉 = D", "2"),
+        rhMid("E", "再推 E", "3"),
+        rhMid("D", "再拉 D", "2"),
+        rhMid("E", "推 E", "3"),
+        rhMid("F", "换③拉 = F", "4"),
+        rhMid("G", "同键改推 = G", "5"),
+        rhMid("F", "改拉 F", "4"),
+        rhMid("G", "改推 G", "5"),
+        rhMid("A", "换④仍拉 = A", "6"),
+        rhMid("G", "回③推 G", "5"),
+        rhMid("F", "改拉 F", "4"),
+        rhMid("E", "回②推 E", "3"),
+        rhMid("D", "改拉 D", "2"),
+        rhMid("C", "①推收", "1"),
+      ],
+    },
+    scale: {
+      short: "音阶换向",
+      title: "C 大调上下行：标出每一次换向",
+      tip: "1→2 换键+改拉；2→3 同键改推。上下行各走一遍，把换向点练成肌肉记忆。",
+      steps: [
+        rhMid("C", "①推起", "1"),
+        rhMid("D", "②改拉", "2"),
+        rhMid("E", "②改推", "3"),
+        rhMid("F", "③改拉", "4"),
+        rhMid("G", "③改推", "5"),
+        rhMid("A", "④仍拉", "6"),
+        {
+          side: "R",
+          row: "mid",
+          col: 4,
+          dir: "pull",
+          note: "b''",
+          solf: "7",
+          label: "7",
+          why: "⑤拉 = B",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 3,
+          dir: "push",
+          note: "c'''",
+          solf: "1",
+          label: "1",
+          why: "④推 = 高 C",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 4,
+          dir: "pull",
+          note: "b''",
+          solf: "7",
+          label: "7",
+          why: "下行：⑤拉 B",
+        },
+        rhMid("A", "④拉 A", "6"),
+        rhMid("G", "③推 G", "5"),
+        rhMid("F", "③拉 F", "4"),
+        rhMid("E", "②推 E", "3"),
+        rhMid("D", "②拉 D", "2"),
+        rhMid("C", "①推收", "1"),
+      ],
+    },
+    wave: {
+      short: "波浪乐句",
+      title: "民谣型波浪 · C–D–E–F–G–A–G–F–E–D–C",
+      tip: "比三音玩具波浪更接近真乐句：推拉在句中来回切。慢到风箱与手指同步，再加速。",
+      steps: [
+        rhMid("C", "推起", "1"),
+        rhMid("D", "改拉", "2"),
+        rhMid("E", "改推", "3"),
+        rhMid("F", "改拉", "4"),
+        rhMid("G", "改推", "5"),
+        rhMid("A", "仍拉", "6"),
+        rhMid("G", "改推", "5"),
+        rhMid("F", "改拉", "4"),
+        rhMid("E", "改推", "3"),
+        rhMid("D", "改拉", "2"),
+        rhMid("E", "改推", "3"),
+        rhMid("D", "改拉", "2"),
+        rhMid("C", "改推收", "1"),
+      ],
+    },
+    hold: {
+      short: "同向长串",
+      title: "同向行程规划 · 连推后掉头连拉",
+      tip: "一串同向要提前留风箱行程。先连推 C–E–G–c，再掉头连拉 A–F–D，最后推回 C。",
+      steps: [
+        rhMid("C", "连推 C", "1"),
+        rhMid("E", "连推 E", "3"),
+        rhMid("G", "连推 G", "5"),
+        {
+          side: "R",
+          row: "mid",
+          col: 3,
+          dir: "push",
+          note: "c'''",
+          solf: "1",
+          label: "1",
+          why: "连推高 C",
+        },
+        rhMid("G", "仍推 G", "5"),
+        rhMid("E", "仍推 E", "3"),
+        rhMid("C", "仍推 C", "1"),
+        rhMid("A", "掉头拉 A", "6"),
+        rhMid("F", "连拉 F", "4"),
+        rhMid("D", "连拉 D", "2"),
+        rhMid("F", "连拉 F", "4"),
+        rhMid("A", "连拉 A", "6"),
+        rhMid("G", "改推 G", "5"),
+        rhMid("E", "连推 E", "3"),
+        rhMid("C", "连推收", "1"),
+      ],
+    },
+    mix: {
+      short: "中+底规划",
+      title: "中行+底行混合 · 风箱规划乐句",
+      tip: "真曲子很少只停在一行。这句在中/底之间换指，逼你提前想：下一音要推还是拉、要不要跨行。",
+      steps: [
+        rhMid("C", "中①推 C", "1"),
+        rhMid("D", "中②拉 D", "2"),
+        rhMid("E", "中②推 E", "3"),
+        {
+          side: "R",
+          row: "bot",
+          col: 0,
+          dir: "push",
+          note: "g''",
+          solf: "5",
+          label: "5",
+          why: "跨底①推 G（同向）",
+        },
+        {
+          side: "R",
+          row: "bot",
+          col: 1,
+          dir: "pull",
+          note: "a''",
+          solf: "6",
+          label: "6",
+          why: "底②拉 A",
+        },
+        {
+          side: "R",
+          row: "bot",
+          col: 1,
+          dir: "push",
+          note: "b''",
+          solf: "7",
+          label: "7",
+          why: "底②推 B",
+        },
+        {
+          side: "R",
+          row: "bot",
+          col: 2,
+          dir: "pull",
+          note: "c'''",
+          solf: "1",
+          label: "1",
+          why: "底③拉高 C",
+        },
+        {
+          side: "R",
+          row: "bot",
+          col: 2,
+          dir: "push",
+          note: "d'''",
+          solf: "2",
+          label: "2",
+          why: "底③推 D",
+        },
+        {
+          side: "R",
+          row: "bot",
+          col: 1,
+          dir: "push",
+          note: "b''",
+          solf: "7",
+          label: "7",
+          why: "底②推 B",
+        },
+        {
+          side: "R",
+          row: "bot",
+          col: 0,
+          dir: "push",
+          note: "g''",
+          solf: "5",
+          label: "5",
+          why: "底①推 G",
+        },
+        rhMid("E", "回中②推 E", "3"),
+        rhMid("F", "中③拉 F", "4"),
+        rhMid("E", "中②推 E", "3"),
+        rhMid("D", "中②拉 D", "2"),
+        rhMid("C", "中①推收", "1"),
+      ],
+    },
+  };
+
+  const CROSSROW = {
+    gopts: {
+      short: "G 的三处",
+      title: "同一个 G：中 / 底 / 顶",
+      tip: "中行③推、底行①推、顶行②拉都是 g''。选哪处取决于当前风箱方向。",
+      steps: [
+        {
+          side: "R",
+          row: "mid",
+          col: 2,
+          dir: "push",
+          note: "g''",
+          solf: "5",
+          label: "中",
+          why: "中行③推（默认）",
+        },
+        {
+          side: "R",
+          row: "bot",
+          col: 0,
+          dir: "push",
+          note: "g''",
+          solf: "5",
+          label: "底",
+          why: "底行①推 · 同为推，可换指不掉头",
+        },
+        {
+          side: "R",
+          row: "top",
+          col: 1,
+          dir: "pull",
+          note: "g''",
+          solf: "5",
+          label: "顶",
+          why: "顶行②拉 · 拉的乐句里需要 G",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 2,
+          dir: "push",
+          note: "g''",
+          solf: "5",
+          label: "中",
+          why: "回到中行默认",
+        },
+      ],
+    },
+    aopts: {
+      short: "A 的两处",
+      title: "同一个 A：中行拉 vs 顶行推",
+      tip: "中行④拉是常用 A；整句都在推时，改用顶行②推的 A，可少倒风箱。",
+      steps: [
+        {
+          side: "R",
+          row: "mid",
+          col: 3,
+          dir: "pull",
+          note: "a''",
+          solf: "6",
+          label: "中拉",
+          why: "中行④拉",
+        },
+        {
+          side: "R",
+          row: "top",
+          col: 1,
+          dir: "push",
+          note: "a''",
+          solf: "6",
+          label: "顶推",
+          why: "顶行②推 · 推方向的备用 A",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 3,
+          dir: "pull",
+          note: "a''",
+          solf: "6",
+          label: "中拉",
+          why: "对比音色与手感",
+        },
+        {
+          side: "R",
+          row: "top",
+          col: 1,
+          dir: "push",
+          note: "a''",
+          solf: "6",
+          label: "顶推",
+          why: "再走一遍顶行",
+        },
+      ],
+    },
+    avoid: {
+      short: "少倒风箱",
+      title: "推方向走完 C–E–G–A–G–E–C",
+      tip: "若死守中行，A 只能拉；这里 A 改顶行推，整句可更久停在推。",
+      steps: [
+        {
+          side: "R",
+          row: "mid",
+          col: 0,
+          dir: "push",
+          note: "c''",
+          solf: "1",
+          label: "1",
+          why: "中①推",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 1,
+          dir: "push",
+          note: "e''",
+          solf: "3",
+          label: "3",
+          why: "中②推",
+        },
+        {
+          side: "R",
+          row: "bot",
+          col: 0,
+          dir: "push",
+          note: "g''",
+          solf: "5",
+          label: "5",
+          why: "底①推 G",
+        },
+        {
+          side: "R",
+          row: "top",
+          col: 1,
+          dir: "push",
+          note: "a''",
+          solf: "6",
+          label: "6",
+          why: "顶②推 A（关键：不改拉）",
+        },
+        {
+          side: "R",
+          row: "bot",
+          col: 0,
+          dir: "push",
+          note: "g''",
+          solf: "5",
+          label: "5",
+          why: "回底①推 G",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 1,
+          dir: "push",
+          note: "e''",
+          solf: "3",
+          label: "3",
+          why: "中②推",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 0,
+          dir: "push",
+          note: "c''",
+          solf: "1",
+          label: "1",
+          why: "中①推收",
+        },
+      ],
+    },
+    cx: {
+      short: "C跨行音阶",
+      title: "C 大调跨行指法",
+      tip: "与「右手走音 · C跨行」相同：G 走底、A 走顶。",
+      steps: SCALES.Cx.steps.map(function (s) {
+        return Object.assign({}, s, { label: s.solf, why: s.why || "" });
+      }),
+    },
+    phrase: {
+      short: "跨行乐句",
+      title: "推方向跨行乐句 · C–E–G–A–B–c–A–G–E–C",
+      tip: "整句尽量停在推：G 走底、A 走顶、B 走底。若死守中行，A/B 往往要拉——这句逼你用重复音。",
+      steps: [
+        {
+          side: "R",
+          row: "mid",
+          col: 0,
+          dir: "push",
+          note: "c''",
+          solf: "1",
+          label: "1",
+          why: "中①推 C",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 1,
+          dir: "push",
+          note: "e''",
+          solf: "3",
+          label: "3",
+          why: "中②推 E",
+        },
+        {
+          side: "R",
+          row: "bot",
+          col: 0,
+          dir: "push",
+          note: "g''",
+          solf: "5",
+          label: "5",
+          why: "底①推 G",
+        },
+        {
+          side: "R",
+          row: "top",
+          col: 1,
+          dir: "push",
+          note: "a''",
+          solf: "6",
+          label: "6",
+          why: "顶②推 A",
+        },
+        {
+          side: "R",
+          row: "bot",
+          col: 1,
+          dir: "push",
+          note: "b''",
+          solf: "7",
+          label: "7",
+          why: "底②推 B",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 3,
+          dir: "push",
+          note: "c'''",
+          solf: "1",
+          label: "1",
+          why: "中④推高 C",
+        },
+        {
+          side: "R",
+          row: "top",
+          col: 1,
+          dir: "push",
+          note: "a''",
+          solf: "6",
+          label: "6",
+          why: "顶②推 A",
+        },
+        {
+          side: "R",
+          row: "bot",
+          col: 0,
+          dir: "push",
+          note: "g''",
+          solf: "5",
+          label: "5",
+          why: "底①推 G",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 1,
+          dir: "push",
+          note: "e''",
+          solf: "3",
+          label: "3",
+          why: "中②推 E",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 0,
+          dir: "push",
+          note: "c''",
+          solf: "1",
+          label: "1",
+          why: "中①推收",
+        },
+      ],
+    },
+  };
+
+  function tuneFromLetters(letters, lyrics, beatsStr) {
+    const cleaned = String(letters).replace(/\s+/g, "");
+    const beatList = beatsStr
+      ? String(beatsStr)
+          .trim()
+          .split(/\s+/)
+          .map((x) => Number(x))
+      : null;
+    const steps = [];
+    let li = 0;
+    for (let i = 0; i < cleaned.length; i++) {
+      const ch = cleaned[i];
+      if (!FLYME_RH[ch]) continue;
+      const st = rhMid(ch, "", "");
+      const ly = lyrics && lyrics[li] != null ? lyrics[li] : "";
+      st.label = ly || st.solf;
+      st.lyric = ly;
+      st.beats =
+        beatList && beatList[li] > 0 && !Number.isNaN(beatList[li])
+          ? beatList[li]
+          : 1;
+      steps.push(st);
+      li += 1;
+    }
+    return steps;
+  }
+
+  const TUNES = {
+    saints: {
+      short: "Saints",
+      title: "When the Saints Go Marching In",
+      tip: "公有领域爵士/福音标准开头。中行 C–E–F–G 推进；注意 E–C 与 E–D 的推拉切换。格子宽窄=时值。",
+      steps: tuneFromLetters(
+        "CEFG CEFG CEFGEC EDC CEFG CEFG CEFGEC EDC",
+        [
+          "Oh",
+          "when",
+          "the",
+          "saints",
+          "go",
+          "march-",
+          "ing",
+          "in",
+          "Oh",
+          "when",
+          "the",
+          "saints",
+          "go",
+          "march-",
+          "ing",
+          "in",
+          "Oh",
+          "when",
+          "the",
+          "saints",
+          "go",
+          "march-",
+          "ing",
+          "in",
+          "Oh",
+          "Lord",
+          "I",
+          "want",
+          "to",
+          "be",
+          "in",
+          "that",
+          "num-",
+          "ber",
+        ],
+        "1 1 1 1 1 1 1 2  1 1 1 1 1 1 1 1 2  1 1 1 1 1 1 1 2  1 1 1 1 1 1 1 1 2"
+      ),
+    },
+    grace: {
+      short: "Amazing Grace",
+      title: "Amazing Grace（节选）",
+      tip: "从属音 G 起。乐句比儿歌长：盯住 G–C–E 与 E–G–A–G 的推拉节奏，不要赶。格子宽窄=时值。",
+      steps: tuneFromLetters(
+        "GCEEDC EGAG GCEEDC EGDC GCEEDC EGAG GCEEDC EGDC",
+        [
+        "A-",
+        "ma-",
+        "zing",
+        "grace",
+        "how",
+        "sweet",
+        "the",
+        "sound",
+        "that",
+        "saved",
+        "a",
+        "wretch",
+        "like",
+        "me",
+        "I",
+        "once",
+        "was",
+        "lost",
+        "but",
+        "now",
+        "am",
+        "found",
+        "was",
+        "blind",
+        "but",
+        "now",
+        "I",
+        "see",
+        ],
+        "1 1 2 1 1 2 1 1 1 2  1 1 1 1 1 2 1 1 1 2  1 1 2 1 1 2 1 1 1 2  1 1 1 1 1 2 1 1 1 2"
+      ),
+    },
+    susanna: {
+      short: "Oh Susanna",
+      title: "Oh Susanna",
+      tip: "民谣经典，音域到高 C 与 B。后半句 G–A–B–c 练中行高区推拉；B 用中⑤拉。格子宽窄=时值。",
+      steps: tuneFromLetters(
+        "CEGGAGEC CEGGAGE GGABC BAGE EEDDC CEGGAGEC",
+        [
+          "Oh",
+          "I",
+          "come",
+          "from",
+          "A-",
+          "la-",
+          "ba-",
+          "ma",
+          "with",
+          "a",
+          "ban-",
+          "jo",
+          "on",
+          "my",
+          "knee",
+          "I'm",
+          "going",
+          "to",
+          "Lou-",
+          "si-",
+          "a-",
+          "na",
+          "my",
+          "true",
+          "love",
+          "for",
+          "to",
+          "see",
+          "Oh",
+          "Su-",
+          "san-",
+          "na",
+        ],
+        "1 1 1 1 1 1 1 2  1 1 1 1 1 1 2  1 1 1 1 2  1 1 1 2  1 1 1 1 2  1 1 1 1 1 1 1 2"
+      ),
+    },
+    gifts: {
+      short: "Simple Gifts",
+      title: "Simple Gifts（跨行指法）",
+      tip: "Shaker 曲。g/a 小写 = 底行推 G、顶行推 A，整句更偏推、少倒风箱——把跨行用进曲子里。格子宽窄=时值。",
+      steps: tuneFromLetters(
+        "ggagECDE ggagECDC ggagECDE ggagECDC",
+        [
+        "'Tis",
+        "a",
+        "gift",
+        "to",
+        "be",
+        "sim-",
+        "ple",
+        "'tis",
+        "a",
+        "gift",
+        "to",
+        "be",
+        "free",
+        "'tis",
+        "a",
+        "gift",
+        "to",
+        "come",
+        "down",
+        "where",
+        "we",
+        "ought",
+        "to",
+        "be",
+        "and",
+        "when",
+        "we",
+        "find",
+        "our-",
+        "selves",
+        "in",
+        "the",
+        ],
+        "1 1 1 1 1 1 1 2  1 1 1 1 1 1 1 2  1 1 1 1 1 1 1 2  1 1 1 1 1 1 1 2"
+      ),
+    },
+    easy: {
+      short: "极简",
+      title: "",
+      tip: "三音热身。格子宽窄 = 时值（宽=2拍，窄=1拍）；颜色 = 推/拉。· 是过门（只有音高）。",
+      steps: tuneFromLetters(
+        "EDC EDC CCCC DDDD EDC",
+        [
+          "Hot",
+          "cross",
+          "buns",
+          "Hot",
+          "cross",
+          "buns",
+          "One",
+          "a",
+          "pen-",
+          "ny",
+          "Two",
+          "a",
+          "pen-",
+          "ny",
+          "Hot",
+          "cross",
+          "buns",
+        ],
+        "1 1 2  1 1 2  1 1 1 1  1 1 1 1  1 1 2"
+      ),
+    },
+  };
+
+  const bellowsLesson = createStepLesson({
+    id: "bellows",
+    catalog: BELLOWS,
+    order: ["flip", "scale", "wave", "hold", "mix"],
+    focusSide: "R",
+    delay: 480,
+  });
+
+  const crossrowLesson = createStepLesson({
+    id: "crossrow",
+    catalog: CROSSROW,
+    order: ["gopts", "aopts", "avoid", "cx", "phrase"],
+    focusSide: "R",
+    delay: 600,
+  });
+
+  const tunesLesson = createStepLesson({
+    id: "tunes",
+    catalog: TUNES,
+    order: ["saints", "grace", "susanna", "gifts", "easy"],
+    focusSide: "R",
+    delay: 420,
+    noteDur: 0.36,
+    hideTitle: true,
+  });
+
+  // —— Left-hand progressions ——
+  const PROGRESSIONS = {
+    cgc: {
+      short: "C–G 热身",
+      title: "主–属循环（都推）",
+      tip: "C 与 G 都是推。先练「换键不换向」，再上带拉的进行。",
+      steps: ["C", "G", "C", "G", "C", "G", "C"].map(function (name) {
+        return Object.assign({}, CHORDS[name], { label: name, name: name });
+      }),
+    },
+    cfc: {
+      short: "C–F 换向",
+      title: "主–下属 · 推↔拉",
+      tip: "C 推、F 拉。换和弦时顺带掉头——左手最常见的换向。",
+      steps: ["C", "F", "C", "F", "C", "F", "C"].map(function (name) {
+        return Object.assign({}, CHORDS[name], { label: name, name: name });
+      }),
+    },
+    pop: {
+      short: "I–vi–IV–V",
+      title: "C–Am–F–G 流行长循环",
+      tip: "推(C)→拉(Am)→拉(F)→推(G)。走两遍，练换和弦的连贯，不要每和弦重新找手位。",
+      steps: ["C", "Am", "F", "G", "C", "Am", "F", "G", "C"].map(function (name) {
+        return Object.assign({}, CHORDS[name], { label: name, name: name });
+      }),
+    },
+    folk: {
+      short: "民歌向",
+      title: "C–Am–Dm–G7–C",
+      tip: "民谣常见色彩：加入 Dm（拉）与 G7（拉）。注意 G（推三和弦）与 G7（拉）是不同形状、不同方向。",
+      steps: ["C", "Am", "Dm", "G7", "C", "Am", "Dm", "G7", "C"].map(function (name) {
+        return Object.assign({}, CHORDS[name], { label: name, name: name });
+      }),
+    },
+    turn: {
+      short: "Jazz 回合",
+      title: "Am–Dm–G–C–F–Dm–G7–C",
+      tip: "更接近 Fly Me A 段色彩（Am 起），属七用拉的 G7。曲目页左手还可练单音根音 Dm / E。",
+      steps: ["Am", "Dm", "G", "C", "F", "Dm", "G7", "C"].map(function (name) {
+        return Object.assign({}, CHORDS[name], { label: name, name: name });
+      }),
+    },
+  };
+
+  const progressState = {
+    key: "cgc",
+    step: 0,
+    playing: false,
+    timer: null,
+    loop: false,
+  };
+  const PROGRESS_ORDER = ["cgc", "cfc", "pop", "folk", "turn"];
+
+  function stopProgressPlayback() {
+    if (progressState.timer) {
+      clearTimeout(progressState.timer);
+      progressState.timer = null;
+    }
+    progressState.playing = false;
+    const btn = document.getElementById("progressPlay");
+    if (btn) {
+      btn.classList.remove("on");
+      btn.textContent = "▶ 播放";
+    }
+  }
+
+  function playChordNotes(chord) {
+    if (!chord || !chord.buttons) return;
+    chord.buttons.forEach(function (b, i) {
+      setTimeout(function () {
+        playAbcNote(b.note, 0.5);
+      }, i * 40);
+    });
+  }
+
+  function paintProgressLesson(opts) {
+    opts = opts || {};
+    const mode = notationMode.current;
+    const prog = PROGRESSIONS[progressState.key] || PROGRESSIONS.cgc;
+    if (!PROGRESSIONS[progressState.key]) progressState.key = "cgc";
+    const board = document.getElementById("progressBoard");
+    const seg = document.getElementById("progressSeg");
+    if (!board || !seg) return;
+
+    seg.innerHTML = PROGRESS_ORDER.map(function (key) {
+      const s = PROGRESSIONS[key];
+      return (
+        '<button type="button" data-progress="' +
+        key +
+        '"' +
+        (key === progressState.key ? ' class="on"' : "") +
+        ">" +
+        escapeHtml(s.short) +
+        "</button>"
+      );
+    }).join("");
+
+    const chord = prog.steps[progressState.step];
+    renderBoard(board, LEFT, WHEATSTONE_RIGHT, {
+      title: prog.title + " · " + chord.name,
+      mode: mode,
+      focusSide: "L",
+      showMc: true,
+    });
+
+    const rail = document.getElementById("progressRail");
+    rail.innerHTML = prog.steps
+      .map(function (c, i) {
+        return railStepButton(
+          { dir: c.dir, label: c.label, beats: c.beats || 1 },
+          i,
+          progressState.step
+        );
+      })
+      .join("");
+
+    rail.querySelectorAll(".step").forEach(function (el) {
+      el.addEventListener("click", function () {
+        stopProgressPlayback();
+        progressState.step = +el.getAttribute("data-step");
+        playChordNotes(prog.steps[progressState.step]);
+        paintProgressLesson({ silent: true });
+      });
+    });
+
+    const notes = chord.buttons
+      .map(function (b) {
+        return (
+          escapeHtml(noteName(b.note, mode)) +
+          "（<kbd>" +
+          escapeHtml(b.note) +
+          "</kbd>）"
+        );
+      })
+      .join(" + ");
+    document.getElementById("progressInfo").innerHTML =
+      "<strong>第 " +
+      (progressState.step + 1) +
+      " / " +
+      prog.steps.length +
+      "</strong> · <strong>" +
+      escapeHtml(chord.name) +
+      "</strong> · " +
+      (chord.dir === "push" ? "推" : "拉") +
+      " · " +
+      notes +
+      "<br>" +
+      escapeHtml(prog.tip);
+
+    highlightChord(board, chord);
+    document.getElementById("progressPrev").disabled = progressState.step <= 0;
+    document.getElementById("progressNext").disabled =
+      progressState.step >= prog.steps.length - 1;
+    const playBtn = document.getElementById("progressPlay");
+    if (playBtn) {
+      playBtn.classList.toggle("on", progressState.playing);
+      playBtn.textContent = progressState.playing ? "■ 停止" : "▶ 播放";
+    }
+    const loopBtn = document.getElementById("progressLoop");
+    if (loopBtn) {
+      loopBtn.classList.toggle("on", progressState.loop);
+      loopBtn.setAttribute(
+        "aria-pressed",
+        progressState.loop ? "true" : "false"
+      );
+    }
+  }
+
+  function playProgressFromStart() {
+    const prog = PROGRESSIONS[progressState.key];
+    ensureAudio();
+    progressState.step = 0;
+    progressState.playing = true;
+    const btn = document.getElementById("progressPlay");
+    if (btn) {
+      btn.classList.add("on");
+      btn.textContent = "■ 停止";
+    }
+    function tick() {
+      if (!progressState.playing) return;
+      playChordNotes(prog.steps[progressState.step]);
+      paintProgressLesson({ silent: true });
+      if (progressState.step >= prog.steps.length - 1) {
+        if (progressState.loop) {
+          progressState.timer = setTimeout(function () {
+            progressState.step = 0;
+            tick();
+          }, 900);
+          return;
+        }
+        progressState.timer = setTimeout(function () {
+          stopProgressPlayback();
+        }, 700);
+        return;
+      }
+      progressState.timer = setTimeout(function () {
+        progressState.step += 1;
+        tick();
+      }, 900);
+    }
+    tick();
+  }
+
+  // —— Left-hand rhythm (oom-pah: root then triad) ——
+  function makeOomPah(names) {
+    const steps = [];
+    names.forEach(function (name) {
+      const chord = CHORDS[name];
+      if (!chord) return;
+      const root = chord.buttons[0];
+      steps.push({
+        kind: "root",
+        name: name,
+        label: name + " 根",
+        dir: root.dir,
+        buttons: [root],
+      });
+      steps.push({
+        kind: "chord",
+        name: name,
+        label: name,
+        dir: chord.dir,
+        buttons: chord.buttons.slice(),
+      });
+    });
+    return steps;
+  }
+
+  function makeOomPahPah(names) {
+    const steps = [];
+    names.forEach(function (name) {
+      const chord = CHORDS[name];
+      if (!chord) return;
+      const root = chord.buttons[0];
+      steps.push({
+        kind: "root",
+        name: name,
+        label: name + " 根",
+        dir: root.dir,
+        buttons: [root],
+      });
+      steps.push({
+        kind: "chord",
+        name: name,
+        label: name,
+        dir: chord.dir,
+        buttons: chord.buttons.slice(),
+      });
+      steps.push({
+        kind: "chord",
+        name: name,
+        label: name + " ·",
+        dir: chord.dir,
+        buttons: chord.buttons.slice(),
+      });
+    });
+    return steps;
+  }
+
+  function makePahOom(names) {
+    const steps = [];
+    names.forEach(function (name) {
+      const chord = CHORDS[name];
+      if (!chord) return;
+      const root = chord.buttons[0];
+      steps.push({
+        kind: "chord",
+        name: name,
+        label: name,
+        dir: chord.dir,
+        buttons: chord.buttons.slice(),
+      });
+      steps.push({
+        kind: "root",
+        name: name,
+        label: name + " 根",
+        dir: root.dir,
+        buttons: [root],
+      });
+    });
+    return steps;
+  }
+
+  function makeWalkingRoots(names) {
+    return names
+      .map(function (name) {
+        const chord = CHORDS[name];
+        if (!chord) return null;
+        const root = chord.buttons[0];
+        return {
+          kind: "bass",
+          name: name,
+          label: name + " 走",
+          dir: root.dir,
+          buttons: [root],
+        };
+      })
+      .filter(Boolean);
+  }
+
+  const RHYTHMS = {
+    cgc: {
+      short: "C–G oom-pah",
+      title: "C–G 根音 + 和弦",
+      tip: "先根音、再三和弦。C 与 G 都是推，适合先稳住节奏再换向。",
+      steps: makeOomPah(["C", "G", "C", "G", "C", "G"]),
+    },
+    cfc: {
+      short: "C–F oom-pah",
+      title: "C–F 推拉交替",
+      tip: "C 推、F 拉。根音与和弦同向，换和弦时掉头。",
+      steps: makeOomPah(["C", "F", "C", "F", "C", "F"]),
+    },
+    pop: {
+      short: "流行 oom-pah",
+      title: "C–Am–F–G 节奏型",
+      tip: "常见流行进行。盯住每一步是「根」还是「和弦」。",
+      steps: makeOomPah(["C", "Am", "F", "G", "C", "Am", "F", "G"]),
+    },
+    waltz: {
+      short: "3/4 圆舞",
+      title: "C–G–Am–G · oom-pah-pah",
+      tip: "三拍子：根音 + 和弦 + 和弦。民谣华尔兹常用；数拍「1–2–3」。",
+      steps: makeOomPahPah(["C", "G", "Am", "G"]),
+    },
+    sync: {
+      short: "切分 pah-oom",
+      title: "Am–Dm–G7–C · 先和弦后根音",
+      tip: "相对普通 oom-pah 反过来：先打和弦再落根音，右手旋律时左手不易「抢拍」。",
+      steps: makePahOom(["Am", "Dm", "G7", "C", "Am", "Dm", "G7", "C"]),
+    },
+    walk: {
+      short: "走音根音",
+      title: "C–Am–F–G–Em–Am–Dm–G7",
+      tip: "只走根音，练左手低音线条与推拉切换。合旋律前先把这条贝斯走顺。",
+      steps: makeWalkingRoots(["C", "Am", "F", "G", "Em", "Am", "Dm", "G7"]),
+    },
+    flyme: {
+      short: "Fly Me 回合",
+      title: "Am–Dm–G–C（Fly Me 向）",
+      tip: "接近 Fly Me 和声色彩（Am 起，含 Dm）。曲目页还可练 E 单音根音。",
+      steps: makeOomPah(["Am", "Dm", "G", "C"]),
+    },
+  };
+
+  const rhythmState = {
+    key: "cgc",
+    step: 0,
+    playing: false,
+    timer: null,
+    loop: false,
+  };
+  const RHYTHM_ORDER = ["cgc", "cfc", "pop", "waltz", "sync", "walk", "flyme"];
+
+  function stopRhythmPlayback() {
+    if (rhythmState.timer) {
+      clearTimeout(rhythmState.timer);
+      rhythmState.timer = null;
+    }
+    rhythmState.playing = false;
+    const btn = document.getElementById("rhythmPlay");
+    if (btn) {
+      btn.classList.remove("on");
+      btn.textContent = "▶ 播放";
+    }
+  }
+
+  function paintRhythmLesson(opts) {
+    opts = opts || {};
+    const mode = notationMode.current;
+    const prog = RHYTHMS[rhythmState.key] || RHYTHMS.cgc;
+    if (!RHYTHMS[rhythmState.key]) rhythmState.key = "cgc";
+    const board = document.getElementById("rhythmBoard");
+    const seg = document.getElementById("rhythmSeg");
+    if (!board || !seg) return;
+
+    seg.innerHTML = RHYTHM_ORDER.map(function (key) {
+      const s = RHYTHMS[key];
+      return (
+        '<button type="button" data-rhythm="' +
+        key +
+        '"' +
+        (key === rhythmState.key ? ' class="on"' : "") +
+        ">" +
+        escapeHtml(s.short) +
+        "</button>"
+      );
+    }).join("");
+
+    const chord = prog.steps[rhythmState.step];
+    renderBoard(board, LEFT, WHEATSTONE_RIGHT, {
+      title: prog.title + " · " + chord.label,
+      mode: mode,
+      focusSide: "L",
+      showMc: true,
+    });
+
+    const rail = document.getElementById("rhythmRail");
+    rail.innerHTML = prog.steps
+      .map(function (c, i) {
+        return railStepButton(
+          { dir: c.dir, label: c.label, beats: c.beats || 1 },
+          i,
+          rhythmState.step
+        );
+      })
+      .join("");
+
+    rail.querySelectorAll(".step").forEach(function (el) {
+      el.addEventListener("click", function () {
+        stopRhythmPlayback();
+        rhythmState.step = +el.getAttribute("data-step");
+        playChordNotes(prog.steps[rhythmState.step]);
+        paintRhythmLesson({ silent: true });
+      });
+    });
+
+    const notes = chord.buttons
+      .map(function (b) {
+        return (
+          escapeHtml(noteName(b.note, mode)) +
+          "（<kbd>" +
+          escapeHtml(b.note) +
+          "</kbd>）"
+        );
+      })
+      .join(" + ");
+    document.getElementById("rhythmInfo").innerHTML =
+      "<strong>第 " +
+      (rhythmState.step + 1) +
+      " / " +
+      prog.steps.length +
+      "</strong> · <strong>" +
+      escapeHtml(chord.label) +
+      "</strong> · " +
+      (chord.kind === "root"
+        ? "根音"
+        : chord.kind === "bass"
+          ? "走音根音"
+          : "三和弦") +
+      " · " +
+      (chord.dir === "push" ? "推" : "拉") +
+      " · " +
+      notes +
+      "<br>" +
+      escapeHtml(prog.tip);
+
+    highlightChord(board, chord);
+    document.getElementById("rhythmPrev").disabled = rhythmState.step <= 0;
+    document.getElementById("rhythmNext").disabled =
+      rhythmState.step >= prog.steps.length - 1;
+    const playBtn = document.getElementById("rhythmPlay");
+    if (playBtn) {
+      playBtn.classList.toggle("on", rhythmState.playing);
+      playBtn.textContent = rhythmState.playing ? "■ 停止" : "▶ 播放";
+    }
+    const loopBtn = document.getElementById("rhythmLoop");
+    if (loopBtn) {
+      loopBtn.classList.toggle("on", rhythmState.loop);
+      loopBtn.setAttribute(
+        "aria-pressed",
+        rhythmState.loop ? "true" : "false"
+      );
+    }
+  }
+
+  function playRhythmFromStart() {
+    const prog = RHYTHMS[rhythmState.key];
+    ensureAudio();
+    rhythmState.step = 0;
+    rhythmState.playing = true;
+    const btn = document.getElementById("rhythmPlay");
+    if (btn) {
+      btn.classList.add("on");
+      btn.textContent = "■ 停止";
+    }
+    function tick() {
+      if (!rhythmState.playing) return;
+      playChordNotes(prog.steps[rhythmState.step]);
+      paintRhythmLesson({ silent: true });
+      if (rhythmState.step >= prog.steps.length - 1) {
+        if (rhythmState.loop) {
+          rhythmState.timer = setTimeout(function () {
+            rhythmState.step = 0;
+            tick();
+          }, 700);
+          return;
+        }
+        rhythmState.timer = setTimeout(function () {
+          stopRhythmPlayback();
+        }, 550);
+        return;
+      }
+      rhythmState.timer = setTimeout(function () {
+        rhythmState.step += 1;
+        tick();
+      }, 700);
+    }
+    tick();
   }
 
   // —— Layout gallery ——
@@ -2606,11 +4828,111 @@
     });
     paintScaleLesson();
     paintChordLesson();
+    paintFlymeLesson();
+    bellowsLesson.paint();
+    crossrowLesson.paint();
+    tunesLesson.paint();
+    paintProgressLesson();
+    paintRhythmLesson();
     paintLayoutGallery();
     syncToggleLabel();
   }
 
   paintAll();
+
+  bellowsLesson.bind();
+  crossrowLesson.bind();
+  tunesLesson.bind();
+
+  document.getElementById("progressSeg").addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-progress]");
+    if (!btn) return;
+    stopProgressPlayback();
+    progressState.key = btn.getAttribute("data-progress");
+    progressState.step = 0;
+    paintProgressLesson({ silent: true });
+    playChordNotes(PROGRESSIONS[progressState.key].steps[0]);
+  });
+  document.getElementById("progressPrev").addEventListener("click", () => {
+    stopProgressPlayback();
+    if (progressState.step > 0) {
+      progressState.step -= 1;
+      playChordNotes(PROGRESSIONS[progressState.key].steps[progressState.step]);
+      paintProgressLesson({ silent: true });
+    }
+  });
+  document.getElementById("progressNext").addEventListener("click", () => {
+    stopProgressPlayback();
+    const max = PROGRESSIONS[progressState.key].steps.length - 1;
+    if (progressState.step < max) {
+      progressState.step += 1;
+      playChordNotes(PROGRESSIONS[progressState.key].steps[progressState.step]);
+      paintProgressLesson({ silent: true });
+    }
+  });
+  document.getElementById("progressReset").addEventListener("click", () => {
+    stopProgressPlayback();
+    progressState.step = 0;
+    paintProgressLesson({ silent: true });
+    playChordNotes(PROGRESSIONS[progressState.key].steps[0]);
+  });
+  document.getElementById("progressPlay").addEventListener("click", () => {
+    if (progressState.playing) {
+      stopProgressPlayback();
+      paintProgressLesson({ silent: true });
+      return;
+    }
+    playProgressFromStart();
+  });
+  document.getElementById("progressLoop").addEventListener("click", () => {
+    progressState.loop = !progressState.loop;
+    paintProgressLesson({ silent: true });
+  });
+
+  document.getElementById("rhythmSeg").addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-rhythm]");
+    if (!btn) return;
+    stopRhythmPlayback();
+    rhythmState.key = btn.getAttribute("data-rhythm");
+    rhythmState.step = 0;
+    paintRhythmLesson({ silent: true });
+    playChordNotes(RHYTHMS[rhythmState.key].steps[0]);
+  });
+  document.getElementById("rhythmPrev").addEventListener("click", () => {
+    stopRhythmPlayback();
+    if (rhythmState.step > 0) {
+      rhythmState.step -= 1;
+      playChordNotes(RHYTHMS[rhythmState.key].steps[rhythmState.step]);
+      paintRhythmLesson({ silent: true });
+    }
+  });
+  document.getElementById("rhythmNext").addEventListener("click", () => {
+    stopRhythmPlayback();
+    const max = RHYTHMS[rhythmState.key].steps.length - 1;
+    if (rhythmState.step < max) {
+      rhythmState.step += 1;
+      playChordNotes(RHYTHMS[rhythmState.key].steps[rhythmState.step]);
+      paintRhythmLesson({ silent: true });
+    }
+  });
+  document.getElementById("rhythmReset").addEventListener("click", () => {
+    stopRhythmPlayback();
+    rhythmState.step = 0;
+    paintRhythmLesson({ silent: true });
+    playChordNotes(RHYTHMS[rhythmState.key].steps[0]);
+  });
+  document.getElementById("rhythmPlay").addEventListener("click", () => {
+    if (rhythmState.playing) {
+      stopRhythmPlayback();
+      paintRhythmLesson({ silent: true });
+      return;
+    }
+    playRhythmFromStart();
+  });
+  document.getElementById("rhythmLoop").addEventListener("click", () => {
+    rhythmState.loop = !rhythmState.loop;
+    paintRhythmLesson({ silent: true });
+  });
 
   document.getElementById("scaleSeg").addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-scale]");
@@ -2657,7 +4979,79 @@
     playScaleFromStart();
   });
 
-  const PANEL_IDS = ["compare", "duplicates", "scales", "chords", "flyme"];
+  document.getElementById("flymeSeg").addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-flyme]");
+    if (!btn) return;
+    stopFlymePlayback();
+    flymeState.key = btn.getAttribute("data-flyme");
+    flymeState.step = 0;
+    paintFlymeLesson({ silent: true });
+    const st = FLYME[flymeState.key].steps[0];
+    if (st) playAbcNote(st.note);
+  });
+  document.getElementById("flymePrev").addEventListener("click", () => {
+    stopFlymePlayback();
+    if (flymeState.step > 0) {
+      flymeState.step -= 1;
+      const st = FLYME[flymeState.key].steps[flymeState.step];
+      if (st) {
+        playAbcNote(st.note);
+        if (flymeState.showLh) {
+          const lh = FLYME_LH[st.chord];
+          if (lh) playAbcNote(lh.note, 0.4);
+        }
+      }
+      paintFlymeLesson({ silent: true });
+    }
+  });
+  document.getElementById("flymeNext").addEventListener("click", () => {
+    stopFlymePlayback();
+    const max = FLYME[flymeState.key].steps.length - 1;
+    if (flymeState.step < max) {
+      flymeState.step += 1;
+      const st = FLYME[flymeState.key].steps[flymeState.step];
+      if (st) {
+        playAbcNote(st.note);
+        if (flymeState.showLh) {
+          const lh = FLYME_LH[st.chord];
+          if (lh) playAbcNote(lh.note, 0.4);
+        }
+      }
+      paintFlymeLesson({ silent: true });
+    }
+  });
+  document.getElementById("flymeReset").addEventListener("click", () => {
+    stopFlymePlayback();
+    flymeState.step = 0;
+    paintFlymeLesson({ silent: true });
+    const st = FLYME[flymeState.key].steps[0];
+    if (st) playAbcNote(st.note);
+  });
+  document.getElementById("flymePlay").addEventListener("click", () => {
+    if (flymeState.playing) {
+      stopFlymePlayback();
+      paintFlymeLesson({ silent: true });
+      return;
+    }
+    playFlymeFromStart();
+  });
+  document.getElementById("flymeLh").addEventListener("click", () => {
+    flymeState.showLh = !flymeState.showLh;
+    paintFlymeLesson({ silent: true });
+  });
+
+  const PANEL_IDS = [
+    "compare",
+    "duplicates",
+    "scales",
+    "bellows",
+    "crossrow",
+    "chords",
+    "progress",
+    "rhythm",
+    "tunes",
+    "flyme",
+  ];
   const sidebar = document.getElementById("sidebar");
   const sidebarBackdrop = document.getElementById("sidebarBackdrop");
   const navOpen = document.getElementById("navOpen");
@@ -2679,6 +5073,12 @@
     if (!PANEL_IDS.includes(name)) name = "compare";
     stopScalePlayback();
     stopLayoutScalePlayback();
+    stopFlymePlayback();
+    bellowsLesson.stop();
+    crossrowLesson.stop();
+    tunesLesson.stop();
+    stopProgressPlayback();
+    stopRhythmPlayback();
     document.querySelectorAll(".panel").forEach((p) => {
       p.classList.toggle("active", p.getAttribute("data-panel") === name);
     });
@@ -2727,6 +5127,12 @@
   document.getElementById("globalNotationToggle").addEventListener("click", () => {
     stopScalePlayback();
     stopLayoutScalePlayback();
+    stopFlymePlayback();
+    bellowsLesson.stop();
+    crossrowLesson.stop();
+    tunesLesson.stop();
+    stopProgressPlayback();
+    stopRhythmPlayback();
     notationMode.current = notationMode.current === "abc" ? "jianpu" : "abc";
     paintAll();
   });

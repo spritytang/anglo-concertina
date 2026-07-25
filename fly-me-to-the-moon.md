@@ -1,236 +1,136 @@
 # Fly Me to the Moon · Anglo Concertina 指法谱
 
-> **调性**：C 大调（适合 C/G Anglo 初学）  
-> **拍号**：4/4 · 中速 Swing（♩ ≈ 120）  
-> **编制**：右手主旋律 + 可选左手简单伴奏  
-> **布局**：Wheatstone 30 键 C/G（最常见布局）
+> **调性**：C 大调 / 关系小调 Am（爵士标准常用）  
+> **拍号**：4/4 · 中速（♩ ≈ 100–120）  
+> **编制**：右手主旋律 + 可选左手根音  
+> **布局**：Wheatstone 30 键 C/G（Wren 2）  
+> **互动页**：打开学习页后点左侧 **Fly Me**，或直达 `#flyme`
 
 ---
 
 ## 如何读这份谱
 
-### 指法记号
+### 指法记号（与学习页一致）
 
 | 符号 | 含义 |
 |------|------|
-| `C2↑` | 右手 **C 行** 第 2 键，**拉**（Pull，风箱向外） |
-| `C4↓` | 右手 **C 行** 第 4 键，**推**（Push，风箱向内） |
-| `G8↓` | 右手 **G 行** 第 8 键，**推** |
-| `L-C1↓` | **左手** C 行第 1 键，**推** |
+| 中行④推 | 右手 **中间行** 从左数第 4 键，**推**（高 C） |
+| 底行②推 | 右手 **底行** 第 2 键，**推**（B，与高 C 同向） |
+| 中行⑤拉 | 右手中间行第 5 键，**拉**（B 的中行备选） |
+| 左中⑤拉 | 左手中间行第 5 键，**拉**（Am 根音 a'） |
 
-- **C 行** = 右手内侧一行（按钮 1–5）  
-- **G 行** = 右手外侧一行（按钮 6–10）  
-- 数字 = 从左手边数起第几个键  
+### 右手音位速查（本曲）
 
-### 右手 C 行速查（主旋律常用）
+| 键 | 推 ↓ | 拉 ↑ |
+|:--:|:----:|:----:|
+| 中① | **C**（c''） | B（b'） |
+| 中② | **E** | **D** |
+| 中③ | **G** | **F** |
+| 中④ | **高 C**（c'''） | **A** |
+| 中⑤ | 高 E（e'''） | **B**（b''） |
+| 底② | **B**（b''） | A |
 
-| 按钮 | 推 ↓ | 拉 ↑ |
-|:----:|:----:|:----:|
-| C1 | G | A |
-| C2 | B | **C** |
-| C3 | **D** | **E** |
-| C4 | **F** | **G** |
-| C5 | **A** | B |
-
-> 本曲旋律主要在 **C4–A4**，全部在右手 C 行即可完成，非常适合练习推拉风箱。
+| 音 | 怎么按（本谱默认） |
+|:--:|:-------------------|
+| 高 C | 中行④ **推** |
+| B | 底行② **推**（开场与高 C 同向）；或中行⑤ **拉** |
+| A | 中行④ **拉** |
+| G | 中行③ **推** |
+| F | 中行③ **拉** |
+| E | 中行② **推** |
+| D | 中行② **拉** |
+| C | 中行① **推** |
+| 高 E | 中行⑤ **推**（B 段 Fill my heart） |
 
 ---
 
-## 主旋律（Verse + Chorus）
+## 主旋律（与 lead sheet 轮廓一致）
 
-每行格式：**小节线 | 音符 | 指法**
+开场是下行 **C–B–A–G–F**（“Fly me to the moon”），不是儿歌式的 `C C C F`。  
+后半句 **A–G–F–E** 对应 “Let me see what spring…”。
+
+每行：**歌词 · 音符 · 指法**
 
 ### A 段 — Verse
 
 ```
-小节:  |  1    2    3    4  |  5    6    7    8  |
-歌词:  | Fly  me   to   the | moon              |
-音符:  |  C    C    C    F  |  A    A    G    F  |
-指法:  | C2↑  C2↑  C2↑  C4↓ | C5↓  C5↓  C4↑  C4↓ |
+Fly me to the | moon
+C  B  A  G    | F  F  F  F
+中④推 底②推 中④拉 中③推 | 中③拉 ×4
 
-小节:  |  9   10   11   12 | 13   14   15   16 |
-歌词:  | And  let  me  play | among the stars   |
-音符:  |  F    F    F    F  |  A    A    G    F  |
-指法:  | C4↓  C4↓  C4↓  C4↓ | C5↓  C5↓  C4↑  C4↓ |
+And let me play | among the stars
+F  G  A  C      | B  A  G  E
+中③拉 中③推 中④拉 中④推 | 中⑤拉 中④拉 中③推 中②推
 
-小节:  | 17   18   19   20 | 21   22   23   24 |
-歌词:  | Let  me  see what  | spring is like on |
-音符:  |  G    G    G    G  |  E    E    D    C  |
-指法:  | C4↑  C4↑  C4↑  C4↑ | C3↑  C3↑  C3↓  C2↑ |
+Let me see what | spring is like on
+A  G  F  E      | D  E  F  A
+中④拉 中③推 中③拉 中②推 | 中②拉 中②推 中③拉 中④拉
 
-小节:  | 25   26   27   28 |
-歌词:  | Ju-  pi-  ter  and | Mars              |
-音符:  |  C    C    C    C  |  E    E    D    C  |
-指法:  | C2↑  C2↑  C2↑  C2↑ | C3↑  C3↑  C3↓  C2↑ |
+Jupiter and | Mars
+G  F  E  D  | C  C  C  C
+中③推 中③拉 中②推 中②拉 | 中①推 ×4
 ```
 
-### B 段 — Chorus
+左手根音（每小节）：**Am – Dm – G – C – F – Dm – E – Am**
+
+### B 段 — In other words / Chorus
 
 ```
-小节:  |  1    2    3    4  |  5    6    7    8  |
-歌词:  | In   oth- er  words| hold my hand       |
-音符:  |  F    F    F    F  |  A    A    G    F  |
-指法:  | C4↓  C4↓  C4↓  C4↓ | C5↓  C5↓  C4↑  C4↓ |
+In other words | hold my hand
+D  A  A  A     | A  C  B  G
+中②拉 中④拉 ×3 | 中④拉 中④推 中⑤拉 中③推
 
-小节:  |  9   10   11   12 |
-歌词:  | In   oth- er  words| baby kiss me       |
-音符:  |  G    G    G    G  |  E    E    D    C  |
-指法:  | C4↑  C4↑  C4↑  C4↑ | C3↑  C3↑  C3↓  C2↑ |
+In other words | baby kiss me
+C  F  F  F     | F  A  G  E
+中①推 中③拉 ×3 | 中③拉 中④拉 中③推 中②推
 
-小节:  | 13   14   15   16 | 17   18   19   20 |
-歌词:  | Fill my heart with  | song               |
-音符:  |  F    F    F    F  |  A    A    G    F  |
-指法:  | C4↓  C4↓  C4↓  C4↓ | C5↓  C5↓  C4↑  C4↓ |
+Fill my heart with | song
+D  A  A  A         | A  C  B  E
+中②拉 中④拉 ×3     | 中④拉 中④推 中⑤拉 中⑤推
 
-小节:  | 21   22   23   24 |
-歌词:  | And  let  me  sing  | forever more       |
-音符:  |  G    G    G    G  |  E    E    D    C  |
-指法:  | C4↑  C4↑  C4↑  C4↑ | C3↑  C3↑  C3↓  C2↑ |
+And let me sing | forever more
+D  A  A  A      | A  B  D  C
+中②拉 中④拉 ×3  | 中④拉 中⑤拉 中②拉 中①推
 ```
 
-### C 段 — Bridge
+左手根音：**Dm – G – F – G – Dm – E – Dm – C**
+
+### C 段 — Adore / I love you
 
 ```
-小节:  |  1    2    3    4  |  5    6    7    8  |
-歌词:  | You  are  all  I   | long for           |
-音符:  |  D    D    D    D  |  F    F    E    D  |
-指法:  | C3↓  C3↓  C3↓  C3↓ | C4↓  C4↓  C3↑  C3↓ |
+You are all I | long for
+A  G  F  E    | D  E  F  A
+中④拉 中③推 中③拉 中②推 | 中②拉 中②推 中③拉 中④拉
 
-小节:  |  9   10   11   12 |
-歌词:  | All  I  wor- ship  | and adore          |
-音符:  |  C    C    C    C  |  E    E    D    C  |
-指法:  | C2↑  C2↑  C2↑  C2↑ | C3↑  C3↑  C3↓  C2↑ |
+All I worship | and adore
+G  F  E  D    | C  C  C  C
+中③推 中③拉 中②推 中②拉 | 中①推 ×4
 
-小节:  | 13   14   15   16 | 17   18   19   20 |
-歌词:  | In   oth- er  words| please be true     |
-音符:  |  F    F    F    F  |  A    A    G    F  |
-指法:  | C4↓  C4↓  C4↓  C4↓ | C5↓  C5↓  C4↑  C4↓ |
+In other words | please be true
+D  A  A  A     | A  C  B  G
+中②拉 中④拉 ×3 | 中④拉 中④推 中⑤拉 中③推
 
-小节:  | 21   22   23   24 |
-歌词:  | In   oth- er  words| I love you         |
-音符:  |  G    G    G    G  |  E    E    D    C  |
-指法:  | C4↑  C4↑  C4↑  C4↑ | C3↑  C3↑  C3↓  C2↑ |
+In other words | I love you
+D  A  A  A     | A  B  D  C
+中②拉 中④拉 ×3 | 中④拉 中⑤拉 中②拉 中①推
 ```
+
+左手根音：**F – Dm – E – Am – Dm – G – Dm – C**
 
 ---
 
-## 曲式结构（完整演奏顺序）
+## 练习顺序
 
-```
-[Intro] → A → A → B → A → C → B → [Outro]
-```
-
-- **Intro / Outro**：见下方「前奏 & 尾奏」  
-- 初学者可先练 **A 段 8 小节**，熟练后再接 B 段  
+1. 只练 **A 段前 5 音**（C–B–A–G–F，Fly me to the moon）  
+2. 练完整个 A，再接 B / C  
+3. 打开互动页「左手根音」，左右对齐  
 
 ---
 
-## 前奏 & 尾奏（8 小节 Jazz 进行）
+## ABC（五线谱源）
 
-经典和弦进行：**C – Am7 – Dm7 – G7**（循环 2 次）
-
-### 左手和弦指法（每次按键约 2 拍）
-
-| 和弦 | 左手按钮 | 组成音 |
-|:----:|:---------|:------|
-| **C** | L-C1↓ + L-C2↓ | C + E（可加 L-C3↓ = G） |
-| **Am7** | L-C5↑ + L-C3↓ + L-C2↑ | A + G + B |
-| **Dm7** | L-C3↑ + L-C5↓ + L-C4↑ | D + A + F |
-| **G7** | L-G6↓ + L-C2↓ + L-C4↓ | G + E + B |
-
-> 左手和弦需要同时按多个键。初学阶段可以**只弹根音**（表中每和弦的第一个按钮）。
-
-### 前奏旋律（右手，可选）
-
-在前奏和弦上轻轻演奏 A 段第一行的旋律，或只弹：
-
-```
-| C2↑  C3↓  C3↑  C4↓ | C5↓  C4↑  C3↓  C2↑ |
-|  C    D    E    F  |  A    G    D    C  |
-```
+见同目录 `fly-me-to-the-moon.abc`，可粘贴到 [abcnotation.com](https://abcnotation.com)。
 
 ---
 
-## 练习建议
-
-### 第 1 周：熟悉 C 行
-1. 只练右手，不开左手  
-2. 重点感受 **C2↑（C）** 和 **C4↓（F）** 的推拉切换  
-3. 慢速：♩ = 60，用节拍器  
-
-### 第 2 周：连贯演奏 A 段
-1. 注意第 3–4 小节 **C4↑（G）** 连续 4 个拉，风箱要留够气  
-2. 第 7 小节 **C3↑–C3↓–C2↑（E–D–C）** 是下行音阶，练到流畅  
-
-### 第 3 周：加入左手
-1. 左手只弹根音：C → F → G → C（对应 A 段和声）  
-2. A 段和声示意（每和弦 2 小节）：
-
-```
-|  C        |  C        |  F        |  F        |
-|  G        |  G        |  C        |  C        |
-```
-
-### 推拉风箱提示
-
-Anglo 是 **双声部** 乐器：同一按钮推和拉是不同音。  
-本谱尽量让 **4 个音小节内推拉方向有规律**，减少风箱耗尽：
-
-- 以 **推** 开始（C2↑ 虽然是拉，但第 1 音后很快切换）  
-- 长音（如 GGGG）全部同一方向时，提前规划风箱位置  
-- 感觉风箱不够时，可在和弦长音处「偷换气」——利用左手和弦切换时微调风箱  
-
----
-
-## 标准五线谱（ABC 格式）
-
-将下方内容复制到 [abcnotation.com](https://abcnotation.com) 或 [drawthedots.com](https://drawthedots.com) 即可生成 PDF 五线谱。  
-如需 Anglo 指法标注，可粘贴到 [Anglo Fingering Generator](https://jvandonsel.github.io/fingering/fingering.html)。
-
-```abc
-X:1
-T:Fly Me To The Moon
-C:Bart Howard (1954) - Anglo Concertina Arrangement
-M:4/4
-L:1/4
-Q:1/4=120
-K:C
-%%score (RH LH)
-V:RH clef=treble name="右手"
-V:LH clef=bass name="左手"
-[V:RH] C C C F | A A G F | F F F F | A A G F |
-[V:RH] G G G G | E E D C | C C C C | E E D C |
-[V:RH] F F F F | A A G F | G G G G | E E D C |
-[V:RH] F F F F | A A G F | G G G G | E E D C |
-[V:RH] D D D D | F F E D | C C C C | E E D C |
-[V:RH] F F F F | A A G F | G G G G | E E D C |
-[V:LH] C,2 C,2 F,2 F,2 | G,2 G,2 C,2 C,2 |
-[V:LH] C,2 C,2 F,2 F,2 | G,2 G,2 C,2 C,2 |
-[V:LH] F,2 F,2 F,2 F,2 | G,2 G,2 C,2 C,2 |
-[V:LH] F,2 F,2 F,2 F,2 | G,2 G,2 C,2 C,2 |
-[V:LH] D,2 D,2 F,2 F,2 | C,2 C,2 C,2 C,2 |
-[V:LH] F,2 F,2 F,2 F,2 | G,2 G,2 C,2 C,2 |
-```
-
----
-
-## 和声参考（进阶）
-
-| 段落 | 小节 | 和弦 |
-|:----:|:----:|:-----|
-| A | 1–2 | Cmaj7 |
-| A | 3–4 | Fmaj7 |
-| A | 5–6 | G7 |
-| A | 7–8 | Cmaj7 |
-| B | 1–2 | Fmaj7 |
-| B | 3–4 | Cmaj7 |
-| B | 5–6 | Fmaj7 |
-| B | 7–8 | Cmaj7 |
-| C | 1–2 | Dm7 |
-| C | 3–4 | G7 |
-| C | 5–6 | Cmaj7 → A7 |
-| C | 7–8 | Dm7 → G7 |
-
----
-
-*祝你练琴愉快！如有 Jeffries 布局或 40 键扩展琴，顶部 accidentals 行的 F#、Bb 等位置可能不同，请以你琴上的贴纸或官方键盘图为准。*
+*指法已按 Wheatstone / Wren 2 校对，与学习页 `#flyme` 一致。*
