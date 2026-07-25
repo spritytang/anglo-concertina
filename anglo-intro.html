@@ -1226,6 +1226,19 @@
   .layout-anglo-note[hidden] {
     display: none;
   }
+  .layout-anglo-note .tune-key-preview {
+    cursor: pointer;
+    outline: none;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 2px;
+    transition: text-decoration-color 0.15s, color 0.15s;
+  }
+  .layout-anglo-note .tune-key-preview:hover,
+  .layout-anglo-note .tune-key-preview:focus-visible {
+    color: var(--accent);
+    text-decoration-color: currentColor;
+  }
   /* 以 Anglo 高度为基准固定卡片；标题在顶，键区在剩余空间垂直居中 */
   #layoutView .layout-board {
     --btn-size: 54px;
@@ -1497,10 +1510,10 @@
     <div class="card prose layout-anglo-note" id="layoutAngloNote" hidden>
       <p><strong>Anglo</strong> 指推拉异音（bisonoric）布局，不是单一调性。常见规格都按<strong>两个 home-row 调</strong>命名：中行为第一调，底行为高纯五度的第二调。例如：</p>
       <ul>
-        <li><strong>C/G</strong> — Irish Folk 最常见</li>
-        <li><strong>G/D</strong> — English Folk、Morris 常用，整体更低</li>
-        <li><strong>Bb/F</strong> — 常给歌手伴奏，音色偏暖</li>
-        <li><strong>Ab/Eb</strong> — 历史上军乐常用</li>
+        <li><strong class="tune-key-preview" tabindex="0" role="button" data-notes="c',g'">C/G</strong> — Irish Folk 最常见</li>
+        <li><strong class="tune-key-preview" tabindex="0" role="button" data-notes="g,d'">G/D</strong> — English Folk、Morris 常用，整体更低</li>
+        <li><strong class="tune-key-preview" tabindex="0" role="button" data-notes="bb,f'">Bb/F</strong> — 常给歌手伴奏，音色偏暖</li>
+        <li><strong class="tune-key-preview" tabindex="0" role="button" data-notes="ab,eb'">Ab/Eb</strong> — 历史上军乐常用</li>
       </ul>
       <p>以 <strong>C/G</strong> 为例：中行按 C 大调、底行按 G 大调排。围着 C、G、Am、D 等调很顺；别的调也能弹，但更依赖顶行变化音和跨行。所以<strong>跨行</strong>主要是 Anglo 的难技：在中/底/顶行之间换指，好少倒风箱。English / Duet 没有这套 home-row 逻辑。</p>
     </div>
@@ -3130,18 +3143,20 @@
 
     const master = ctx.createGain();
     const peak = (dur < 0.22 ? 0.32 : 0.28) * gs;
+    // Reed swell (not piano hammer): slower attack, longer steady body.
+    const atk = Math.min(0.045, Math.max(0.022, dur * 0.08));
     master.gain.setValueAtTime(0.0001, now);
-    master.gain.exponentialRampToValueAtTime(peak, now + 0.01);
+    master.gain.exponentialRampToValueAtTime(peak, now + atk);
     master.gain.exponentialRampToValueAtTime(
-      peak * 0.82,
-      now + Math.min(0.06, dur * 0.35)
+      peak * 0.9,
+      now + atk + Math.min(0.08, dur * 0.25)
     );
-    const rel = Math.min(0.09, Math.max(0.035, dur * 0.28));
+    const rel = Math.min(0.12, Math.max(0.05, dur * 0.32));
     master.gain.setValueAtTime(
-      peak * 0.78,
-      Math.max(now + 0.03, now + dur - rel)
+      peak * 0.86,
+      Math.max(now + atk + 0.02, now + dur - rel)
     );
-    master.gain.exponentialRampToValueAtTime(0.0001, now + dur + 0.02);
+    master.gain.exponentialRampToValueAtTime(0.0001, now + dur + 0.03);
 
     const bp = ctx.createBiquadFilter();
     bp.type = "bandpass";
@@ -3154,6 +3169,7 @@
 
     function voice(detuneCents, level) {
       const osc = ctx.createOscillator();
+      // Free-reed only — never leave OscillatorNode on default sine (piano-ish).
       osc.setPeriodicWave(reedWave);
       osc.frequency.value = freq;
       osc.detune.value = detuneCents;
@@ -3174,8 +3190,9 @@
     nFilter.frequency.value = Math.min(3200, freq * 2.4);
     nFilter.Q.value = 1.8;
     const nGain = ctx.createGain();
-    nGain.gain.setValueAtTime(0.045, now);
-    nGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.028);
+    // Light chiff only — loud noise burst reads as piano hammer on short demos.
+    nGain.gain.setValueAtTime(0.018, now);
+    nGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.022);
     noise.connect(nFilter);
     nFilter.connect(nGain);
     nGain.connect(master);
@@ -5500,17 +5517,17 @@
       ],
     },
     crane: {
-      title: "C 大调 · 右手（c''）",
-      tip: "Crane：旋律在右手；三内列锯齿走上八度。",
+      title: "C 大调 · 右手",
+      tip: "Crane：旋律在右手；三内列锯齿走上八度（与 English / Hayden 同从 c' 起）。",
       steps: [
+        { side: "R", row: 5, col: 1, note: "c'" },
+        { side: "R", row: 5, col: 3, note: "d'" },
+        { side: "R", row: 5, col: 2, note: "e'" },
+        { side: "R", row: 4, col: 1, note: "f'" },
+        { side: "R", row: 4, col: 3, note: "g'" },
+        { side: "R", row: 4, col: 2, note: "a'" },
+        { side: "R", row: 3, col: 1, note: "b'" },
         { side: "R", row: 3, col: 3, note: "c''" },
-        { side: "R", row: 3, col: 2, note: "d''" },
-        { side: "R", row: 2, col: 1, note: "e''" },
-        { side: "R", row: 2, col: 3, note: "f''" },
-        { side: "R", row: 2, col: 2, note: "g''" },
-        { side: "R", row: 1, col: 1, note: "a''" },
-        { side: "R", row: 1, col: 3, note: "b''" },
-        { side: "R", row: 1, col: 2, note: "c'''" },
       ],
     },
   };
@@ -5554,7 +5571,7 @@
     ],
   };
 
-  // Crane / Triumph 48 (20+28). Rows high→low; 5 cols; outer cols = accidentals, inner 3 = naturals.
+  // Crane 48 (20+28; also sold as Triumph). Rows high→low; 5 cols; outer cols = accidentals, inner 3 = naturals.
   // Source: Wes Williams chart (concertina.com/fingering) + ICA standard 48 (crane48layout).
   // null = shorter outer columns (aligned to the bottom). L/R overlap around c'–g' is intentional.
   const CRANE_48 = {
@@ -5581,7 +5598,7 @@
       tabLabel: "Anglo · 30键",
       kind: "bi",
       kindLabel: "推拉异音",
-      blurb: "Wren 2 就是这种。Irish / Folk 最常见。左右中行 = C，底行 = G。",
+      blurb: "Wren 2 就是这种。Irish Folk 最常见。左右中行 = C，底行 = G。",
       type: "anglo",
       ref: "https://www.concertina.info/tina.faq/images/finger3.htm",
     },
@@ -5607,10 +5624,10 @@
     },
     {
       id: "crane",
-      label: "Crane / Triumph · 48键",
+      label: "Crane · 48键",
       kind: "uni",
       kindLabel: "推拉同音",
-      blurb: "经典 Duet（救世军称 Triumph）。左低右高、中音区左右重叠；外两列变化音、内三列自然音。",
+      blurb: "经典 Duet（救世军称 Triumph）：外侧两列取升降号（不同于 Hayden 的同形五度网格）",
       type: "uni",
       sample: CRANE_48,
       ref: "https://concertina.org/the-crane-concertina-layouts/",
@@ -6215,6 +6232,90 @@
     });
   }
 
+  /** Hover/focus/click home-row tonics on Anglo tuning labels (C/G, G/D, …). */
+  function wireTuneKeyPreviews() {
+    const root = document.getElementById("layoutAngloNote");
+    if (!root || root.dataset.tunePreviewBound) return;
+    root.dataset.tunePreviewBound = "1";
+    let playGen = 0;
+    let lastNotes = "";
+    let lastAt = 0;
+    // Same duration as wireLayoutNotePlay — short plinks read as piano.
+    const NOTE_DUR = 0.42;
+    const DEBOUNCE_MS = 420;
+
+    function playPair(notesAttr) {
+      const notes = String(notesAttr || "")
+        .split(",")
+        .map(function (s) {
+          return s.trim();
+        })
+        .filter(Boolean);
+      if (!notes.length) return;
+      const now = Date.now();
+      if (notesAttr === lastNotes && now - lastAt < DEBOUNCE_MS) return;
+      lastNotes = notesAttr;
+      lastAt = now;
+      const gen = ++playGen;
+      // Free-reed only: unlock then playAbcNote (reedWave / createPeriodicWave).
+      unlockAudio().then(function (c) {
+        if (gen !== playGen) return;
+        if (!c || c.state !== "running") return;
+        playAbcNote(notes[0], NOTE_DUR);
+        if (!notes[1]) return;
+        setTimeout(function () {
+          if (gen !== playGen) return;
+          playAbcNote(notes[1], NOTE_DUR);
+        }, Math.round(NOTE_DUR * 1000) - 60);
+      });
+    }
+
+    function previewEl(e) {
+      const el = e.target.closest(".tune-key-preview");
+      if (!el || !root.contains(el)) return null;
+      return el;
+    }
+
+    // mouseenter does not bubble; capture on the card often only sees enter on
+    // #layoutAngloNote itself (target ≠ .tune-key-preview) → silent no-op.
+    // mouseover bubbles and matches half/chip hover patterns elsewhere.
+    root.addEventListener("mouseover", function (e) {
+      const el = previewEl(e);
+      if (!el) return;
+      const from = e.relatedTarget;
+      if (from && el.contains(from)) return;
+      playPair(el.getAttribute("data-notes"));
+    });
+    root.addEventListener("focusin", function (e) {
+      const el = previewEl(e);
+      if (!el) return;
+      playPair(el.getAttribute("data-notes"));
+    });
+    // Click/pointerdown: works on first gesture (AudioContext unlock) when hover cannot.
+    root.addEventListener(
+      "pointerdown",
+      function (e) {
+        const el = previewEl(e);
+        if (!el) return;
+        playPair(el.getAttribute("data-notes"));
+      },
+      { passive: true }
+    );
+    root.addEventListener("click", function (e) {
+      const el = previewEl(e);
+      if (!el) return;
+      e.preventDefault();
+      playPair(el.getAttribute("data-notes"));
+    });
+    root.addEventListener("keydown", function (e) {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      const el = previewEl(e);
+      if (!el) return;
+      e.preventDefault();
+      playPair(el.getAttribute("data-notes"));
+    });
+  }
+
   // —— Init boards ——
   const notationMode = { current: "jianpu" };
 
@@ -6247,6 +6348,7 @@
 
   paintAll();
   bindLayoutTipHovers();
+  wireTuneKeyPreviews();
 
   bellowsLesson.bind();
   crossrowLesson.bind();
