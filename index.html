@@ -943,6 +943,11 @@
     padding-top: 20px;
     border-top: 1px solid var(--border);
   }
+  /* Deploy online: Fly Me keeps 音步条; hide 句谱 phrase board + nav */
+  html[data-deploy="online"] #flymePhraseSection,
+  html[data-deploy="online"] #flymePhraseIntro {
+    display: none;
+  }
   .flyme-phrase-heading {
     margin: 0 0 6px;
     font-size: 1.05rem;
@@ -1512,7 +1517,7 @@
     <div class="card prose">
       <h2 style="margin-top:0;text-align:left">Fly Me to the Moon</h2>
       <p>C 大调 / 关系小调 Am · 4/4 · 爵士标准旋律轮廓。指法刻意<strong>跨行少换向</strong>：能拉则拉（顶拉 G、底拉高 C），推句用底 B / 顶 A；E 在中行只有推，遇 F/D 时仍难免短掉头。可开左手伴奏。</p>
-      <p>上方为<strong>音步条</strong>逐音练习；下方<strong>句谱</strong>按同向推/拉分页，连线只显示当前与其后两步（渐淡）。</p>
+      <p id="flymePhraseIntro">上方为<strong>音步条</strong>逐音练习；下方<strong>句谱</strong>按同向推/拉分页，连线只显示当前与其后两步（渐淡）。</p>
     </div>
     <div class="lesson-controls">
       <div class="seg" id="flymeSeg" role="group" aria-label="段落"></div>
