@@ -11,7 +11,7 @@ GitHub Pages 发布 **`online`** 分支。推送到 **`main`** 后，Action 会�
 | 分支 | 用途 |
 |------|------|
 | `main` | 完整开发版 |
-| `online` | Deploy 版（自动同步 main；跨行换指 → 曲目暂锁） |
+| `online` | Deploy 版（自动同步 main；仅开放常见布局 / 重复音 / Fly Me） |
 
 ## Local
 
