@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-deploy="main">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -122,6 +122,22 @@
     background: var(--accent);
     border-color: var(--accent);
     color: #fff;
+  }
+  .side-nav button.gated,
+  .side-nav button.gated:hover {
+    color: #b0aaa0;
+    background: transparent;
+    border-color: transparent;
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+  .side-nav button.gated::after {
+    content: "施工中";
+    float: right;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #a39e94;
   }
   .side-nav button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .sidebar-close {
@@ -252,6 +268,17 @@
     font-weight: 700;
     white-space: nowrap;
     color: var(--accent);
+  }
+  .prose .key-compare .tip-hl {
+    display: block;
+    cursor: help;
+    border-radius: 6px;
+    outline: none;
+    transition: background .15s;
+  }
+  .prose .key-compare .tip-hl:hover,
+  .prose .key-compare .tip-hl:focus-visible {
+    background: rgba(61, 90, 128, 0.12);
   }
 
   .toolbar {
@@ -453,7 +480,13 @@
     min-height: 0;
   }
   .half.push { border-bottom: 1.5px solid var(--line); }
-  .interactive .half { cursor: pointer; }
+  .interactive .half,
+  .playable .half { cursor: pointer; }
+  .playable .btn.uni:not(.gap) { cursor: pointer; }
+  .playable .half:hover,
+  .playable .btn.uni:not(.gap):hover {
+    filter: brightness(0.97);
+  }
   .half.mark-same { background: var(--same-bg); }
   .half.mark-opp { background: var(--opp-bg); }
   .half.mark-active { background: var(--active-bg); }
@@ -1091,6 +1124,41 @@
   #layoutAngloBoard {
     position: relative;
   }
+  #layoutView {
+    position: relative;
+  }
+  /* 以 English 高度为基准固定卡片；标题在顶，键区在剩余空间垂直居中 */
+  #layoutView .layout-board {
+    min-height: var(--layout-board-min-h, auto);
+    display: flex;
+    flex-direction: column;
+  }
+  #layoutView .layout-board-keys {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 0;
+  }
+  #layoutView .layout-board-keys .sides,
+  #layoutView .layout-board-keys .side-stack {
+    width: 100%;
+  }
+  .layout-board .layout-ref {
+    position: absolute;
+    right: 12px;
+    bottom: 10px;
+    z-index: 2;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .layout-board .layout-ref:hover {
+    color: var(--accent);
+  }
   .card.uni-board .layout-play-group {
     position: absolute;
     top: 12px;
@@ -1131,6 +1199,44 @@
     height: 100%;
     border-radius: 50%;
   }
+  /* 布局观察：hover 按钮切换可视化 */
+  .layout-viz-btn:hover,
+  .layout-viz-btn.viz-on {
+    background: var(--accent);
+    color: #fff;
+  }
+  .layout-board.viz-acc .half.viz-acc-sharp,
+  .layout-board.viz-acc .btn.uni.viz-acc-sharp .half {
+    background: rgba(61, 90, 128, 0.3);
+  }
+  .layout-board.viz-acc .half.viz-acc-flat,
+  .layout-board.viz-acc .btn.uni.viz-acc-flat .half {
+    background: rgba(196, 92, 38, 0.26);
+  }
+  .layout-board.viz-acc .half.viz-acc-natural,
+  .layout-board.viz-acc .btn.uni.viz-acc-natural {
+    opacity: 0.22;
+  }
+  .layout-board.viz-acc .half.viz-acc-sharp,
+  .layout-board.viz-acc .half.viz-acc-flat,
+  .layout-board.viz-acc .btn.uni.viz-acc-sharp,
+  .layout-board.viz-acc .btn.uni.viz-acc-flat {
+    opacity: 1;
+    z-index: 2;
+    box-shadow: 0 0 0 2px var(--ink);
+  }
+  .layout-board.viz-oct .half.viz-oct-3,
+  .layout-board.viz-oct .btn.uni.viz-oct-3 .half { background: rgba(139, 105, 20, 0.28); }
+  .layout-board.viz-oct .half.viz-oct-4,
+  .layout-board.viz-oct .btn.uni.viz-oct-4 .half { background: rgba(47, 93, 80, 0.3); }
+  .layout-board.viz-oct .half.viz-oct-5,
+  .layout-board.viz-oct .btn.uni.viz-oct-5 .half { background: rgba(61, 90, 128, 0.3); }
+  .layout-board.viz-oct .half.viz-oct-6,
+  .layout-board.viz-oct .btn.uni.viz-oct-6 .half { background: rgba(196, 92, 38, 0.28); }
+  .layout-board.viz-oct .half.viz-oct-7,
+  .layout-board.viz-oct .btn.uni.viz-oct-7 .half { background: rgba(122, 74, 58, 0.3); }
+  .layout-board.viz-oct .half.viz-oct-8,
+  .layout-board.viz-oct .btn.uni.viz-oct-8 .half { background: rgba(74, 107, 138, 0.3); }
   .side-stack {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1276,17 +1382,45 @@
     <div class="layout-meta" id="layoutMeta"></div>
     <div id="layoutView"></div>
     <section class="card prose" id="layoutKeyCompare" aria-label="各布局调性">
-      <p><strong>C/G 不是「音程限制」</strong>，而是 Anglo 的 <strong>home-row keys</strong>：中行按 C 大调排、底行按 G 大调排。推/拉是两个不同音。Irish/Folk 里围着 C、G、Am、D 等调很顺；别的调也能弹，但更依赖顶行变化音和跨行。</p>
-      <p>另外三种<strong>没有 C/G home rows</strong>，各调更平等，但仍有弱偏好：</p>
+      <p><strong>C/G</strong> 是 Anglo 的 <strong>home-row keys</strong>：中行按 C 大调排、底行按 G 大调排。Irish/Folk 里围着 C、G、Am、D 等调很顺；别的调也能弹，但更依赖顶行变化音和跨行。</p>
+      <p>另外三种<strong>没有 C/G home rows</strong>。English 最规律；Hayden 强在同形换调；Crane 中间音区更舒服：</p>
       <table class="key-compare">
         <thead>
-          <tr><th>布局</th><th>更顺的调？</th></tr>
+          <tr><th>布局</th><th>更顺的调</th><th>原因</th></tr>
         </thead>
         <tbody>
-          <tr><td>Anglo C/G</td><td>home keys 很明显：C / G（及相关调）。Wheatstone 与 Jeffries 同构，主要差顶行。</td></tr>
-          <tr><td>English</td><td>少升降号更顺（自然音在内列）；升/降号多的调要多摸外侧。</td></tr>
-          <tr><td>Hayden</td><td>指法形状各调一样（平移换调）；限制多在音域够不够。</td></tr>
-          <tr><td>Crane</td><td>有规律但不完全同形；中间音区、常见调更舒服。</td></tr>
+          <tr>
+            <td>Anglo C/G</td>
+            <td>C / G（及相关调，如 Am、D）</td>
+            <td>home keys 绑在中行 C、底行 G。Wheatstone 与 Jeffries 中/底行同构，主要差顶行。</td>
+          </tr>
+          <tr>
+            <td>English</td>
+            <td>几乎各调都规律好弹；少升降号略更省事</td>
+            <td>
+              <span class="tip-hl" data-layout="english" tabindex="0" role="button" title="悬停：切换布局并标出升/降号">
+                音阶左右手交替；每行<strong>内两列</strong>自然音、<strong>左右外侧</strong>升/降——有升降号也仍成列可摸，比散布好找。
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td>Hayden</td>
+            <td>各调指法同形（平移换调）</td>
+            <td>
+              <span class="tip-hl" data-layout="hayden" tabindex="0" role="button" title="悬停：切换布局并标出升/降号">
+                同形是优势；但升/降号<strong>散布各处</strong>，不如 English 成列直观。卡点多在音域边缘。
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td>Crane</td>
+            <td>中间音区更舒服（不完全同形）</td>
+            <td>
+              <span class="tip-hl" data-layout="crane" tabindex="0" role="button" title="悬停：切换布局并标出升/降号">
+                外两列变化音、内三列自然音；中音区<strong>左右重叠</strong>。规律介于 English 与 Hayden 之间。
+              </span>
+            </td>
+          </tr>
         </tbody>
       </table>
     </section>
@@ -1654,6 +1788,7 @@
     const focusSide = opts.focusSide || null;
     const hideOtherSide = !!opts.hideOtherSide;
     const showBellowsLegend = !!opts.showBellowsLegend;
+    const playable = !!opts.playable;
 
     const entries = collectEntries(left, right);
     const index = buildIndex(entries);
@@ -1676,6 +1811,7 @@
     html +=
       '<div class="sides' +
       (interactive ? " interactive" : "") +
+      (playable ? " playable" : "") +
       (mode === "abc" ? " mode-abc" : "") +
       (hideOtherSide && focusSide ? " sides-one" : "") +
       '">';
@@ -1738,6 +1874,47 @@
     if (interactive) {
       wireHover(container, index, mode);
     }
+    if (playable) {
+      wireLayoutNotePlay(container);
+    }
+  }
+
+  function flashPlayedNote(container, el) {
+    if (!container || !el) return;
+    const half = el.classList.contains("half")
+      ? el
+      : el.querySelector(".half");
+    const btn = el.classList.contains("btn")
+      ? el
+      : el.closest(".btn");
+    if (btn) btn.classList.add("hl-active");
+    if (half) half.classList.add("mark-active");
+    setTimeout(function () {
+      if (btn) btn.classList.remove("hl-active");
+      if (half) half.classList.remove("mark-active");
+    }, 200);
+  }
+
+  /** Compare page: click a button (or push/pull half) to hear that note. */
+  function wireLayoutNotePlay(container) {
+    if (!container || container.dataset.notePlayBound) return;
+    container.dataset.notePlayBound = "1";
+    container.classList.add("playable");
+    container.addEventListener("click", function (e) {
+      if (e.target.closest(".layout-play-group")) return;
+      const half = e.target.closest(".half[data-note]");
+      const uni =
+        !half && e.target.closest(".btn.uni[data-note]:not(.gap)");
+      const el = half || uni;
+      if (!el || !container.contains(el)) return;
+      const note = el.getAttribute("data-note");
+      if (!note) return;
+      e.preventDefault();
+      flashPlayedNote(container, el);
+      unlockAudio().then(function () {
+        playAbcNote(note, 0.42);
+      });
+    });
   }
 
   function clearHighlight(container) {
@@ -5122,7 +5299,7 @@
   }
 
   // —— Layout gallery ——
-  const layoutState = { id: "wheatstone" };
+  const layoutState = { id: "wheatstone", boardMinH: 0, boardMinW: 0 };
   const layoutScaleState = {
     playing: false,
     timer: null,
@@ -5284,16 +5461,16 @@
     },
     crane: {
       title: "C 大调 · 右手（c''）",
-      tip: "Crane：旋律在右手；沿两行锯齿走上八度。",
+      tip: "Crane：旋律在右手；三内列锯齿走上八度。",
       steps: [
-        { side: "R", row: 2, col: 0, note: "c''" },
-        { side: "R", row: 1, col: 0, note: "d''" },
-        { side: "R", row: 0, col: 0, note: "e''" },
-        { side: "R", row: 1, col: 1, note: "f''" },
-        { side: "R", row: 0, col: 1, note: "g''" },
-        { side: "R", row: 1, col: 2, note: "a''" },
-        { side: "R", row: 0, col: 2, note: "b''" },
-        { side: "R", row: 1, col: 3, note: "c'''" },
+        { side: "R", row: 3, col: 3, note: "c''" },
+        { side: "R", row: 3, col: 2, note: "d''" },
+        { side: "R", row: 2, col: 1, note: "e''" },
+        { side: "R", row: 2, col: 3, note: "f''" },
+        { side: "R", row: 2, col: 2, note: "g''" },
+        { side: "R", row: 1, col: 1, note: "a''" },
+        { side: "R", row: 1, col: 3, note: "b''" },
+        { side: "R", row: 1, col: 2, note: "c'''" },
       ],
     },
   };
@@ -5337,21 +5514,23 @@
     ],
   };
 
-  // Crane / Triumph 48 (20+28). 5 columns; thirds along the row; adjacent rows stagger half a button.
+  // Crane / Triumph 48 (20+28). Rows high→low; 5 cols; outer cols = accidentals, inner 3 = naturals.
+  // Source: Wes Williams chart (concertina.com/fingering) + ICA standard 48 (crane48layout).
+  // null = shorter outer columns (aligned to the bottom). L/R overlap around c'–g' is intentional.
   const CRANE_48 = {
     left: [
-      ["e'", "g'", "b'", "d''", "f#''"],
-      ["d'", "f'", "a'", "c''", "e''"],
-      ["c'", "d'", "f'", "a'", "c''"],
-      ["c#", "e", "g", "b", "d'"],
+      ["eb'", "e'", "g'", "f'", "f#'"],
+      ["bb", "b", "d'", "c'", "c#'"],
+      ["f#", "f", "a", "g", "g#"],
+      ["c#", "c", "e", "d", "d#"],
     ],
     right: [
-      ["e''", "g''", "b''", "d'''", "f#'''"],
-      ["d''", "f''", "a''", "c'''", "e'''"],
-      ["c''", "d''", "f''", "a''", "c'''"],
-      ["c#'", "e'", "g'", "b'", "d''"],
-      ["f#'", "a'", "c''", "e''", "g''"],
-      ["g'", "b'", "d''"],
+      [null, "d'''", "f'''", "e'''", null],
+      ["g#''", "a''", "c'''", "b''", "bb''"],
+      ["eb''", "e''", "g''", "f''", "f#'''"],
+      ["bb'", "b'", "d''", "c''", "c#'''"],
+      ["f#'", "f'", "a'", "g'", "g#'"],
+      ["c#'", "c'", "e'", "d'", "d#'"],
     ],
   };
 
@@ -5364,6 +5543,7 @@
       blurb: "Wren 2 就是这种。爱尔兰/民谣最常见。左右中行 = C，底行 = G。",
       type: "anglo",
       right: "wheatstone",
+      ref: "https://www.concertina.info/tina.faq/images/finger3.htm",
     },
     {
       id: "jeffries",
@@ -5373,15 +5553,17 @@
       blurb: "同样是 Anglo，主要差在右手顶行 accidentals（及底行最右键）。",
       type: "anglo",
       right: "jeffries",
+      ref: "https://www.concertina.info/tina.faq/images/finger3.htm",
     },
     {
       id: "english",
       label: "English · 48键",
       kind: "uni",
       kindLabel: "推拉同音",
-      blurb: "同一键推拉同音。音阶左右手交替；内两列自然音、外两列变化音。",
+      blurb: "同一键推拉同音。音阶左右手交替；每行内两列自然音、左右外侧升/降号。",
       type: "uni",
       sample: ENGLISH_48,
+      ref: "https://concertina.info/tina.faq/images/finger6.htm",
     },
     {
       id: "hayden",
@@ -5391,19 +5573,39 @@
       blurb: "现代 Duet：左低右高。同形指法（右移五度、上移大二度）。",
       type: "uni",
       sample: HAYDEN_46,
+      ref: "http://www.concertina.com/fingering/",
     },
     {
       id: "crane",
       label: "Crane / Triumph · 48键",
       kind: "uni",
       kindLabel: "推拉同音",
-      blurb: "经典 Duet（救世军称 Triumph）。左伴奏右旋律，五列、同行多按三度。",
+      blurb: "经典 Duet（救世军称 Triumph）。左低右高、中音区左右重叠；外两列变化音、内三列自然音。",
       type: "uni",
       sample: CRANE_48,
+      ref: "https://concertina.org/the-crane-concertina-layouts/",
     },
   ];
 
-  function renderUniSide(rows, mode, side) {
+  function layoutRefHtml(L) {
+    if (!L || !L.ref) return "";
+    return (
+      '<a class="layout-ref" href="' +
+      escapeHtml(L.ref) +
+      '" target="_blank" rel="noopener noreferrer">reference</a>'
+    );
+  }
+
+  function noteAccKind(abc) {
+    const p = parseNote(abc);
+    if (!p.letter) return "";
+    if (p.acc === "#") return "sharp";
+    if (p.acc === "b" || p.acc === "bb") return "flat";
+    return "natural";
+  }
+
+  function renderUniSide(rows, mode, side, opts) {
+    const markAcc = !!(opts && opts.markAcc);
     let html = "";
     rows.forEach((row, ri) => {
       html += '<div class="row" data-row="' + ri + '">';
@@ -5414,14 +5616,20 @@
         }
         const id = side + "-" + ri + "-" + ci;
         const isMc = note === "c'";
+        const acc = markAcc ? noteAccKind(note) : "";
+        const classes = ["btn", "uni"];
+        if (isMc) classes.push("mc-ring");
+        if (acc) classes.push("acc-" + acc);
         html +=
-          '<div class="btn uni' +
-          (isMc ? " mc-ring" : "") +
+          '<div class="' +
+          classes.join(" ") +
           '" data-btn="' +
           id +
           '" data-note="' +
           note +
-          '"><div class="half">' +
+          '"' +
+          (acc ? ' data-acc="' + acc + '"' : "") +
+          '><div class="half">' +
           formatNote(note, mode) +
           "</div></div>";
       });
@@ -5464,16 +5672,10 @@
 
   function syncLayoutPlayBtn() {
     const octBtn = document.getElementById("layoutPlayOctave");
-    const fullBtn = document.getElementById("layoutPlayFull");
     if (octBtn) {
       const on = layoutScaleState.playing && layoutScaleState.mode === "octave";
       octBtn.classList.toggle("on", on);
       octBtn.textContent = on ? "■ 停止" : "▶ 八度";
-    }
-    if (fullBtn) {
-      const on = layoutScaleState.playing && layoutScaleState.mode === "full";
-      fullBtn.classList.toggle("on", on);
-      fullBtn.textContent = on ? "■ 停止" : "▶ 全键";
     }
   }
 
@@ -5502,6 +5704,52 @@
     }
   }
 
+  /** Attach every key that sounds this pitch, so octave playback can light them together. */
+  function enrichOctaveStepsWithHits(steps, kind) {
+    const L = LAYOUTS.find((x) => x.id === layoutState.id);
+    if (!L || !steps) return steps || [];
+    let byNote = {};
+    if (kind === "anglo") {
+      const right = L.right === "jeffries" ? JEFFRIES_RIGHT : WHEATSTONE_RIGHT;
+      buildAngloFullWalk(LEFT, right).forEach((s) => {
+        byNote[s.note] = s.hits;
+      });
+    } else if (L.sample) {
+      buildUniFullWalk(L.sample).forEach((s) => {
+        byNote[s.note] = s.hits;
+      });
+    }
+    return steps.map((step) => {
+      const hits = byNote[step.note];
+      if (hits && hits.length) return { note: step.note, hits: hits };
+      if (kind === "uni") {
+        return {
+          note: step.note,
+          hits: [
+            {
+              side: step.side,
+              row: step.row,
+              col: step.col,
+              note: step.note,
+            },
+          ],
+        };
+      }
+      return {
+        note: step.note,
+        hits: [
+          {
+            side: step.side,
+            row: step.row,
+            col: step.col,
+            dir: step.dir,
+            note: step.note,
+          },
+        ],
+      };
+    });
+  }
+
   function runLayoutPlayback(opts) {
     const board = layoutPlayBoard();
     const steps = opts.steps;
@@ -5516,13 +5764,14 @@
     const delay = opts.delay || 520;
     const noteDur = opts.noteDur || 0.42;
     const isFull = opts.mode === "full";
+    const isOctave = opts.mode === "octave";
     const isUni = opts.kind === "uni";
 
     function tick() {
       if (!layoutScaleState.playing) return;
       const step = steps[layoutScaleState.step];
       if (step) playAbcNote(step.note, noteDur);
-      if (isFull) {
+      if (isFull || isOctave) {
         highlightFullWalk(board, steps, layoutScaleState.step, isUni);
       } else if (isUni) {
         highlightUniScale(board, steps, layoutScaleState.step);
@@ -5552,7 +5801,7 @@
       runLayoutPlayback({
         mode: "octave",
         kind: "anglo",
-        steps: ANGLO_OCTAVE.steps,
+        steps: enrichOctaveStepsWithHits(ANGLO_OCTAVE.steps, "anglo"),
         delay: ANGLO_OCTAVE.delay,
         noteDur: ANGLO_OCTAVE.noteDur,
       });
@@ -5563,7 +5812,7 @@
     runLayoutPlayback({
       mode: "octave",
       kind: "uni",
-      steps: scale.steps,
+      steps: enrichOctaveStepsWithHits(scale.steps, "uni"),
       delay: 520,
       noteDur: 0.42,
     });
@@ -5642,12 +5891,7 @@
 
   function bindLayoutPlayButtons() {
     syncLayoutPlayBtn();
-    const prevBtn = document.getElementById("layoutPrev");
-    const nextBtn = document.getElementById("layoutNext");
     const octBtn = document.getElementById("layoutPlayOctave");
-    const fullBtn = document.getElementById("layoutPlayFull");
-    if (prevBtn) prevBtn.addEventListener("click", () => stepFullWalk(-1));
-    if (nextBtn) nextBtn.addEventListener("click", () => stepFullWalk(1));
     if (octBtn) {
       octBtn.addEventListener("click", () => {
         if (layoutScaleState.playing && layoutScaleState.mode === "octave") {
@@ -5658,16 +5902,92 @@
         playLayoutOctave();
       });
     }
-    if (fullBtn) {
-      fullBtn.addEventListener("click", () => {
-        if (layoutScaleState.playing && layoutScaleState.mode === "full") {
-          stopLayoutScalePlayback();
-          return;
-        }
-        if (layoutScaleState.playing) stopLayoutScalePlayback();
-        playLayoutFull();
+    bindLayoutVizButtons();
+  }
+
+  function clearLayoutVizMarks(board) {
+    if (!board) return;
+    board.classList.remove("viz-acc", "viz-oct");
+    board.querySelectorAll("[data-note]").forEach((el) => {
+      el.classList.remove(
+        "viz-acc-sharp",
+        "viz-acc-flat",
+        "viz-acc-natural"
+      );
+      Array.from(el.classList).forEach((c) => {
+        if (c.indexOf("viz-oct-") === 0) el.classList.remove(c);
       });
+    });
+  }
+
+  function setLayoutViz(mode) {
+    const board = layoutPlayBoard();
+    if (!board) return;
+    clearLayoutVizMarks(board);
+    if (!mode) return;
+    board.classList.add("viz-" + mode);
+    board.querySelectorAll("[data-note]").forEach((el) => {
+      if (el.classList.contains("gap")) return;
+      const note = el.getAttribute("data-note");
+      if (!note) return;
+      if (mode === "acc") {
+        el.classList.add("viz-acc-" + (noteAccKind(note) || "natural"));
+      } else if (mode === "oct") {
+        const p = parseNote(note);
+        if (!p.letter) return;
+        el.classList.add("viz-oct-" + (3 + (p.primes || 0)));
+      }
+    });
+  }
+
+  function syncLayoutVizFromUi() {
+    const vizBtn = document.querySelector(".layout-viz-btn.viz-on");
+    if (vizBtn) {
+      setLayoutViz(vizBtn.getAttribute("data-viz"));
+      return;
     }
+    const tip = document.querySelector(".tip-hl.tip-on[data-layout]");
+    const tipActive =
+      tip && tip.getAttribute("data-layout") === layoutState.id;
+    setLayoutViz(tipActive ? "acc" : null);
+  }
+
+  function bindLayoutVizButtons() {
+    document.querySelectorAll(".layout-viz-btn[data-viz]").forEach((btn) => {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = "1";
+      const activate = () => {
+        document.querySelectorAll(".layout-viz-btn.viz-on").forEach((b) => {
+          if (b !== btn) b.classList.remove("viz-on");
+        });
+        btn.classList.add("viz-on");
+        setLayoutViz(btn.getAttribute("data-viz"));
+      };
+      const deactivate = () => {
+        btn.classList.remove("viz-on");
+        syncLayoutVizFromUi();
+      };
+      btn.addEventListener("mouseenter", activate);
+      btn.addEventListener("mouseleave", deactivate);
+      btn.addEventListener("focus", activate);
+      btn.addEventListener("blur", deactivate);
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (btn.classList.contains("viz-on")) deactivate();
+        else activate();
+      });
+    });
+  }
+
+  function cycleLayoutBy(delta) {
+    if (!LAYOUTS.length) return;
+    const i = LAYOUTS.findIndex((L) => L.id === layoutState.id);
+    const from = i < 0 ? 0 : i;
+    const next = LAYOUTS[(from + delta + LAYOUTS.length) % LAYOUTS.length];
+    if (!next || next.id === layoutState.id) return;
+    stopLayoutScalePlayback();
+    layoutState.id = next.id;
+    paintLayoutGallery();
   }
 
   function paintLayoutGallery() {
@@ -5704,15 +6024,14 @@
 
     const playGroupHtml =
       '<div class="layout-play-group">' +
-      '<button type="button" id="layoutPrev" class="layout-play-btn layout-nav-btn" aria-label="全键上一步">&lt;</button>' +
-      '<button type="button" id="layoutNext" class="layout-play-btn layout-nav-btn" aria-label="全键下一步">&gt;</button>' +
+      '<button type="button" class="layout-play-btn layout-viz-btn" data-viz="acc" title="悬停：标出升号与降号">♯♭ 分布</button>' +
+      '<button type="button" class="layout-play-btn layout-viz-btn" data-viz="oct" title="悬停：同一八度同一颜色">八度分层</button>' +
       '<button type="button" id="layoutPlayOctave" class="layout-play-btn">▶ 八度</button>' +
-      '<button type="button" id="layoutPlayFull" class="layout-play-btn">▶ 全键</button>' +
       "</div>";
 
     if (L.type === "anglo") {
       const right = L.right === "jeffries" ? JEFFRIES_RIGHT : WHEATSTONE_RIGHT;
-      view.innerHTML = '<div class="card" id="layoutAngloBoard"></div>';
+      view.innerHTML = '<div class="card layout-board" id="layoutAngloBoard"></div>';
       const board = document.getElementById("layoutAngloBoard");
       renderBoard(board, LEFT, right, {
         title: L.label + " · C/G",
@@ -5721,17 +6040,22 @@
         subtitle: L.blurb,
         showBellowsLegend: true,
         showCg: true,
+        playable: true,
         mode: mode,
       });
       board.insertAdjacentHTML("afterbegin", playGroupHtml);
+      board.insertAdjacentHTML("beforeend", layoutRefHtml(L));
+      wrapLayoutBoardKeys(board, ".sides");
       bindLayoutPlayButtons();
+      lockLayoutBoardHeight();
+      syncLayoutVizFromUi();
       return;
     }
 
     // English / Crane 实琴相邻行错半键；Hayden 靠不等长行居中已呈错位
     const uniStagger = L.id === "english" || L.id === "crane" ? "alt" : "";
     view.innerHTML =
-      '<div class="card uni-board" id="layoutUniBoard">' +
+      '<div class="card uni-board layout-board" id="layoutUniBoard">' +
       playGroupHtml +
       "<h2>" +
       escapeHtml(L.label) +
@@ -5744,18 +6068,136 @@
       '<p class="diff">' +
       escapeHtml(L.blurb) +
       "</p>" +
-      '<div class="side-stack"' +
+      '<div class="layout-board-keys"><div class="side-stack"' +
       (uniStagger ? ' data-stagger="' + uniStagger + '"' : "") +
       ">" +
       '<div class="side-panel" data-side="L"><div class="side-label">左手 Left</div>' +
-      renderUniSide(L.sample.left, mode, "L") +
+      renderUniSide(L.sample.left, mode, "L", { markAcc: true }) +
       "</div>" +
       '<div class="side-panel" data-side="R"><div class="side-label">右手 Right</div>' +
-      renderUniSide(L.sample.right, mode, "R") +
+      renderUniSide(L.sample.right, mode, "R", { markAcc: true }) +
       "</div>" +
-      "</div></div>";
+      "</div></div>" +
+      layoutRefHtml(L) +
+      "</div>";
 
     bindLayoutPlayButtons();
+    wireLayoutNotePlay(document.getElementById("layoutUniBoard"));
+    lockLayoutBoardHeight();
+    syncLayoutVizFromUi();
+  }
+
+  function wrapLayoutBoardKeys(board, keysSelector) {
+    if (!board) return;
+    board.classList.add("layout-board");
+    if (board.querySelector(".layout-board-keys")) return;
+    const keysEl = board.querySelector(keysSelector);
+    if (!keysEl) return;
+    const wrap = document.createElement("div");
+    wrap.className = "layout-board-keys";
+    keysEl.parentNode.insertBefore(wrap, keysEl);
+    wrap.appendChild(keysEl);
+  }
+
+  function buildEnglishHeightProbeHtml(mode) {
+    const L = LAYOUTS.find((x) => x.id === "english");
+    if (!L || !L.sample) return "";
+    return (
+      '<div class="card uni-board layout-board" id="layoutHeightProbe">' +
+      "<h2>" +
+      escapeHtml(L.label) +
+      "</h2>" +
+      '<div class="layout-kind"><span class="tag-pill ' +
+      L.kind +
+      '">' +
+      escapeHtml(L.kindLabel) +
+      "</span></div>" +
+      '<p class="diff">' +
+      escapeHtml(L.blurb) +
+      "</p>" +
+      '<div class="layout-board-keys"><div class="side-stack" data-stagger="alt">' +
+      '<div class="side-panel" data-side="L"><div class="side-label">左手 Left</div>' +
+      renderUniSide(L.sample.left, mode, "L", { markAcc: true }) +
+      "</div>" +
+      '<div class="side-panel" data-side="R"><div class="side-label">右手 Right</div>' +
+      renderUniSide(L.sample.right, mode, "R", { markAcc: true }) +
+      "</div>" +
+      "</div></div></div>"
+    );
+  }
+
+  function lockLayoutBoardHeight() {
+    const view = document.getElementById("layoutView");
+    const board =
+      document.getElementById("layoutUniBoard") ||
+      document.getElementById("layoutAngloBoard");
+    if (!view || !board) return;
+    const width = Math.round(view.clientWidth);
+    if (!layoutState.boardMinH || layoutState.boardMinW !== width) {
+      const probeWrap = document.createElement("div");
+      probeWrap.style.cssText =
+        "position:absolute;left:0;top:0;width:100%;visibility:hidden;pointer-events:none;z-index:-1;";
+      probeWrap.innerHTML = buildEnglishHeightProbeHtml(
+        notationMode.current || "jianpu"
+      );
+      view.appendChild(probeWrap);
+      const probe = probeWrap.firstElementChild;
+      const h = probe ? Math.ceil(probe.getBoundingClientRect().height) : 0;
+      probeWrap.remove();
+      if (h > 0) {
+        layoutState.boardMinH = h;
+        layoutState.boardMinW = width;
+        view.style.setProperty("--layout-board-min-h", h + "px");
+      }
+    } else {
+      view.style.setProperty(
+        "--layout-board-min-h",
+        layoutState.boardMinH + "px"
+      );
+    }
+  }
+
+  function showLayoutTipHighlight(tip) {
+    if (!tip) return;
+    const id = tip.getAttribute("data-layout");
+    if (!id) return;
+    document.querySelectorAll(".tip-hl.tip-on").forEach((t) => {
+      if (t !== tip) t.classList.remove("tip-on");
+    });
+    tip.classList.add("tip-on");
+    stopLayoutScalePlayback();
+    if (layoutState.id !== id) {
+      layoutState.id = id;
+      paintLayoutGallery();
+    }
+    syncLayoutVizFromUi();
+    const view = document.getElementById("layoutView");
+    if (view) view.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function hideLayoutTipHighlight(tip) {
+    if (tip) tip.classList.remove("tip-on");
+    syncLayoutVizFromUi();
+  }
+
+  function bindLayoutTipHovers() {
+    document.querySelectorAll(".tip-hl[data-layout]").forEach((tip) => {
+      if (tip.dataset.bound) return;
+      tip.dataset.bound = "1";
+      tip.addEventListener("mouseenter", () => showLayoutTipHighlight(tip));
+      tip.addEventListener("mouseleave", () => hideLayoutTipHighlight(tip));
+      tip.addEventListener("focus", () => showLayoutTipHighlight(tip));
+      tip.addEventListener("blur", () => hideLayoutTipHighlight(tip));
+      tip.addEventListener("click", (e) => {
+        e.preventDefault();
+        const id = tip.getAttribute("data-layout");
+        if (tip.classList.contains("tip-on") && layoutState.id === id) {
+          hideLayoutTipHighlight(tip);
+        } else {
+          showLayoutTipHighlight(tip);
+        }
+      });
+    });
   }
 
   // —— Init boards ——
@@ -5785,10 +6227,12 @@
     paintProgressLesson();
     paintRhythmLesson();
     paintLayoutGallery();
+    bindLayoutTipHovers();
     syncToggleLabel();
   }
 
   paintAll();
+  bindLayoutTipHovers();
 
   bellowsLesson.bind();
   crossrowLesson.bind();
@@ -6038,6 +6482,38 @@
     "koshka",
     "flyme",
   ];
+  // Deploy 版（data-deploy=online）暂时关掉：跨行换指 → 曲目
+  const ONLINE_GATED = [
+    "crossrow",
+    "chords",
+    "progress",
+    "rhythm",
+    "tunes",
+    "koshka",
+    "flyme",
+  ];
+  const IS_ONLINE =
+    document.documentElement.getAttribute("data-deploy") === "online";
+
+  function isPanelGated(name) {
+    return IS_ONLINE && ONLINE_GATED.indexOf(name) !== -1;
+  }
+
+  function applyOnlineGates() {
+    document.querySelectorAll(".side-nav button[data-panel]").forEach((btn) => {
+      const id = btn.getAttribute("data-panel");
+      const gated = isPanelGated(id);
+      btn.classList.toggle("gated", gated);
+      btn.disabled = gated;
+      btn.setAttribute("aria-disabled", gated ? "true" : "false");
+      if (gated) {
+        btn.title = "施工中 · Deploy 版暂不可用";
+      } else {
+        btn.removeAttribute("title");
+      }
+    });
+  }
+
   const sidebar = document.getElementById("sidebar");
   const sidebarBackdrop = document.getElementById("sidebarBackdrop");
   const navOpen = document.getElementById("navOpen");
@@ -6057,6 +6533,7 @@
 
   function activatePanel(name, { updateHash = true } = {}) {
     if (!PANEL_IDS.includes(name)) name = "compare";
+    if (isPanelGated(name)) name = "compare";
     stopScalePlayback();
     stopLayoutScalePlayback();
     stopFlymePlayback();
@@ -6091,7 +6568,8 @@
 
   function panelFromHash() {
     const raw = (location.hash || "").replace(/^#/, "").trim();
-    return PANEL_IDS.includes(raw) ? raw : "compare";
+    if (!PANEL_IDS.includes(raw) || isPanelGated(raw)) return "compare";
+    return raw;
   }
 
   navOpen.addEventListener("click", () => setSidebarOpen(true));
@@ -6099,11 +6577,26 @@
   sidebarBackdrop.addEventListener("click", () => setSidebarOpen(false));
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && sidebar.classList.contains("open")) setSidebarOpen(false);
+    // 常见布局： [ 上一个 · ] 下一个
+    if (
+      (e.key === "[" || e.key === "]") &&
+      !e.metaKey &&
+      !e.ctrlKey &&
+      !e.altKey &&
+      document.querySelector(".panel.active[data-panel='compare']") &&
+      !/^(INPUT|TEXTAREA|SELECT)$/.test((e.target && e.target.tagName) || "")
+    ) {
+      e.preventDefault();
+      cycleLayoutBy(e.key === "]" ? 1 : -1);
+    }
   });
   window.addEventListener("resize", () => {
     if (!window.matchMedia("(max-width: 860px)").matches && sidebar.classList.contains("open")) {
       setSidebarOpen(false);
     }
+    layoutState.boardMinH = 0;
+    layoutState.boardMinW = 0;
+    lockLayoutBoardHeight();
   });
   window.addEventListener("hashchange", () => {
     activatePanel(panelFromHash(), { updateHash: false });
@@ -6111,10 +6604,13 @@
 
   document.querySelectorAll(".side-nav button").forEach((btn) => {
     btn.addEventListener("click", () => {
-      activatePanel(btn.getAttribute("data-panel"));
+      const id = btn.getAttribute("data-panel");
+      if (isPanelGated(id)) return;
+      activatePanel(id);
     });
   });
 
+  applyOnlineGates();
   activatePanel(panelFromHash(), { updateHash: true });
 
   document.getElementById("globalNotationToggle").addEventListener("click", () => {

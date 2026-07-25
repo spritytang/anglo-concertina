@@ -1,0 +1,44 @@
+name: Sync main → online
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync online branch (gated deploy)
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout main
+          git branch -f online main
+          git checkout online
+
+          # Deploy channel: gate WIP panels on GitHub Pages
+          for f in index.html anglo-intro.html; do
+            if [ -f "$f" ]; then
+              sed -i 's/data-deploy="main"/data-deploy="online"/g' "$f"
+            fi
+          done
+
+          if git diff --quiet; then
+            echo "online already matches main gate state"
+          else
+            git add index.html anglo-intro.html
+            git commit -m "chore(online): sync from main and enable deploy gates"
+          fi
+
+          git push -f origin online
