@@ -647,6 +647,7 @@
   .step-rail .step.beats-15 { min-width: 3.3rem; }
   .step-rail .step.beats-2 { min-width: 4.4rem; }
   .step-rail .step.beats-3 { min-width: 5.6rem; }
+  .step-rail .step.beats-4 { min-width: 7.2rem; }
   .step-rail .step.on {
     border-color: var(--active);
     background: var(--active-bg);
@@ -1118,7 +1119,7 @@
   <section class="panel" id="panel-flyme" data-panel="flyme" role="tabpanel">
     <div class="card prose">
       <h2 style="margin-top:0;text-align:left">Fly Me to the Moon</h2>
-      <p>C 大调 / 关系小调 Am · 4/4 · 爵士标准旋律轮廓（非简化儿歌版）。右手以<strong>中行</strong>为主，B 可用底行同向推；高 C 在中行④推。先跟谱推拉，再可选左手根音。</p>
+      <p>C 大调 / 关系小调 Am · 4/4 · 爵士标准旋律轮廓。指法刻意<strong>跨行少换向</strong>：能拉则拉（顶拉 G、底拉高 C），推句用底 B / 顶 A；E 在中行只有推，遇 F/D 时仍难免短掉头。可开左手伴奏。</p>
     </div>
     <div class="lesson-controls">
       <div class="seg" id="flymeSeg" role="group" aria-label="段落"></div>
@@ -1127,7 +1128,7 @@
         <button type="button" id="flymeNext">下一步</button>
         <button type="button" id="flymeReset">重来</button>
         <button type="button" id="flymePlay" class="play-btn">▶ 播放</button>
-        <button type="button" id="flymeLh" aria-pressed="false">左手根音</button>
+        <button type="button" id="flymeLh" aria-pressed="false">左手伴奏</button>
       </div>
     </div>
     <div class="dir-legend" aria-label="推拉图例"><span class="push"><i aria-hidden="true"></i>推</span><span class="pull"><i aria-hidden="true"></i>拉</span></div>
@@ -1883,8 +1884,9 @@
     },
   };
 
-  // —— Fly Me to the Moon (jazz contour; Wheatstone RH + optional LH roots) ——
-  // Letters: C=c'' · c=c''' · B=b''(中⑤拉) · b=b''(底②推，与高 C 同向) · e=e'''
+  // —— Fly Me to the Moon (cross-row, fewer bellows flips; LH = matching-dir chords) ——
+  // Letters: C=c'' · c=c''' push · b=b'' bot push · a=a'' top push · g=g'' bot push
+  //          v=g'' top pull · p=c''' bot pull · A/F/B/D mid pull · G/E mid push · e=e'''
   const FLYME_RH = {
     C: { row: "mid", col: 0, dir: "push", note: "c''", solf: "1" },
     D: { row: "mid", col: 1, dir: "pull", note: "d''", solf: "2" },
@@ -1896,24 +1898,42 @@
     b: { row: "bot", col: 1, dir: "push", note: "b''", solf: "7" },
     c: { row: "mid", col: 3, dir: "push", note: "c'''", solf: "1" },
     e: { row: "mid", col: 4, dir: "push", note: "e'''", solf: "3" },
-    // Cross-row / bot helpers for tunes & drills (not used by Fly Me letter strings)
     g: { row: "bot", col: 0, dir: "push", note: "g''", solf: "5" },
     a: { row: "top", col: 1, dir: "push", note: "a''", solf: "6" },
     d: { row: "bot", col: 2, dir: "push", note: "d'''", solf: "2" },
     x: { row: "bot", col: 0, dir: "pull", note: "f#''", solf: "♯4" },
+    v: { row: "top", col: 1, dir: "pull", note: "g''", solf: "5" },
+    p: { row: "bot", col: 2, dir: "pull", note: "c'''", solf: "1" },
   };
 
-  const FLYME_LH = {
-    C: { side: "L", row: "mid", col: 2, dir: "push", note: "c'", name: "C" },
-    F: { side: "L", row: "mid", col: 3, dir: "pull", note: "f'", name: "F" },
-    G: { side: "L", row: "bot", col: 2, dir: "push", note: "g'", name: "G" },
-    Dm: { side: "L", row: "bot", col: 1, dir: "push", note: "d'", name: "Dm" },
-    Am: { side: "L", row: "mid", col: 4, dir: "pull", note: "a'", name: "Am" },
-    E: { side: "L", row: "mid", col: 3, dir: "push", note: "e'", name: "E" },
-  };
+  /** Prefer a LH triad whose bellows direction matches the RH note. */
+  function flymeChordForStep(step) {
+    if (!step || !step.chord) return null;
+    const want = step.dir;
+    const primary = CHORDS[step.chord];
+    if (primary && primary.dir === want) return primary;
+    const pushAlt = { Am: "Em", Dm: "G", F: "C", E: "E", C: "C", G: "G", G7: "G" };
+    const pullAlt = { Am: "Am", Dm: "Dm", F: "F", E: "Am", C: "F", G: "G7", G7: "G7" };
+    const altName = (want === "push" ? pushAlt : pullAlt)[step.chord];
+    const alt = altName && CHORDS[altName];
+    if (alt && alt.dir === want) return alt;
+    return primary && primary.dir === want ? primary : null;
+  }
+
+  function playFlymeLh(step) {
+    const chord = flymeChordForStep(step);
+    if (!chord) return;
+    // Full triad together (slight stagger) — richer than single root.
+    chord.buttons.forEach(function (b, i) {
+      setTimeout(function () {
+        playAbcNote(b.note, Math.min(0.85, 0.28 * (step.beats || 1) + 0.2));
+      }, i * 18);
+    });
+  }
 
   function flymeStep(letter, lyric, chord) {
     const m = FLYME_RH[letter];
+    if (!m) throw new Error("Unknown Fly Me letter: " + letter);
     return {
       side: "R",
       row: m.row || "mid",
@@ -1926,7 +1946,7 @@
     };
   }
 
-  function flymePhrase(letters, lyrics, chordsByBar, beatsStr) {
+  function flymePhrase(letters, lyrics, chords, beatsStr) {
     const beatList = beatsStr
       ? String(beatsStr)
           .trim()
@@ -1935,8 +1955,11 @@
       : null;
     const out = [];
     for (let i = 0; i < letters.length; i++) {
-      const bar = Math.floor(i / 4);
-      const st = flymeStep(letters[i], lyrics[i] || "", chordsByBar[bar] || "C");
+      const chord =
+        Array.isArray(chords) && chords.length === letters.length
+          ? chords[i]
+          : chords[Math.floor(i / 4)] || "C";
+      const st = flymeStep(letters[i], lyrics[i] || "", chord);
       st.beats =
         beatList && beatList[i] > 0 && !Number.isNaN(beatList[i])
           ? beatList[i]
@@ -1950,52 +1973,86 @@
     A: {
       short: "A · Verse",
       title: "A 段 · Verse（Fly me…）",
-      tip: "开头下行 c'''–b''–a''–g''–f''（Fly me to the moon）。moon 后三个「· + 4」是同音过门，不是节奏标记；节奏看格子宽窄。",
+      tip: "连推 c–b–a–g → 长拉 moon(F)；And…stars 整段连拉（v=顶拉G，p=底拉高C），仅 stars 的 E 短推。后半 Jupiter：G·E 连推后拉 D→Mars(底拉高C)，去掉「推G又拉G」的空换向。",
       chords: "Am–Dm–G–C–F–Dm–E–Am",
+      // cbagF push+moon; FvApBAv pull; E 短推; GEDDp = G·E 推 + D·Mars 拉
       steps: flymePhrase(
-        "cbAG FFFF FGAc BAGE AGFE DEFA GFED CCCC".replace(/\s/g, "").split(""),
+        "cbagF FvAp BAvE AvFE DEFA GEDDp".replace(/\s/g, "").split(""),
         [
-          "Fly", "me", "to", "the", "moon", "", "", "",
-          "And", "let", "me", "play", "a-", "mong", "the", "stars",
-          "Let", "me", "see", "what", "spring", "is", "like", "on",
-          "Ju-", "pi-", "ter", "and", "Mars", "", "", "",
+          "Fly", "me", "to", "the", "moon",
+          "And", "let", "me", "play",
+          "a-", "mong", "the", "stars",
+          "Let", "me", "see", "what",
+          "spring", "is", "like", "on",
+          "Ju-", "pi-", "ter", "and", "Mars",
         ],
-        ["Am", "Dm", "G", "C", "F", "Dm", "E", "Am"],
-        "1 1 1 1 2 1 1 1  1 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1  1 1 1 1 2 1 1 1"
+        [
+          "Am", "Am", "Am", "Am", "Am",
+          "Dm", "Dm", "Dm", "Dm",
+          "G", "G", "G", "G",
+          "C", "C", "C", "C",
+          "F", "F", "F", "F",
+          "Dm", "Dm", "Dm", "Dm", "Am",
+        ],
+        "1 1 1 1 4  1 1 1 1  1 1 1 2  1 1 1 1  1 1 1 1  1 1 1 1 4"
       ),
     },
     B: {
       short: "B · Chorus",
       title: "B 段 · In other words",
-      tip: "「In other words」从 D（中②拉）起跳到 A。Fill my heart 可走到高 E（中⑤推）。空词格子是过门音。",
+      tip: "整段几乎只拉：第二句「In other words」改底拉高C(p)，收尾 more 也用 p。只在 kiss me 的 E 推一下。words / hand / song 仍是长音格。",
       chords: "Dm–G–F–G–Dm–E–Dm–C",
       steps: flymePhrase(
-        "DAAA AcBG CFFF FAGE DAAA AcBe DAAA ABDC".replace(/\s/g, "").split(""),
+        "DAAA ApBv pFFF FAvE DAAAA DAAA ABDp".replace(/\s/g, "").split(""),
         [
-          "In", "oth-", "er", "words", "hold", "my", "hand", "",
-          "In", "oth-", "er", "words", "ba-", "by", "kiss", "me",
-          "Fill", "my", "heart", "with", "song", "", "", "",
-          "And", "let", "me", "sing", "for-", "e-", "ver", "more",
+          "In", "oth-", "er", "words",
+          "hold", "my", "hand", "",
+          "In", "oth-", "er", "words",
+          "ba-", "by", "kiss", "me",
+          "Fill", "my", "heart", "with", "song",
+          "And", "let", "me", "sing",
+          "for-", "e-", "ver", "more",
         ],
-        ["Dm", "G", "F", "G", "Dm", "E", "Dm", "C"],
-        "1 1 1 2 1 1 2 1  1 1 1 2 1 1 1 2  1 1 1 1 2 1 1 1  1 1 1 1 1 1 1 2"
+        [
+          "Dm", "Dm", "Dm", "Dm",
+          "G", "G", "G", "G",
+          "F", "F", "F", "F",
+          "G", "G", "G", "G",
+          "Dm", "Dm", "Dm", "Dm", "E",
+          "Dm", "Dm", "Dm", "Dm",
+          "C", "C", "C", "C",
+        ],
+        "1 1 1 2  1 1 2 1  1 1 1 2  1 1 1 2  1 1 1 1 4  1 1 1 1  1 1 1 2"
       ),
     },
     C: {
       short: "C · Bridge",
       title: "C 段 · Adore / I love you",
-      tip: "前半接 A 段后半的下行（A–G–F–E…）；结尾「I love you」= D–A–A–A | A–B–D–C。",
+      tip: "All I wor-ship 用 G·E 连推再拉；ship/adore 改底拉高C，后半请/爱你整段连拉。E 仍是唯一必推的短岛。",
       chords: "F–Dm–E–Am–Dm–G–Dm–C",
       steps: flymePhrase(
-        "AGFE DEFA GFED CCCC DAAA AcBG DAAA ABDC".replace(/\s/g, "").split(""),
+        "AvFE DEFA GEDp pppp DAAA ApBv DAAA ABDp".replace(/\s/g, "").split(""),
         [
-          "You", "are", "all", "I", "long", "for", "", "",
-          "All", "I", "wor-", "ship", "and", "a-", "dore", "",
-          "In", "oth-", "er", "words", "please", "be", "true", "",
-          "In", "oth-", "er", "words", "I", "love", "you", "",
+          "You", "are", "all", "I",
+          "long", "for", "", "",
+          "All", "I", "wor-", "ship",
+          "and", "a-", "dore", "",
+          "In", "oth-", "er", "words",
+          "please", "be", "true", "",
+          "In", "oth-", "er", "words",
+          "I", "love", "you", "",
         ],
-        ["F", "Dm", "E", "Am", "Dm", "G", "Dm", "C"],
-        "1 1 1 1 1 2 1 1  1 1 1 1 1 1 2 1  1 1 1 2 1 1 2 1  1 1 1 2 1 1 2 1"
+        [
+          "F", "F", "F", "F",
+          "Dm", "Dm", "Dm", "Dm",
+          "E", "E", "E", "E",
+          "Am", "Am", "Am", "Am",
+          "Dm", "Dm", "Dm", "Dm",
+          "G", "G", "G", "G",
+          "Dm", "Dm", "Dm", "Dm",
+          "C", "C", "C", "C",
+        ],
+        "1 1 1 1  1 3 1 1  1 1 1 1  1 1 3 1  1 1 1 2  1 1 2 1  1 1 1 2  1 1 3 1"
       ),
     },
   };
@@ -2016,6 +2073,7 @@
   let audioBus = null;
   let reedWave = null;
   let noiseBuffer = null;
+  let audioResumePromise = null;
 
   function ensureAudio() {
     if (!audioCtx) {
@@ -2030,7 +2088,8 @@
       audioBus.attack.value = 0.004;
       audioBus.release.value = 0.12;
       const busGain = audioCtx.createGain();
-      busGain.gain.value = 0.85;
+      // Mobile speakers need more headroom than desktop headphones.
+      busGain.gain.value = 1;
       audioBus.connect(busGain);
       busGain.connect(audioCtx.destination);
 
@@ -2059,8 +2118,35 @@
       const data = noiseBuffer.getChannelData(0);
       for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
     }
-    if (audioCtx.state === "suspended") audioCtx.resume();
     return audioCtx;
+  }
+
+  /** Mobile Safari/Chrome: context stays suspended until resume() finishes inside a gesture. */
+  function unlockAudio() {
+    const ctx = ensureAudio();
+    if (!ctx) return Promise.resolve(null);
+    if (ctx.state === "running") return Promise.resolve(ctx);
+    if (audioResumePromise) return audioResumePromise;
+    audioResumePromise = Promise.resolve(ctx.resume())
+      .catch(function () {})
+      .then(function () {
+        try {
+          const buf = ctx.createBuffer(1, 1, ctx.sampleRate || 44100);
+          const src = ctx.createBufferSource();
+          src.buffer = buf;
+          const g = ctx.createGain();
+          g.gain.value = 0.001;
+          src.connect(g);
+          g.connect(ctx.destination);
+          src.start(0);
+        } catch (e) {}
+        return ctx;
+      })
+      .then(function (c) {
+        audioResumePromise = null;
+        return c;
+      });
+    return audioResumePromise;
   }
 
   function noteToFreq(abc) {
@@ -2079,13 +2165,19 @@
   function playAbcNote(abc, durSec) {
     const ctx = ensureAudio();
     if (!ctx || !audioBus || !reedWave) return;
+    if (ctx.state !== "running") {
+      unlockAudio().then(function (c) {
+        if (c && c.state === "running") playAbcNote(abc, durSec);
+      });
+      return;
+    }
     const now = ctx.currentTime;
     const dur = Math.max(0.07, durSec || 0.38);
     const freq = noteToFreq(abc);
     const stopAt = now + dur + 0.1;
 
     const master = ctx.createGain();
-    const peak = dur < 0.22 ? 0.2 : 0.17;
+    const peak = dur < 0.22 ? 0.32 : 0.28;
     master.gain.setValueAtTime(0.0001, now);
     master.gain.exponentialRampToValueAtTime(peak, now + 0.01);
     master.gain.exponentialRampToValueAtTime(
@@ -2159,7 +2251,6 @@
   function playScaleFromStart() {
     const scale = SCALES[scaleState.key];
     if (!scale) return;
-    ensureAudio();
     scaleState.step = 0;
     scaleState.playing = true;
     const btn = document.getElementById("scalePlay");
@@ -2182,7 +2273,9 @@
         tick();
       }, 520);
     }
-    tick();
+    unlockAudio().then(function () {
+      if (scaleState.playing) tick();
+    });
   }
 
   function stepId(step) {
@@ -2420,10 +2513,12 @@
     }
   }
 
-  function highlightFlyme(container, steps, currentIndex, lh) {
+  function highlightFlyme(container, steps, currentIndex, chord) {
     clearHighlight(container);
     const involved = new Set(steps.map(stepId));
-    if (lh) involved.add(stepId(lh));
+    if (chord && chord.buttons) {
+      chord.buttons.forEach((b) => involved.add(stepId(b)));
+    }
     container.querySelectorAll(".btn").forEach((b) => {
       const id = b.getAttribute("data-btn");
       if (!involved.has(id)) b.classList.add("dim");
@@ -2447,21 +2542,22 @@
         half.classList.add("mark-path");
       }
     });
-    if (lh) {
-      const id = stepId(lh);
-      const btn = container.querySelector('.btn[data-btn="' + id + '"]');
-      const half = container.querySelector(
-        '.half[data-btn="' + id + '"][data-dir="' + lh.dir + '"]'
-      );
-      if (btn) btn.classList.add("hl-path");
-      if (half) half.classList.add("mark-path");
+    if (chord && chord.buttons) {
+      chord.buttons.forEach((b) => {
+        const id = stepId(b);
+        const btn = container.querySelector('.btn[data-btn="' + id + '"]');
+        const half = container.querySelector(
+          '.half[data-btn="' + id + '"][data-dir="' + b.dir + '"]'
+        );
+        if (btn) btn.classList.add("hl-path");
+        if (half) half.classList.add("mark-path");
+      });
     }
   }
 
   function playFlymeFromStart() {
     const song = FLYME[flymeState.key];
     if (!song) return;
-    ensureAudio();
     flymeState.step = 0;
     flymeState.playing = true;
     const btn = document.getElementById("flymePlay");
@@ -2469,28 +2565,30 @@
       btn.classList.add("on");
       btn.textContent = "■ 停止";
     }
+    const unit = 400;
 
     function tick() {
       if (!flymeState.playing) return;
       const step = song.steps[flymeState.step];
+      const beats = step && step.beats ? step.beats : 1;
+      const wait = Math.round(unit * beats);
       if (step) {
-        playAbcNote(step.note, 0.4);
-        if (flymeState.showLh) {
-          const lh = FLYME_LH[step.chord];
-          if (lh) playAbcNote(lh.note, 0.45);
-        }
+        playAbcNote(step.note, Math.min(1.05, 0.3 * beats));
+        if (flymeState.showLh) playFlymeLh(step);
       }
       paintFlymeLesson({ silent: true });
       if (flymeState.step >= song.steps.length - 1) {
-        flymeState.timer = setTimeout(() => stopFlymePlayback(), 480);
+        flymeState.timer = setTimeout(() => stopFlymePlayback(), Math.max(200, wait - 80));
         return;
       }
       flymeState.timer = setTimeout(() => {
         flymeState.step += 1;
         tick();
-      }, 560);
+      }, wait);
     }
-    tick();
+    unlockAudio().then(function () {
+      if (flymeState.playing) tick();
+    });
   }
 
   function paintFlymeLesson(opts) {
@@ -2540,18 +2638,15 @@
         flymeState.step = +el.getAttribute("data-step");
         const st = song.steps[flymeState.step];
         if (st) {
-          playAbcNote(st.note);
-          if (flymeState.showLh) {
-            const lh = FLYME_LH[st.chord];
-            if (lh) playAbcNote(lh.note, 0.4);
-          }
+          playAbcNote(st.note, Math.min(1.05, 0.3 * (st.beats || 1)));
+          if (flymeState.showLh) playFlymeLh(st);
         }
         paintFlymeLesson({ silent: true });
       });
     });
 
     const step = song.steps[flymeState.step];
-    const lh = FLYME_LH[step.chord];
+    const lhChord = flymeState.showLh ? flymeChordForStep(step) : null;
     const lyricBits = [];
     const barStart = Math.floor(flymeState.step / 4) * 4;
     for (let i = barStart; i < Math.min(barStart + 8, song.steps.length); i++) {
@@ -2579,16 +2674,18 @@
       (step.lyric
         ? " · 「" + escapeHtml(step.lyric) + "」"
         : "") +
-      (flymeState.showLh && lh
-        ? " · 左手根音 <strong>" +
-          escapeHtml(lh.name) +
-          "</strong>（" +
-          (lh.dir === "push" ? "推" : "拉") +
+      (lhChord
+        ? " · 左手 <strong>" +
+          escapeHtml(lhChord.name) +
+          "</strong> 三和弦（" +
+          (lhChord.dir === "push" ? "推" : "拉") +
           "）"
-        : "") +
+        : flymeState.showLh
+          ? " · 左手（此拍无同向和弦，略过）"
+          : "") +
       "<br><em>" +
       escapeHtml(lyricLine) +
-      "</em> · 小节根音进行：" +
+      "</em> · 和声：" +
       escapeHtml(song.chords) +
       "<br>" +
       escapeHtml(song.tip);
@@ -2597,7 +2694,7 @@
       board,
       song.steps,
       flymeState.step,
-      flymeState.showLh ? lh : null
+      lhChord
     );
 
     document.getElementById("flymePrev").disabled = flymeState.step <= 0;
@@ -2635,6 +2732,7 @@
   function beatClass(beats) {
     const b = Number(beats) || 1;
     if (b <= 0.5) return " beats-05";
+    if (b >= 3.5) return " beats-4";
     if (b >= 2.75) return " beats-3";
     if (b >= 1.75) return " beats-2";
     if (b >= 1.25) return " beats-15";
@@ -2850,7 +2948,6 @@
 
     function playFromStart() {
       const lesson = currentLesson();
-      ensureAudio();
       state.step = 0;
       state.playing = true;
       const btn = document.getElementById(ids.play);
@@ -2873,7 +2970,9 @@
           tick();
         }, wait);
       }
-      tick();
+      unlockAudio().then(function () {
+        if (state.playing) tick();
+      });
     }
 
     function bind() {
@@ -3830,7 +3929,6 @@
 
   function playProgressFromStart() {
     const prog = PROGRESSIONS[progressState.key];
-    ensureAudio();
     progressState.step = 0;
     progressState.playing = true;
     const btn = document.getElementById("progressPlay");
@@ -3860,7 +3958,9 @@
         tick();
       }, 900);
     }
-    tick();
+    unlockAudio().then(function () {
+      if (progressState.playing) tick();
+    });
   }
 
   // —— Left-hand rhythm (oom-pah: root then triad) ——
@@ -4128,7 +4228,6 @@
 
   function playRhythmFromStart() {
     const prog = RHYTHMS[rhythmState.key];
-    ensureAudio();
     rhythmState.step = 0;
     rhythmState.playing = true;
     const btn = document.getElementById("rhythmPlay");
@@ -4158,7 +4257,9 @@
         tick();
       }, 700);
     }
-    tick();
+    unlockAudio().then(function () {
+      if (rhythmState.playing) tick();
+    });
   }
 
   // —— Layout gallery ——
@@ -4546,7 +4647,6 @@
     const board = layoutPlayBoard();
     const steps = opts.steps;
     if (!board || !steps || !steps.length) return;
-    ensureAudio();
     layoutScaleState.step = 0;
     layoutScaleState.playing = true;
     layoutScaleState.mode = opts.mode;
@@ -4581,7 +4681,9 @@
         tick();
       }, delay);
     }
-    tick();
+    unlockAudio().then(function () {
+      if (layoutScaleState.playing) tick();
+    });
   }
 
   function playLayoutOctave() {
@@ -4978,11 +5080,8 @@
       flymeState.step -= 1;
       const st = FLYME[flymeState.key].steps[flymeState.step];
       if (st) {
-        playAbcNote(st.note);
-        if (flymeState.showLh) {
-          const lh = FLYME_LH[st.chord];
-          if (lh) playAbcNote(lh.note, 0.4);
-        }
+        playAbcNote(st.note, Math.min(1.05, 0.3 * (st.beats || 1)));
+        if (flymeState.showLh) playFlymeLh(st);
       }
       paintFlymeLesson({ silent: true });
     }
@@ -4994,11 +5093,8 @@
       flymeState.step += 1;
       const st = FLYME[flymeState.key].steps[flymeState.step];
       if (st) {
-        playAbcNote(st.note);
-        if (flymeState.showLh) {
-          const lh = FLYME_LH[st.chord];
-          if (lh) playAbcNote(lh.note, 0.4);
-        }
+        playAbcNote(st.note, Math.min(1.05, 0.3 * (st.beats || 1)));
+        if (flymeState.showLh) playFlymeLh(st);
       }
       paintFlymeLesson({ silent: true });
     }
@@ -5118,6 +5214,16 @@
     stopRhythmPlayback();
     notationMode.current = notationMode.current === "abc" ? "jianpu" : "abc";
     paintAll();
+  });
+
+  // Unlock Web Audio on first gesture / when returning to the tab (mobile Safari).
+  ["pointerdown", "touchstart", "click"].forEach(function (ev) {
+    document.addEventListener(ev, function () {
+      unlockAudio();
+    }, { capture: true, passive: true });
+  });
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") unlockAudio();
   });
 })();
 </script>
