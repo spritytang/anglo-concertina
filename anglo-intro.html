@@ -1078,12 +1078,25 @@
   }
   #flymeRail[hidden] { display: none !important; }
 
+  .layout-picker-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px 12px;
+    margin-bottom: 14px;
+  }
   .layout-picker {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
     gap: 8px;
-    margin-bottom: 14px;
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+  .layout-picker-hint {
+    margin: 0;
+    white-space: nowrap;
+    flex: 0 0 auto;
   }
   .layout-picker button {
     border: 1.5px solid var(--border);
@@ -1475,7 +1488,10 @@
     <div class="card prose">
       <p>常见六角琴家族：<strong>Anglo</strong> 是推拉异音，English / Duet 是<strong>推拉同音</strong>。</p>
     </div>
-    <div class="layout-picker" id="layoutPicker" role="tablist" aria-label="选择布局"></div>
+    <div class="layout-picker-row">
+      <div class="layout-picker" id="layoutPicker" role="tablist" aria-label="选择布局"></div>
+      <p class="muted layout-picker-hint">按 <kbd>[</kbd> <kbd>]</kbd> 左右切换</p>
+    </div>
     <div class="layout-meta" id="layoutMeta"></div>
     <div id="layoutView"></div>
     <div class="card prose layout-anglo-note" id="layoutAngloNote" hidden>
