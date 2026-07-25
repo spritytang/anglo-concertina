@@ -996,7 +996,7 @@
   <!-- ========== TAB 3: Scales ========== -->
   <section class="panel" id="panel-scales" data-panel="scales" role="tabpanel">
     <div class="card prose">
-      <p>右手流畅度：家行 C/G 打底，再练跨行、琶音、G 混合利底亚等 Irish/session 向路径，最后扫一遍顶行。可开声音跟练。</p>
+      <p>右手流畅度：家行 C/G 打底，再练跨行、琶音、G Mixolydian 等 Irish/session 向路径，最后扫一遍顶行。可开声音跟练。</p>
     </div>
     <div class="lesson-controls">
       <div class="seg" id="scaleSeg" role="group" aria-label="课程"></div>
@@ -1097,7 +1097,7 @@
   <!-- ========== TAB: Tunes ========== -->
   <section class="panel" id="panel-tunes" data-panel="tunes" role="tabpanel">
     <div class="card prose">
-      <p>几首<strong>公有领域</strong>民谣 / session 向短曲（非儿歌主线）。右手以中行为主；Simple Gifts 用底/顶少倒风箱。需要三音热身时再用「极简」。练熟后回 Fly Me。</p>
+      <p>几首<strong>公有领域</strong>民谣 / session 向短曲（非儿歌主线）。右手以中行为主；Simple Gifts 用底/顶少倒风箱。练熟后回 Fly Me。</p>
     </div>
     <div class="lesson-controls">
       <div class="seg" id="tunesSeg" role="group" aria-label="曲目"></div>
@@ -3499,40 +3499,51 @@
     grace: {
       short: "Amazing Grace",
       title: "Amazing Grace（节选）",
-      tip: "从属音 G 起。乐句比儿歌长：盯住 G–C–E 与 E–G–A–G 的推拉节奏，不要赶。格子宽窄=时值。",
+      tip: "New Britain 调、C 大调。起音属音 G；「like me / I see」走到中行高 C（c）。· 为拖腔/过门。",
+      // Phrase: G–C–E–E–D–C–E–G–A–G | E–G–A–c–A–G–E–D–C  (×2)
       steps: tuneFromLetters(
-        "GCEEDC EGAG GCEEDC EGDC GCEEDC EGAG GCEEDC EGDC",
+        "GCEEDC EGAG EGAc AGE DC GCEEDC EGAG EGAc AGE DC",
         [
-        "A-",
-        "ma-",
-        "zing",
-        "grace",
-        "how",
-        "sweet",
-        "the",
-        "sound",
-        "that",
-        "saved",
-        "a",
-        "wretch",
-        "like",
-        "me",
-        "I",
-        "once",
-        "was",
-        "lost",
-        "but",
-        "now",
-        "am",
-        "found",
-        "was",
-        "blind",
-        "but",
-        "now",
-        "I",
-        "see",
+          "A-",
+          "ma-",
+          "zing",
+          "grace",
+          "how",
+          "sweet",
+          "the",
+          "sound",
+          "",
+          "",
+          "that",
+          "saved",
+          "a",
+          "wretch",
+          "like",
+          "me",
+          "",
+          "",
+          "",
+          "I",
+          "once",
+          "was",
+          "lost",
+          "but",
+          "now",
+          "am",
+          "found",
+          "",
+          "",
+          "was",
+          "blind",
+          "but",
+          "now",
+          "I",
+          "see",
+          "",
+          "",
+          "",
         ],
-        "1 1 2 1 1 2 1 1 1 2  1 1 1 1 1 2 1 1 1 2  1 1 2 1 1 2 1 1 1 2  1 1 1 1 1 2 1 1 1 2"
+        "1 1 2 2 1 1 1 1 1 2  1 1 1 2 1 1 1 1 2  1 1 2 2 1 1 1 1 1 2  1 1 1 2 1 1 1 1 2"
       ),
     },
     susanna: {
@@ -3621,34 +3632,6 @@
         "1 1 1 1 1 1 1 2  1 1 1 1 1 1 1 2  1 1 1 1 1 1 1 2  1 1 1 1 1 1 1 2"
       ),
     },
-    easy: {
-      short: "极简",
-      title: "",
-      tip: "三音热身。格子宽窄 = 时值（宽=2拍，窄=1拍）；颜色 = 推/拉。· 是过门（只有音高）。",
-      steps: tuneFromLetters(
-        "EDC EDC CCCC DDDD EDC",
-        [
-          "Hot",
-          "cross",
-          "buns",
-          "Hot",
-          "cross",
-          "buns",
-          "One",
-          "a",
-          "pen-",
-          "ny",
-          "Two",
-          "a",
-          "pen-",
-          "ny",
-          "Hot",
-          "cross",
-          "buns",
-        ],
-        "1 1 2  1 1 2  1 1 1 1  1 1 1 1  1 1 2"
-      ),
-    },
   };
 
   const bellowsLesson = createStepLesson({
@@ -3670,7 +3653,7 @@
   const tunesLesson = createStepLesson({
     id: "tunes",
     catalog: TUNES,
-    order: ["saints", "grace", "susanna", "gifts", "easy"],
+    order: ["saints", "grace", "susanna", "gifts"],
     focusSide: "R",
     delay: 420,
     noteDur: 0.36,
