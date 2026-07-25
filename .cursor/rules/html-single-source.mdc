@@ -1,0 +1,32 @@
+---
+description: Prevent overwriting Anglo learning HTML / free-reed audio
+alwaysApply: true
+---
+
+# Anglo HTML：单一源与防覆盖
+
+## Canonical file
+
+- **Only edit** `/Users/spritytang/Documents/Cursor/Music/index.html` for the learning page.
+- Sync to `anglo-intro.html` only after the edit is verified: `cp index.html anglo-intro.html`.
+- **Do not** recreate or edit `anglo-concertina/*.html` copies of the app.
+
+## Never wipe newer work
+
+- Do not blind-`cp` or full-file `Write` from a stale snapshot.
+- Do not run parallel agents that both write `index.html` / `anglo-intro.html`.
+- If the user has the file open and a change “vanishes”, treat it as editor-buffer overwrite: re-apply and ask them to reload from disk.
+
+## Audio invariant
+
+After any HTML edit touching playback, confirm:
+
+```bash
+grep -n createPeriodicWave index.html
+```
+
+`playAbcNote` must use free-reed (`reedWave` / `createPeriodicWave`), **not** `osc.type = "triangle"`.
+
+## Incident log
+
+See `错误记录.md` — append new incidents there; do not repeat listed mistakes.

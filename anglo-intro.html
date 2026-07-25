@@ -323,9 +323,25 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px 20px;
+    --btn-size: 54px;
+    --btn-gap: 6px;
+    /* 半键距：与实琴一致，下行相对上一行错开约半颗键 */
+    --row-stagger: calc((var(--btn-size) + var(--btn-gap)) / 2);
+    overflow: visible;
+    /* 底行平移 2×stagger，两侧各留够以免裁切 */
+    padding: 6px calc(var(--row-stagger) * 2 + 8px) 10px;
+    position: relative;
+  }
+  .sides.sides-one {
+    grid-template-columns: 1fr;
+    max-width: 480px;
+    margin: 0 auto;
   }
   @media (max-width: 720px) {
     .sides { grid-template-columns: 1fr; }
+  }
+  .side-panel {
+    overflow: visible;
   }
   .side-label {
     text-align: center;
@@ -337,12 +353,26 @@
   .row {
     display: flex;
     justify-content: center;
-    gap: 6px;
+    gap: var(--btn-gap, 6px);
     margin-bottom: 6px;
+  }
+  /* Wren / Wheatstone：右手下行往右错；左手镜像往左错 */
+  .side-panel[data-side="R"] .row[data-row="mid"] {
+    transform: translateX(var(--row-stagger));
+  }
+  .side-panel[data-side="R"] .row[data-row="bot"] {
+    transform: translateX(calc(var(--row-stagger) * 2));
+  }
+  .side-panel[data-side="L"] .row[data-row="mid"] {
+    transform: translateX(calc(var(--row-stagger) * -1));
+  }
+  .side-panel[data-side="L"] .row[data-row="bot"] {
+    transform: translateX(calc(var(--row-stagger) * -2));
   }
 
   .btn {
-    width: 54px; height: 54px;
+    width: var(--btn-size, 54px);
+    height: var(--btn-size, 54px);
     border: 2.2px solid var(--ink);
     border-radius: 50%;
     display: flex;
@@ -391,6 +421,13 @@
   .half.mark-active { background: var(--active-bg); }
 
   .n-lo { border-bottom: 2px solid currentColor; }
+  /* 八度点在上；升降号必须与度数同一行（.jp-deg），禁止单独成行 */
+  .oct {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+  }
   .oct::before {
     content: attr(data-dots);
     display: block;
@@ -400,7 +437,18 @@
     margin-bottom: 1px;
     letter-spacing: -1px;
   }
-  .acc { font-size: 0.7em; vertical-align: 0.12em; }
+  .jp-deg {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: baseline;
+    white-space: nowrap;
+  }
+  .acc {
+    font-size: 0.7em;
+    vertical-align: 0.12em;
+    display: inline;
+    white-space: nowrap;
+  }
 
   /* ABC：字母 + 八度数字（C4 = 中央 C = 简谱 1） */
   .abc-note {
@@ -511,6 +559,20 @@
     align-items: center;
     gap: 8px;
     margin-bottom: 12px;
+  }
+  /* Fly Me: keep play/transport reachable while scrolling to 句谱 */
+  #panel-flyme > .lesson-controls {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    padding: 10px 8px;
+    margin-left: -8px;
+    margin-right: -8px;
+    background: rgba(243, 240, 232, 0.94);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
   }
   .lesson-controls .seg {
     display: inline-flex;
@@ -633,6 +695,7 @@
     font-size: 0.78rem;
     font-weight: 800;
     font-family: "SF Mono", "Menlo", "Consolas", "PingFang SC", monospace;
+    white-space: nowrap;
   }
   /* 推/拉：描边 + 底色（不写文字）；宽窄表节奏长短 */
   .step-rail .step.push {
@@ -653,6 +716,11 @@
     background: var(--active-bg);
     color: var(--ink);
     box-shadow: 0 0 0 2px rgba(61, 90, 128, 0.25);
+  }
+  .step-rail .step.ahead {
+    border-color: #5a7a9a;
+    box-shadow: 0 0 0 2px rgba(61, 90, 128, 0.22);
+    color: var(--ink);
   }
   .step-rail .step.done.push {
     border-color: var(--same);
@@ -707,6 +775,18 @@
   }
   .half.mark-path {
     background: var(--same-bg);
+  }
+  .half.mark-ahead {
+    background: rgba(61, 90, 128, 0.14);
+  }
+  .btn.hl-ahead {
+    box-shadow: 0 0 0 2px rgba(61, 90, 128, 0.35);
+    z-index: 6;
+  }
+  .step-badge.ahead {
+    opacity: 0.75;
+    font-size: 0.62rem;
+    background: #5a7a9a;
   }
   .btn.hl-step {
     box-shadow: 0 0 0 3px var(--active);
@@ -770,6 +850,111 @@
     pointer-events: none;
     box-shadow: 0 0 0 1.5px #fff;
   }
+  .step-badge.phrase-n {
+    background: #5a554c;
+    width: auto;
+    min-width: 14px;
+    padding: 0 3px;
+  }
+  .step-badge.phrase-n.on {
+    background: var(--active);
+    min-width: 16px;
+    height: 16px;
+    font-size: 0.58rem;
+  }
+  #flymeBoard,
+  #flymePhraseBoard {
+    overflow: visible;
+  }
+  .flyme-phrase-section {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .flyme-phrase-heading {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    text-align: center;
+    color: var(--ink);
+  }
+  .flyme-phrase-lead {
+    margin: 0 0 12px;
+    font-size: 0.86rem;
+    line-height: 1.45;
+    color: var(--muted);
+    text-align: center;
+  }
+  svg.phrase-path {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 4;
+    overflow: visible;
+  }
+  svg.phrase-path .phrase-line {
+    fill: none;
+    stroke: var(--active);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  svg.phrase-path .phrase-line.pull {
+    stroke: var(--opp);
+  }
+  svg.phrase-path .phrase-arrow {
+    fill: var(--active);
+  }
+  svg.phrase-path .phrase-arrow.pull {
+    fill: var(--opp);
+  }
+  svg.phrase-path .phrase-dot {
+    fill: var(--active);
+    stroke: #fff;
+    stroke-width: 1.5;
+  }
+  svg.phrase-path .phrase-dot.pull {
+    fill: var(--opp);
+  }
+  .phrase-sheet-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 10px;
+  }
+  .phrase-sheet-bar .phrase-lyric {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ink);
+    text-align: center;
+    min-width: 12em;
+  }
+  .phrase-sheet-bar .phrase-meta {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .phrase-sheet-bar button {
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    background: var(--panel);
+    padding: 7px 14px;
+    font: inherit;
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .phrase-sheet-bar button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  #flymeRail[hidden] { display: none !important; }
 
   .layout-picker {
     display: flex;
@@ -911,6 +1096,25 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px 20px;
+    --btn-size: 54px;
+    --btn-gap: 6px;
+    --row-stagger: calc((var(--btn-size) + var(--btn-gap)) / 2);
+  }
+  /* English / Crane：相邻行错半键（砖砌），左右手镜像；Hayden 靠不等长行居中已呈错位 */
+  .side-stack[data-stagger="alt"] {
+    overflow: visible;
+    padding: 6px calc(var(--row-stagger) + 8px) 10px;
+    position: relative;
+  }
+  .side-stack[data-stagger="alt"] .side-panel[data-side="R"] .row[data-row="1"],
+  .side-stack[data-stagger="alt"] .side-panel[data-side="R"] .row[data-row="3"],
+  .side-stack[data-stagger="alt"] .side-panel[data-side="R"] .row[data-row="5"] {
+    transform: translateX(var(--row-stagger));
+  }
+  .side-stack[data-stagger="alt"] .side-panel[data-side="L"] .row[data-row="1"],
+  .side-stack[data-stagger="alt"] .side-panel[data-side="L"] .row[data-row="3"],
+  .side-stack[data-stagger="alt"] .side-panel[data-side="L"] .row[data-row="5"] {
+    transform: translateX(calc(var(--row-stagger) * -1));
   }
   @media (max-width: 720px) {
     .side-stack { grid-template-columns: 1fr; }
@@ -942,6 +1146,7 @@
         <div class="nav-group">
           <div class="nav-label">曲目</div>
           <button type="button" data-panel="tunes" role="tab" aria-selected="false" aria-controls="panel-tunes">短曲入门</button>
+          <button type="button" data-panel="koshka" role="tab" aria-selected="false" aria-controls="panel-koshka">Белая кошка</button>
           <button type="button" data-panel="flyme" role="tab" aria-selected="false" aria-controls="panel-flyme">Fly Me</button>
         </div>
       </nav>
@@ -1098,7 +1303,7 @@
   <!-- ========== TAB: Tunes ========== -->
   <section class="panel" id="panel-tunes" data-panel="tunes" role="tabpanel">
     <div class="card prose">
-      <p>几首<strong>公有领域</strong>民谣 / session 向短曲（非儿歌主线）。右手以中行为主；Simple Gifts 用底/顶少倒风箱。练熟后回 Fly Me。</p>
+      <p>公有领域民谣 / session 向短曲。右手以中行为主；Simple Gifts 用底/顶少倒风箱。完整曲目见「Белая кошка」「Fly Me」。</p>
     </div>
     <div class="lesson-controls">
       <div class="seg" id="tunesSeg" role="group" aria-label="曲目"></div>
@@ -1115,11 +1320,33 @@
     <div class="card" id="tunesBoard"></div>
   </section>
 
+  <!-- ========== TAB: Belaya Koshka ========== -->
+  <section class="panel" id="panel-koshka" data-panel="koshka" role="tabpanel">
+    <div class="card prose">
+      <h2 style="margin-top:0;text-align:left">Белая кошка</h2>
+      <p>Мельница · C 调 · «Обернусь я белой кошкой…»</p>
+    </div>
+    <div class="lesson-controls">
+      <div class="seg" id="koshkaSeg" role="group" aria-label="段落"></div>
+      <div class="nav-btns">
+        <button type="button" id="koshkaPrev">上一步</button>
+        <button type="button" id="koshkaNext">下一步</button>
+        <button type="button" id="koshkaReset">重来</button>
+        <button type="button" id="koshkaPlay" class="play-btn">▶ 播放</button>
+      </div>
+    </div>
+    <div class="dir-legend" aria-label="推拉图例"><span class="push"><i aria-hidden="true"></i>推</span><span class="pull"><i aria-hidden="true"></i>拉</span></div>
+    <div class="step-rail" id="koshkaRail"></div>
+    <div class="info-box" id="koshkaInfo"></div>
+    <div class="card" id="koshkaBoard"></div>
+  </section>
+
   <!-- ========== TAB: Fly Me ========== -->
   <section class="panel" id="panel-flyme" data-panel="flyme" role="tabpanel">
     <div class="card prose">
       <h2 style="margin-top:0;text-align:left">Fly Me to the Moon</h2>
       <p>C 大调 / 关系小调 Am · 4/4 · 爵士标准旋律轮廓。指法刻意<strong>跨行少换向</strong>：能拉则拉（顶拉 G、底拉高 C），推句用底 B / 顶 A；E 在中行只有推，遇 F/D 时仍难免短掉头。可开左手伴奏。</p>
+      <p>上方为<strong>音步条</strong>逐音练习；下方<strong>句谱</strong>按同向推/拉分页，连线只显示当前与其后两步（渐淡）。</p>
     </div>
     <div class="lesson-controls">
       <div class="seg" id="flymeSeg" role="group" aria-label="段落"></div>
@@ -1135,6 +1362,17 @@
     <div class="step-rail" id="flymeRail"></div>
     <div class="info-box" id="flymeInfo"></div>
     <div class="card" id="flymeBoard"></div>
+    <div class="flyme-phrase-section" id="flymePhraseSection">
+      <h3 class="flyme-phrase-heading">句谱</h3>
+      <p class="flyme-phrase-lead">同向推/拉分页 · 键位错行同实琴 · 路径只显示当前与后两步</p>
+      <div class="phrase-sheet-bar" id="flymePhraseBar">
+        <button type="button" id="flymePhrasePrev">上一句</button>
+        <span class="phrase-meta" id="flymePhraseMeta">句 1</span>
+        <button type="button" id="flymePhraseNext">下一句</button>
+        <span class="phrase-lyric" id="flymePhraseLyric"></span>
+      </div>
+      <div class="card" id="flymePhraseBoard"></div>
+    </div>
   </section>
     </main>
   </div>
@@ -1195,7 +1433,7 @@
       { push: "a''", pull: "g''" },
       { push: "g#''", pull: "bb''" },
       { push: "c#'''", pull: "d#'''" },
-      { push: "a'''", pull: "f''''" },
+      { push: "a'''", pull: "f'''" },
     ],
     mid: [
       { push: "c''", pull: "b'" },
@@ -1209,7 +1447,7 @@
       { push: "b''", pull: "a''" },
       { push: "d'''", pull: "c'''" },
       { push: "g'''", pull: "e'''" },
-      { push: "b'''", pull: "f#''''" },
+      { push: "b'''", pull: "f#'''" },
     ],
   };
 
@@ -1236,15 +1474,16 @@
     let acc = "";
     if (p.acc === "#") acc = '<span class="acc">♯</span>';
     else if (p.acc === "b" || p.acc === "bb") acc = '<span class="acc">♭</span>';
+    // 升降号与度数必须同一行（.jp-deg），八度点可单独在上一行
+    const deg =
+      '<span class="jp-deg">' +
+      acc +
+      (p.primes === 0 ? '<span class="n-lo">' + num + "</span>" : num) +
+      "</span>";
 
-    if (p.primes === 0) {
-      return acc + '<span class="n-lo">' + num + "</span>";
-    }
-    if (p.primes === 1) {
-      return acc + num;
-    }
+    if (p.primes <= 1) return deg;
     const dots = "·".repeat(p.primes - 1);
-    return acc + '<span class="oct" data-dots="' + dots + '">' + num + "</span>";
+    return '<span class="oct" data-dots="' + dots + '">' + deg + "</span>";
   }
 
   function formatAbc(abc) {
@@ -1358,6 +1597,7 @@
     const kind = opts.kind || "";
     const showMc = opts.showMc !== false;
     const focusSide = opts.focusSide || null;
+    const hideOtherSide = !!opts.hideOtherSide;
     const showBellowsLegend = !!opts.showBellowsLegend;
 
     const entries = collectEntries(left, right);
@@ -1382,21 +1622,27 @@
       '<div class="sides' +
       (interactive ? " interactive" : "") +
       (mode === "abc" ? " mode-abc" : "") +
+      (hideOtherSide && focusSide ? " sides-one" : "") +
       '">';
 
-    [
+    // 持琴视角：屏幕左=左手、右=右手（勿因 focusSide 对调）
+    const sideList = [
       ["L", left, "左手 Left"],
       ["R", right, "右手 Right"],
-    ].forEach(([side, rows, label]) => {
-      const dimSide = focusSide && focusSide !== side;
+    ];
+    sideList.forEach(([side, rows, label]) => {
+      if (hideOtherSide && focusSide && focusSide !== side) return;
+      const dimSide = focusSide && !hideOtherSide && focusSide !== side;
       html +=
-        '<div' +
+        '<div class="side-panel" data-side="' +
+        side +
+        '"' +
         (dimSide ? ' style="opacity:.28;pointer-events:none"' : "") +
         '><div class="side-label">' +
         label +
         "</div>";
       ROW_KEYS.forEach((rk) => {
-        html += '<div class="row">';
+        html += '<div class="row" data-row="' + rk + '">';
         rows[rk].forEach((btn, i) => {
           const id = side + "-" + rk + "-" + i;
           const mc = showMc && btn.mc;
@@ -1447,7 +1693,8 @@
         "hl-both",
         "hl-active",
         "hl-step",
-        "hl-path"
+        "hl-path",
+        "hl-ahead"
       );
     });
     container.querySelectorAll(".half").forEach((h) => {
@@ -1456,7 +1703,8 @@
         "mark-opp",
         "mark-active",
         "mark-step",
-        "mark-path"
+        "mark-path",
+        "mark-ahead"
       );
     });
     container.querySelectorAll(".step-badge").forEach((el) => el.remove());
@@ -1770,7 +2018,7 @@
     mixo: {
       short: "G Mixolydian",
       title: "G Mixolydian 乐句 · 底行+中行 F♮",
-      tip: "Irish 常见「降 7」色彩。高八度没有顺手的 f'''，所以 F♮ 走中行拉 f''——这是 C/G Anglo 的真实指法，不是简化错误。",
+      tip: "Irish 常见「降 7」色彩。同音区 F♮ 用中行拉 f''（顶行最右拉是更高的 F6，不适合这句）——这是 C/G Anglo 的真实指法，不是简化错误。",
       steps: [
         { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "底①推 G" },
         { side: "R", row: "bot", col: 1, dir: "pull", note: "a''", solf: "6", why: "底②拉 A" },
@@ -1803,7 +2051,7 @@
         { side: "R", row: "top", col: 3, dir: "push", note: "c#'''", solf: "♯1", why: "高升 Do · D 上行关键" },
         { side: "R", row: "top", col: 3, dir: "pull", note: "d#'''", solf: "♯2", why: "高升 Re" },
         { side: "R", row: "top", col: 4, dir: "push", note: "a'''", solf: "6", why: "更高 La" },
-        { side: "R", row: "top", col: 4, dir: "pull", note: "f''''", solf: "4", why: "极高 Fa（少用）" },
+        { side: "R", row: "top", col: 4, dir: "pull", note: "f'''", solf: "4", why: "高 Fa（F6 · Wren 2）" },
       ],
     },
   };
@@ -1887,6 +2135,7 @@
   // —— Fly Me to the Moon (cross-row, fewer bellows flips; LH = matching-dir chords) ——
   // Letters: C=c'' · c=c''' push · b=b'' bot push · a=a'' top push · g=g'' bot push
   //          v=g'' top pull · p=c''' bot pull · A/F/B/D mid pull · G/E mid push · e=e'''
+  //          y=e'' LEFT bot pull（拉句里的 3，避免 F↔E 掉头）
   const FLYME_RH = {
     C: { row: "mid", col: 0, dir: "push", note: "c''", solf: "1" },
     D: { row: "mid", col: 1, dir: "pull", note: "d''", solf: "2" },
@@ -1904,30 +2153,90 @@
     x: { row: "bot", col: 0, dir: "pull", note: "f#''", solf: "♯4" },
     v: { row: "top", col: 1, dir: "pull", note: "g''", solf: "5" },
     p: { row: "bot", col: 2, dir: "pull", note: "c'''", solf: "1" },
+    s: { row: "top", col: 2, dir: "push", note: "g#''", solf: "♯5" },
+    y: {
+      side: "L",
+      row: "bot",
+      col: 4,
+      dir: "pull",
+      note: "e''",
+      solf: "3",
+    },
+    // Low A (plain 6 / a') — LH top④推 a'；Koshka「ле-」专用（勿用 A→a''）
+    // 与「за-」C 同为推，减少 за–ле–зу 换向
+    w: {
+      side: "L",
+      row: "top",
+      col: 3,
+      dir: "push",
+      note: "a'",
+      solf: "6",
+    },
   };
 
-  /** Prefer a LH triad whose bellows direction matches the RH note. */
+  /** Matching-dir chord; melody-on-left steps skip LH stack. */
   function flymeChordForStep(step) {
     if (!step || !step.chord) return null;
+    if (step.side === "L") return null;
     const want = step.dir;
     const primary = CHORDS[step.chord];
     if (primary && primary.dir === want) return primary;
-    const pushAlt = { Am: "Em", Dm: "G", F: "C", E: "E", C: "C", G: "G", G7: "G" };
-    const pullAlt = { Am: "Am", Dm: "Dm", F: "F", E: "Am", C: "F", G: "G7", G7: "G7" };
+    const pushAlt = {
+      Am: "Em",
+      Dm: "G",
+      F: "C",
+      E: "Em",
+      C: "C",
+      G: "G",
+      G7: "G",
+    };
+    const pullAlt = {
+      Am: "Am",
+      Dm: "Dm",
+      F: "F",
+      E: "Am",
+      C: "F",
+      G: "G7",
+      G7: "G7",
+    };
     const altName = (want === "push" ? pushAlt : pullAlt)[step.chord];
     const alt = altName && CHORDS[altName];
     if (alt && alt.dir === want) return alt;
     return primary && primary.dir === want ? primary : null;
   }
 
-  function playFlymeLh(step) {
+  /** Light voicing: root + fifth only (not full triad / not 7th). */
+  function flymeLhButtons(step) {
     const chord = flymeChordForStep(step);
-    if (!chord) return;
-    // Full triad together (slight stagger) — richer than single root.
-    chord.buttons.forEach(function (b, i) {
+    if (!chord || !chord.buttons || !chord.buttons.length) return null;
+    const bs = chord.buttons;
+    if (bs.length === 1) return bs.slice();
+    // triads [R,3,5]; G7 [R,3,5,7] → take R + 5th (index 2 when present)
+    const fifth = bs[Math.min(2, bs.length - 1)];
+    return [bs[0], fifth];
+  }
+
+  /** Soft LH: only when chord changes; quieter than melody. */
+  function playFlymeLh(step, prevStep) {
+    if (!step) return;
+    if (
+      prevStep &&
+      prevStep.chord === step.chord &&
+      prevStep.dir === step.dir &&
+      prevStep.side === step.side
+    ) {
+      return;
+    }
+    const buttons = flymeLhButtons(step);
+    if (!buttons) return;
+    buttons.forEach(function (b, i) {
       setTimeout(function () {
-        playAbcNote(b.note, Math.min(0.85, 0.28 * (step.beats || 1) + 0.2));
-      }, i * 18);
+        playAbcNote(
+          b.note,
+          Math.min(0.5, 0.18 * (step.beats || 1) + 0.12),
+          0.32
+        );
+      }, i * 14);
     });
   }
 
@@ -1935,7 +2244,7 @@
     const m = FLYME_RH[letter];
     if (!m) throw new Error("Unknown Fly Me letter: " + letter);
     return {
-      side: "R",
+      side: m.side || "R",
       row: m.row || "mid",
       col: m.col,
       dir: m.dir,
@@ -1973,86 +2282,78 @@
     A: {
       short: "A · Verse",
       title: "A 段 · Verse（Fly me…）",
-      tip: "连推 c–b–a–g → 长拉 moon(F)；And…stars 整段连拉（v=顶拉G，p=底拉高C），仅 stars 的 E 短推。后半 Jupiter：G·E 连推后拉 D→Mars(底拉高C)，去掉「推G又拉G」的空换向。",
-      chords: "Am–Dm–G–C–F–Dm–E–Am",
-      // cbagF push+moon; FvApBAv pull; E 短推; GEDDp = G·E 推 + D·Mars 拉
+      tip: "开头少绕指：中④高C → 底②B → 顶②A → 中③G，moon 同键改拉F。moon 后直接 let…stars 连拉；what/is 用左手拉 e''。Jupiter = ♯5–4–3–2–1（5 音，无多余 1）；若与「全推」冲突：4/2 右手同音区只有拉，故此句会有推拉，以音高为准。键上只亮「当前+后两拍」。",
+      chords: "Am–Dm–G–C–F–C",
+      // Verse Jupiter：s F E D C = ♯5' 4' 3' 2' 1'（5 音；4/2 右手仅拉）
       steps: flymePhrase(
-        "cbagF FvAp BAvE AvFE DEFA GEDDp".replace(/\s/g, "").split(""),
+        "cbaGF vAp BAvFE AvFy DyFA sFEDC".replace(/\s/g, "").split(""),
         [
           "Fly", "me", "to", "the", "moon",
-          "And", "let", "me", "play",
-          "a-", "mong", "the", "stars",
+          "let", "me", "play",
+          "a-", "mong", "the", "", "stars",
           "Let", "me", "see", "what",
           "spring", "is", "like", "on",
           "Ju-", "pi-", "ter", "and", "Mars",
         ],
         [
           "Am", "Am", "Am", "Am", "Am",
-          "Dm", "Dm", "Dm", "Dm",
-          "G", "G", "G", "G",
+          "Dm", "Dm", "Dm",
+          "G", "G", "G", "G", "G",
           "C", "C", "C", "C",
           "F", "F", "F", "F",
-          "Dm", "Dm", "Dm", "Dm", "Am",
+          "Em", "F", "C", "C", "C",
         ],
-        "1 1 1 1 4  1 1 1 1  1 1 1 2  1 1 1 1  1 1 1 1  1 1 1 1 4"
+        "1 1 1 1 4  1 1 1  1 1 1 1 2  1 1 1 1  1 1 1 1  1 1 1 1 4"
       ),
     },
     B: {
       short: "B · Chorus",
-      title: "B 段 · In other words",
-      tip: "整段几乎只拉：第二句「In other words」改底拉高C(p)，收尾 more 也用 p。只在 kiss me 的 E 推一下。words / hand / song 仍是长音格。",
-      chords: "Dm–G–F–G–Dm–E–Dm–C",
+      title: "B 段 · In other words（A2）",
+      tip: "AABA 第二 A：轮廓与 Verse 开场相同（cbaGF→vAp→BAvFE），不是旧版 DAAA…。hold≈moon 长音；kiss me≈among the stars。左手只在换和弦时轻点根+五。",
+      chords: "Am–Dm–G",
+      // Same contour as A opening→stars（平行第二 A）
       steps: flymePhrase(
-        "DAAA ApBv pFFF FAvE DAAAA DAAA ABDp".replace(/\s/g, "").split(""),
+        "cbaGF vAp BAvFE".replace(/\s/g, "").split(""),
         [
-          "In", "oth-", "er", "words",
-          "hold", "my", "hand", "",
-          "In", "oth-", "er", "words",
-          "ba-", "by", "kiss", "me",
-          "Fill", "my", "heart", "with", "song",
-          "And", "let", "me", "sing",
-          "for-", "e-", "ver", "more",
+          "In", "oth-", "er", "words", "hold",
+          "my", "hand", "",
+          "ba-", "by", "kiss", "", "me",
         ],
         [
-          "Dm", "Dm", "Dm", "Dm",
-          "G", "G", "G", "G",
-          "F", "F", "F", "F",
-          "G", "G", "G", "G",
-          "Dm", "Dm", "Dm", "Dm", "E",
-          "Dm", "Dm", "Dm", "Dm",
-          "C", "C", "C", "C",
+          "Am", "Am", "Am", "Am", "Am",
+          "Dm", "Dm", "Dm",
+          "G", "G", "G", "G", "G",
         ],
-        "1 1 1 2  1 1 2 1  1 1 1 2  1 1 1 2  1 1 1 1 4  1 1 1 1  1 1 1 2"
+        "1 1 1 1 4  1 1 1  1 1 1 1 2"
       ),
     },
     C: {
       short: "C · Bridge",
-      title: "C 段 · Adore / I love you",
-      tip: "All I wor-ship 用 G·E 连推再拉；ship/adore 改底拉高C，后半请/爱你整段连拉。E 仍是唯一必推的短岛。",
-      chords: "F–Dm–E–Am–Dm–G–Dm–C",
+      title: "C 段 · Fill my heart / Adore",
+      tip: "Bridge：Fill… 连拉；let me sing 改推跨行；You are all… 同 Verse 后半；adore 同 Jupiter = ♯5–4–3–2–1（5 音；4/2 右手同音区只有拉，会有推拉，以音高为准）；I love you 收推 C。左手换和弦时轻点根+五。",
+      chords: "F–C–Am–Dm–G–C",
+      // adore 与 Verse Jupiter 一致：sFEDC
       steps: flymePhrase(
-        "AvFE DEFA GEDp pppp DAAA ApBv DAAA ABDp".replace(/\s/g, "").split(""),
+        "FFAvFy CbaG Fyy AvFy DyFA sFEDC ApvC".replace(/\s/g, "").split(""),
         [
+          "Fill", "my", "heart", "with", "song", "and",
+          "let", "me", "sing", "for-",
+          "e-", "ver", "more",
           "You", "are", "all", "I",
           "long", "for", "", "",
-          "All", "I", "wor-", "ship",
-          "and", "a-", "dore", "",
-          "In", "oth-", "er", "words",
-          "please", "be", "true", "",
-          "In", "oth-", "er", "words",
+          "All", "I", "wor-", "ship", "adore",
           "I", "love", "you", "",
         ],
         [
-          "F", "F", "F", "F",
-          "Dm", "Dm", "Dm", "Dm",
-          "E", "E", "E", "E",
-          "Am", "Am", "Am", "Am",
+          "F", "F", "F", "F", "F", "F",
+          "C", "C", "C", "C",
+          "Am", "Am", "Am",
           "Dm", "Dm", "Dm", "Dm",
           "G", "G", "G", "G",
-          "Dm", "Dm", "Dm", "Dm",
-          "C", "C", "C", "C",
+          "Em", "F", "C", "C", "C",
+          "G", "G", "G", "C",
         ],
-        "1 1 1 1  1 3 1 1  1 1 1 1  1 1 3 1  1 1 1 2  1 1 2 1  1 1 1 2  1 1 3 1"
+        "1 1 1 1 1 1  1 1 1 1  1 1 2  1 1 1 1  1 1 1 1  1 1 1 1 2  1 1 1 2"
       ),
     },
   };
@@ -2064,7 +2365,383 @@
     playing: false,
     timer: null,
     showLh: false,
+    phrase: 0,
   };
+
+  /**
+   * Phrase pages: maximal same-bellows runs.
+   * - Peel a long first note (beats≥2, e.g. moon) onto the previous page so a
+   *   push line can close with one pull without swallowing the next pull run.
+   * - Cluster 3+ single-note flip streaks (e.g. Jupiter).
+   * - Merge leftover 1-note flips into neighbors.
+   */
+  function buildFlymePhrases(steps) {
+    if (!steps || !steps.length) return [];
+    const runs = [];
+    for (let i = 0; i < steps.length; i++) {
+      const d = steps[i].dir;
+      if (!runs.length || runs[runs.length - 1].dir !== d) {
+        runs.push({ dir: d, start: i, end: i });
+      } else {
+        runs[runs.length - 1].end = i;
+      }
+    }
+    // Cadential peel: moon/hold-style long note starts a new dir but belongs
+    // with the previous lyric line (cbaG + F → cbaGF, leaving vAp…).
+    for (let i = 1; i < runs.length; i++) {
+      const head = steps[runs[i].start];
+      const runLen = runs[i].end - runs[i].start + 1;
+      if (runLen >= 2 && (head.beats || 1) >= 2) {
+        runs[i - 1].end = runs[i].start;
+        runs[i].start += 1;
+      }
+    }
+    const solid = runs.filter(function (r) {
+      return r.start <= r.end;
+    });
+
+    const clustered = [];
+    for (let i = 0; i < solid.length; ) {
+      const len = solid[i].end - solid[i].start + 1;
+      if (len === 1) {
+        let j = i;
+        while (
+          j < solid.length &&
+          solid[j].end - solid[j].start + 1 === 1
+        ) {
+          j++;
+        }
+        if (j - i >= 3) {
+          clustered.push({
+            start: solid[i].start,
+            end: solid[j - 1].end,
+          });
+          i = j;
+        } else {
+          while (i < j) {
+            clustered.push({
+              start: solid[i].start,
+              end: solid[i].end,
+            });
+            i++;
+          }
+        }
+      } else {
+        clustered.push({ start: solid[i].start, end: solid[i].end });
+        i++;
+      }
+    }
+    const phrases = clustered.map(function (c) {
+      return { start: c.start, end: c.end };
+    });
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (let i = 0; i < phrases.length; i++) {
+        const p = phrases[i];
+        if (p.end - p.start + 1 !== 1) continue;
+        const st = steps[p.start];
+        const beats = st.beats || 1;
+        const lyric = (st.lyric || "").trim();
+        let target = -1;
+        if ((beats >= 2 || !lyric) && i > 0) target = i - 1;
+        else if (i + 1 < phrases.length) target = i + 1;
+        else if (i > 0) target = i - 1;
+        if (target < 0) continue;
+        if (target < i) {
+          phrases[target].end = Math.max(phrases[target].end, p.end);
+          phrases.splice(i, 1);
+        } else {
+          phrases[i].end = Math.max(phrases[i].end, phrases[target].end);
+          phrases.splice(target, 1);
+        }
+        changed = true;
+        break;
+      }
+    }
+    return phrases.map(function (p, idx) {
+      const slice = steps.slice(p.start, p.end + 1);
+      let pushN = 0;
+      let pullN = 0;
+      slice.forEach(function (s) {
+        if (s.dir === "pull") pullN++;
+        else pushN++;
+      });
+      const lyrics = slice
+        .map(function (s) {
+          return (s.lyric || "").trim();
+        })
+        .filter(Boolean);
+      return {
+        index: idx,
+        start: p.start,
+        end: p.end,
+        steps: slice,
+        primaryDir: pullN > pushN ? "pull" : "push",
+        mixed: pushN > 0 && pullN > 0,
+        lyric: lyrics.join(" "),
+      };
+    });
+  }
+
+  function flymePhraseIndexForStep(phrases, stepIndex) {
+    for (let i = 0; i < phrases.length; i++) {
+      if (stepIndex >= phrases[i].start && stepIndex <= phrases[i].end) {
+        return i;
+      }
+    }
+    return 0;
+  }
+
+  function phraseLyricLabel(phrase) {
+    if (!phrase) return "";
+    if (phrase.lyric) return phrase.lyric;
+    return "（过门）";
+  }
+
+  function removePhrasePath(container) {
+    if (!container) return;
+    container.querySelectorAll("svg.phrase-path").forEach(function (el) {
+      el.remove();
+    });
+  }
+
+  /** Path window: current edge + next two; opacities fade ahead. */
+  const PHRASE_PATH_OPACITIES = [1, 0.55, 0.3];
+  const PHRASE_DOT_OPACITIES = [1, 0.7, 0.45, 0.28];
+
+  function drawPhrasePath(
+    container,
+    phraseSteps,
+    primaryDir,
+    attempt,
+    currentLocal
+  ) {
+    removePhrasePath(container);
+    const sides = container.querySelector(".sides");
+    if (!sides || !phraseSteps || phraseSteps.length < 1) return;
+    const sideRect = sides.getBoundingClientRect();
+    const w = sides.offsetWidth;
+    const h = sides.offsetHeight;
+    // Panel may still be display:none on first paint — retry after layout.
+    if (w < 8 || h < 8) {
+      if ((attempt || 0) < 12) {
+        requestAnimationFrame(function () {
+          drawPhrasePath(
+            container,
+            phraseSteps,
+            primaryDir,
+            (attempt || 0) + 1,
+            currentLocal
+          );
+        });
+      }
+      return;
+    }
+
+    const pts = [];
+    phraseSteps.forEach(function (step) {
+      const half = container.querySelector(
+        '.half[data-btn="' +
+          stepId(step) +
+          '"][data-dir="' +
+          step.dir +
+          '"]'
+      );
+      if (!half) return;
+      const r = half.getBoundingClientRect();
+      pts.push({
+        x: r.left + r.width / 2 - sideRect.left,
+        y: r.top + r.height / 2 - sideRect.top,
+        dir: step.dir,
+      });
+    });
+    if (pts.length < 1) return;
+
+    const edgeStart = Math.max(0, currentLocal | 0);
+
+    const ns = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("class", "phrase-path");
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    svg.setAttribute("width", String(w));
+    svg.setAttribute("height", String(h));
+    svg.setAttribute("aria-hidden", "true");
+
+    const ah = 7;
+    const aw = 4.5;
+    for (let k = 0; k < 3; k++) {
+      const i = edgeStart + k;
+      if (i + 1 >= pts.length) break;
+      const a = pts[i];
+      const b = pts[i + 1];
+      const opacity = PHRASE_PATH_OPACITIES[k];
+      const segDir = a.dir || primaryDir;
+      const dirClass = segDir === "pull" ? " pull" : "";
+      const mx = (a.x + b.x) / 2;
+      const my = (a.y + b.y) / 2;
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const len = Math.sqrt(dx * dx + dy * dy) || 1;
+      const bow = Math.min(10, len * 0.18);
+      const cx = mx - (dy / len) * bow;
+      const cy = my + (dx / len) * bow;
+      const path = document.createElementNS(ns, "path");
+      path.setAttribute("class", "phrase-line" + dirClass);
+      path.setAttribute(
+        "d",
+        "M " +
+          a.x.toFixed(1) +
+          " " +
+          a.y.toFixed(1) +
+          " Q " +
+          cx.toFixed(1) +
+          " " +
+          cy.toFixed(1) +
+          " " +
+          b.x.toFixed(1) +
+          " " +
+          b.y.toFixed(1)
+      );
+      path.setAttribute("opacity", String(opacity));
+      svg.appendChild(path);
+
+      const ang = Math.atan2(b.y - a.y, b.x - a.x);
+      const tipX = b.x;
+      const tipY = b.y;
+      const bx = tipX - Math.cos(ang) * ah;
+      const by = tipY - Math.sin(ang) * ah;
+      const lx = bx + Math.cos(ang + Math.PI / 2) * aw;
+      const ly = by + Math.sin(ang + Math.PI / 2) * aw;
+      const rx = bx + Math.cos(ang - Math.PI / 2) * aw;
+      const ry = by + Math.sin(ang - Math.PI / 2) * aw;
+      const arrow = document.createElementNS(ns, "polygon");
+      arrow.setAttribute("class", "phrase-arrow" + dirClass);
+      arrow.setAttribute(
+        "points",
+        tipX.toFixed(1) +
+          "," +
+          tipY.toFixed(1) +
+          " " +
+          lx.toFixed(1) +
+          "," +
+          ly.toFixed(1) +
+          " " +
+          rx.toFixed(1) +
+          "," +
+          ry.toFixed(1)
+      );
+      arrow.setAttribute("opacity", String(opacity));
+      svg.appendChild(arrow);
+    }
+
+    const localNow = Math.max(0, Math.min(pts.length - 1, currentLocal | 0));
+    const dotEnd = Math.min(pts.length - 1, localNow + 3);
+    for (let i = localNow; i <= dotEnd; i++) {
+      const p = pts[i];
+      const dist = i - localNow;
+      const opacity =
+        PHRASE_DOT_OPACITIES[
+          Math.min(dist, PHRASE_DOT_OPACITIES.length - 1)
+        ];
+      const c = document.createElementNS(ns, "circle");
+      c.setAttribute(
+        "class",
+        "phrase-dot" + (p.dir === "pull" ? " pull" : "")
+      );
+      c.setAttribute("cx", p.x.toFixed(1));
+      c.setAttribute("cy", p.y.toFixed(1));
+      c.setAttribute("r", dist === 0 ? "3.6" : "3.0");
+      c.setAttribute("opacity", String(opacity));
+      svg.appendChild(c);
+    }
+    sides.appendChild(svg);
+  }
+
+  /** Highlight one phrase path with local 1…n badges; current step emphasized. */
+  function highlightPhraseSheet(
+    container,
+    phrase,
+    currentIndex,
+    extraButtons
+  ) {
+    clearHighlight(container);
+    removePhrasePath(container);
+    if (!container || !phrase) return;
+    const phraseSteps = phrase.steps;
+    const involved = new Set(
+      phraseSteps.map(function (s) {
+        return stepId(s);
+      })
+    );
+    if (extraButtons) {
+      extraButtons.forEach(function (b) {
+        involved.add(stepId(b));
+      });
+    }
+    container.querySelectorAll(".btn").forEach(function (b) {
+      const id = b.getAttribute("data-btn");
+      if (!involved.has(id)) b.classList.add("dim");
+    });
+    phraseSteps.forEach(function (step, local) {
+      const id = stepId(step);
+      const btn = container.querySelector('.btn[data-btn="' + id + '"]');
+      const half = container.querySelector(
+        '.half[data-btn="' + id + '"][data-dir="' + step.dir + '"]'
+      );
+      if (!btn || !half) return;
+      const globalI = phrase.start + local;
+      const isCurrent = globalI === currentIndex;
+      if (isCurrent) {
+        btn.classList.remove("hl-path", "hl-ahead");
+        btn.classList.add("hl-step");
+        half.classList.add("mark-step");
+      } else if (globalI < currentIndex) {
+        if (!btn.classList.contains("hl-step")) btn.classList.add("hl-path");
+        half.classList.add("mark-path");
+      } else {
+        if (
+          !btn.classList.contains("hl-step") &&
+          !btn.classList.contains("hl-path")
+        ) {
+          btn.classList.add("hl-ahead");
+        }
+        half.classList.add("mark-ahead");
+      }
+      let badge = btn.querySelector(".step-badge.phrase-n");
+      if (badge) {
+        badge.textContent += "·" + (local + 1);
+        if (isCurrent) badge.classList.add("on");
+      } else {
+        badge = document.createElement("span");
+        badge.className =
+          "step-badge phrase-n" + (isCurrent ? " on" : "");
+        badge.textContent = String(local + 1);
+        btn.appendChild(badge);
+      }
+    });
+    if (extraButtons) {
+      extraButtons.forEach(function (b) {
+        const id = stepId(b);
+        const btn = container.querySelector('.btn[data-btn="' + id + '"]');
+        const half = container.querySelector(
+          '.half[data-btn="' + id + '"][data-dir="' + b.dir + '"]'
+        );
+        if (btn) btn.classList.add("hl-path");
+        if (half) half.classList.add("mark-path");
+      });
+    }
+    const local = Math.max(0, currentIndex - phrase.start);
+    requestAnimationFrame(function () {
+      drawPhrasePath(
+        container,
+        phraseSteps,
+        phrase.primaryDir,
+        0,
+        local
+      );
+    });
+  }
 
   const scaleState = { key: "C", step: 0, playing: false, timer: null };
   const chordState = { key: "C" };
@@ -2162,12 +2839,12 @@
   }
 
   /** Concertina-ish free-reed: custom partials, tiny detune, chiff attack. */
-  function playAbcNote(abc, durSec) {
+  function playAbcNote(abc, durSec, gainScale) {
     const ctx = ensureAudio();
     if (!ctx || !audioBus || !reedWave) return;
     if (ctx.state !== "running") {
       unlockAudio().then(function (c) {
-        if (c && c.state === "running") playAbcNote(abc, durSec);
+        if (c && c.state === "running") playAbcNote(abc, durSec, gainScale);
       });
       return;
     }
@@ -2175,9 +2852,11 @@
     const dur = Math.max(0.07, durSec || 0.38);
     const freq = noteToFreq(abc);
     const stopAt = now + dur + 0.1;
+    const gs =
+      typeof gainScale === "number" && gainScale > 0 ? gainScale : 1;
 
     const master = ctx.createGain();
-    const peak = dur < 0.22 ? 0.32 : 0.28;
+    const peak = (dur < 0.22 ? 0.32 : 0.28) * gs;
     master.gain.setValueAtTime(0.0001, now);
     master.gain.exponentialRampToValueAtTime(peak, now + 0.01);
     master.gain.exponentialRampToValueAtTime(
@@ -2282,32 +2961,66 @@
     return step.side + "-" + step.row + "-" + step.col;
   }
 
-  function highlightLesson(container, steps, currentIndex) {
+  /** Light current note + next 2 only (easier while playing). */
+  function highlightLookahead(container, steps, currentIndex, extraButtons) {
     clearHighlight(container);
-    const involved = new Set(steps.map(stepId));
-    container.querySelectorAll(".btn").forEach((b) => {
+    const windowSteps = [];
+    for (
+      let i = currentIndex;
+      i < steps.length && i <= currentIndex + 1;
+      i++
+    ) {
+      windowSteps.push({ step: steps[i], i: i });
+    }
+    const involved = new Set(
+      windowSteps.map(function (w) {
+        return stepId(w.step);
+      })
+    );
+    if (extraButtons) {
+      extraButtons.forEach(function (b) {
+        involved.add(stepId(b));
+      });
+    }
+    container.querySelectorAll(".btn").forEach(function (b) {
       const id = b.getAttribute("data-btn");
       if (!involved.has(id)) b.classList.add("dim");
     });
-    steps.forEach((step, i) => {
+    windowSteps.forEach(function (w, offset) {
+      const step = w.step;
       const id = stepId(step);
       const btn = container.querySelector('.btn[data-btn="' + id + '"]');
       const half = container.querySelector(
         '.half[data-btn="' + id + '"][data-dir="' + step.dir + '"]'
       );
       if (!btn || !half) return;
-      if (i === currentIndex) {
+      const badge = document.createElement("span");
+      badge.className = "step-badge" + (offset === 0 ? "" : " ahead");
+      badge.textContent = String(w.i + 1);
+      if (offset === 0) {
         btn.classList.add("hl-step");
         half.classList.add("mark-step");
-        const badge = document.createElement("span");
-        badge.className = "step-badge";
-        badge.textContent = String(i + 1);
-        btn.appendChild(badge);
-      } else if (i < currentIndex) {
-        btn.classList.add("hl-path");
-        half.classList.add("mark-path");
+      } else {
+        btn.classList.add("hl-ahead");
+        half.classList.add("mark-ahead");
       }
+      btn.appendChild(badge);
     });
+    if (extraButtons) {
+      extraButtons.forEach(function (b) {
+        const id = stepId(b);
+        const btn = container.querySelector('.btn[data-btn="' + id + '"]');
+        const half = container.querySelector(
+          '.half[data-btn="' + id + '"][data-dir="' + b.dir + '"]'
+        );
+        if (btn) btn.classList.add("hl-path");
+        if (half) half.classList.add("mark-path");
+      });
+    }
+  }
+
+  function highlightLesson(container, steps, currentIndex) {
+    highlightLookahead(container, steps, currentIndex, null);
   }
 
   function highlightChord(container, chord) {
@@ -2514,45 +3227,12 @@
   }
 
   function highlightFlyme(container, steps, currentIndex, chord) {
-    clearHighlight(container);
-    const involved = new Set(steps.map(stepId));
-    if (chord && chord.buttons) {
-      chord.buttons.forEach((b) => involved.add(stepId(b)));
-    }
-    container.querySelectorAll(".btn").forEach((b) => {
-      const id = b.getAttribute("data-btn");
-      if (!involved.has(id)) b.classList.add("dim");
-    });
-    steps.forEach((step, i) => {
-      const id = stepId(step);
-      const btn = container.querySelector('.btn[data-btn="' + id + '"]');
-      const half = container.querySelector(
-        '.half[data-btn="' + id + '"][data-dir="' + step.dir + '"]'
-      );
-      if (!btn || !half) return;
-      if (i === currentIndex) {
-        btn.classList.add("hl-step");
-        half.classList.add("mark-step");
-        const badge = document.createElement("span");
-        badge.className = "step-badge";
-        badge.textContent = String(i + 1);
-        btn.appendChild(badge);
-      } else if (i < currentIndex) {
-        btn.classList.add("hl-path");
-        half.classList.add("mark-path");
-      }
-    });
-    if (chord && chord.buttons) {
-      chord.buttons.forEach((b) => {
-        const id = stepId(b);
-        const btn = container.querySelector('.btn[data-btn="' + id + '"]');
-        const half = container.querySelector(
-          '.half[data-btn="' + id + '"][data-dir="' + b.dir + '"]'
-        );
-        if (btn) btn.classList.add("hl-path");
-        if (half) half.classList.add("mark-path");
-      });
-    }
+    highlightLookahead(
+      container,
+      steps,
+      currentIndex,
+      chord && chord.buttons ? chord.buttons : null
+    );
   }
 
   function playFlymeFromStart() {
@@ -2570,11 +3250,13 @@
     function tick() {
       if (!flymeState.playing) return;
       const step = song.steps[flymeState.step];
+      const prev =
+        flymeState.step > 0 ? song.steps[flymeState.step - 1] : null;
       const beats = step && step.beats ? step.beats : 1;
       const wait = Math.round(unit * beats);
       if (step) {
         playAbcNote(step.note, Math.min(1.05, 0.3 * beats));
-        if (flymeState.showLh) playFlymeLh(step);
+        if (flymeState.showLh) playFlymeLh(step, prev);
       }
       paintFlymeLesson({ silent: true });
       if (flymeState.step >= song.steps.length - 1) {
@@ -2597,8 +3279,13 @@
     const song = FLYME[flymeState.key] || FLYME.A;
     if (!FLYME[flymeState.key]) flymeState.key = "A";
     const board = document.getElementById("flymeBoard");
+    const phraseBoard = document.getElementById("flymePhraseBoard");
     const seg = document.getElementById("flymeSeg");
     if (!board || !seg) return;
+
+    const phrases = buildFlymePhrases(song.steps);
+    flymeState.phrase = flymePhraseIndexForStep(phrases, flymeState.step);
+    const phrase = phrases[flymeState.phrase] || null;
 
     seg.innerHTML = FLYME_ORDER.map((key) => {
       const s = FLYME[key];
@@ -2613,43 +3300,88 @@
       );
     }).join("");
 
+    const songHasL = song.steps.some(function (s) {
+      return s.side === "L";
+    });
+    const showBothHandsMain = flymeState.showLh || songHasL;
+
     renderBoard(board, LEFT, WHEATSTONE_RIGHT, {
       title: song.title,
       mode: mode,
-      focusSide: flymeState.showLh ? null : "R",
+      focusSide: showBothHandsMain ? null : "R",
+      hideOtherSide: false,
       showMc: false,
     });
+    if (phraseBoard) {
+      // 句谱 always LH + RH (never sides-one / RH-only)
+      renderBoard(phraseBoard, LEFT, WHEATSTONE_RIGHT, {
+        title: song.title + " · 句谱",
+        mode: mode,
+        focusSide: null,
+        hideOtherSide: false,
+        showMc: false,
+      });
+    }
 
     const rail = document.getElementById("flymeRail");
-    rail.innerHTML = song.steps
-      .map((step, i) =>
-        railStepButton(
-          Object.assign({}, step, { beats: step.beats || 1 }),
-          i,
-          flymeState.step,
-          mode
+    if (rail) {
+      rail.innerHTML = song.steps
+        .map((step, i) =>
+          railStepButton(
+            Object.assign({}, step, { beats: step.beats || 1 }),
+            i,
+            flymeState.step,
+            mode
+          )
         )
-      )
-      .join("");
-
-    rail.querySelectorAll(".step").forEach((el) => {
-      el.addEventListener("click", () => {
-        stopFlymePlayback();
-        flymeState.step = +el.getAttribute("data-step");
-        const st = song.steps[flymeState.step];
-        if (st) {
-          playAbcNote(st.note, Math.min(1.05, 0.3 * (st.beats || 1)));
-          if (flymeState.showLh) playFlymeLh(st);
-        }
-        paintFlymeLesson({ silent: true });
+        .join("");
+      rail.querySelectorAll(".step").forEach((el) => {
+        el.addEventListener("click", () => {
+          stopFlymePlayback();
+          flymeState.step = +el.getAttribute("data-step");
+          const st = song.steps[flymeState.step];
+          const prev =
+            flymeState.step > 0 ? song.steps[flymeState.step - 1] : null;
+          if (st) {
+            playAbcNote(st.note, Math.min(1.05, 0.3 * (st.beats || 1)));
+            if (flymeState.showLh) playFlymeLh(st, prev);
+          }
+          paintFlymeLesson({ silent: true });
+        });
       });
-    });
+    }
+
+    const phraseBar = document.getElementById("flymePhraseBar");
+    if (phraseBar && phrase) {
+      const meta = document.getElementById("flymePhraseMeta");
+      const lyricEl = document.getElementById("flymePhraseLyric");
+      if (meta) {
+        meta.textContent =
+          "句 " +
+          (flymeState.phrase + 1) +
+          " / " +
+          phrases.length +
+          " · " +
+          (phrase.primaryDir === "push" ? "推" : "拉") +
+          (phrase.mixed ? "为主（含短换向）" : "");
+      }
+      if (lyricEl) lyricEl.textContent = phraseLyricLabel(phrase);
+      const pPrev = document.getElementById("flymePhrasePrev");
+      const pNext = document.getElementById("flymePhraseNext");
+      if (pPrev) pPrev.disabled = flymeState.phrase <= 0;
+      if (pNext) pNext.disabled = flymeState.phrase >= phrases.length - 1;
+    }
 
     const step = song.steps[flymeState.step];
     const lhChord = flymeState.showLh ? flymeChordForStep(step) : null;
+    const lhButtons = flymeState.showLh ? flymeLhButtons(step) : null;
     const lyricBits = [];
     const barStart = Math.floor(flymeState.step / 4) * 4;
-    for (let i = barStart; i < Math.min(barStart + 8, song.steps.length); i++) {
+    for (
+      let i = barStart;
+      i < Math.min(barStart + 8, song.steps.length);
+      i++
+    ) {
       if (song.steps[i].lyric) lyricBits.push(song.steps[i].lyric);
     }
     const lyricLine = lyricBits.length
@@ -2661,7 +3393,17 @@
       (flymeState.step + 1) +
       " / " +
       song.steps.length +
-      "</strong> · " +
+      "</strong>" +
+      (phrase
+        ? " · 句 " +
+          (flymeState.phrase + 1) +
+          "/" +
+          phrases.length +
+          " 内第 " +
+          (flymeState.step - phrase.start + 1) +
+          " 音"
+        : "") +
+      " · " +
       escapeHtml(noteName(step.note, mode)) +
       "（<kbd>" +
       escapeHtml(step.note) +
@@ -2674,10 +3416,10 @@
       (step.lyric
         ? " · 「" + escapeHtml(step.lyric) + "」"
         : "") +
-      (lhChord
+      (lhChord && lhButtons
         ? " · 左手 <strong>" +
           escapeHtml(lhChord.name) +
-          "</strong> 三和弦（" +
+          "</strong> 根+五（" +
           (lhChord.dir === "push" ? "推" : "拉") +
           "）"
         : flymeState.showLh
@@ -2690,12 +3432,24 @@
       "<br>" +
       escapeHtml(song.tip);
 
+    removePhrasePath(board);
     highlightFlyme(
       board,
       song.steps,
       flymeState.step,
-      lhChord
+      lhButtons ? { buttons: lhButtons } : null
     );
+    if (phraseBoard && phrase) {
+      highlightPhraseSheet(
+        phraseBoard,
+        phrase,
+        flymeState.step,
+        lhButtons
+      );
+    } else if (phraseBoard) {
+      removePhrasePath(phraseBoard);
+      clearHighlight(phraseBoard);
+    }
 
     document.getElementById("flymePrev").disabled = flymeState.step <= 0;
     document.getElementById("flymeNext").disabled =
@@ -2717,7 +3471,7 @@
   function rhMid(letter, why, solf) {
     const m = FLYME_RH[letter];
     return {
-      side: "R",
+      side: m.side || "R",
       row: m.row || "mid",
       col: m.col,
       dir: m.dir,
@@ -2745,6 +3499,7 @@
       (step.dir || "push") +
       beatClass(step.beats) +
       (i === currentStep ? " on" : "") +
+      (i === currentStep + 1 ? " ahead" : "") +
       (i < currentStep ? " done" : "");
     const m = mode || notationMode.current;
     const lyric = step.lyric || "";
@@ -3549,6 +4304,42 @@
     return steps;
   }
 
+  // Source jianpu (user): 3-5-6-676-5-3---21-6-2-232-1-2- → degrees 35667653216223212
+  // «ле-» MUST be letter w → note a' (plain 6), NEVER letter A → a'' (·6)
+  const KOSHKA = {
+    A: {
+      short: "Куплет",
+      title: "Белая кошка",
+      tip: "",
+      sourceDegrees: "35667653216223212",
+      // Обернусь я белой кошкой (3-5-6-676-5-3---) | Да залезу в колыбель (21-6-2-232-1-2-)
+      // Beats follow jianpu dashes: 3-/5-/6- =2, 3--- =4, 1-/6-/2-/1-/2- =2
+      steps: tuneFromLetters(
+        "EGA ABAGE DC w D DED C D",
+        [
+          "О-",
+          "бер-",
+          "нусь",
+          "я",
+          "бе-",
+          "лой",
+          "кош-",
+          "кой",
+          "Да",
+          "за-",
+          "ле-",
+          "зу",
+          "в",
+          "ко-",
+          "лы-",
+          "бель",
+          "",
+        ],
+        "2 2 2 1 1 1 2 4  1 2 2 2 1 1 1 2 2"
+      ),
+    },
+  };
+
   const TUNES = {
     saints: {
       short: "Saints",
@@ -3756,6 +4547,17 @@
     focusSide: "R",
     delay: 420,
     noteDur: 0.36,
+    hideTitle: true,
+  });
+
+  const koshkaLesson = createStepLesson({
+    id: "koshka",
+    catalog: KOSHKA,
+    order: ["A"],
+    // Show both hands: «ле-» = w → LH top④推 a' (low 6)
+    focusSide: null,
+    delay: 480,
+    noteDur: 0.4,
     hideTitle: true,
   });
 
@@ -4441,7 +5243,7 @@
 
   // English 48 treble (24+24). Rows high→low; cols: accidental | natural | natural | accidental.
   // Pattern from Wheatstone/Gaskins: L has G# G B Bb / C# C E Eb bands; R has Ab A C C# / D# D F F#.
-  // Middle C = left, 2nd col, 2nd row from bottom.
+  // Middle C = left, 2nd col, 2nd row from bottom. Adjacent rows stagger half a button (brickwork).
   const ENGLISH_48 = {
     left: [
       ["c#'''", "c'''", "e'''", "eb'''"],
@@ -4478,7 +5280,7 @@
     ],
   };
 
-  // Crane / Triumph 48 (20+28). 5 columns; thirds along the row.
+  // Crane / Triumph 48 (20+28). 5 columns; thirds along the row; adjacent rows stagger half a button.
   const CRANE_48 = {
     left: [
       ["e'", "g'", "b'", "d''", "f#''"],
@@ -4547,7 +5349,7 @@
   function renderUniSide(rows, mode, side) {
     let html = "";
     rows.forEach((row, ri) => {
-      html += '<div class="row">';
+      html += '<div class="row" data-row="' + ri + '">';
       row.forEach((note, ci) => {
         if (!note) {
           html += '<div class="btn uni gap" aria-hidden="true"></div>';
@@ -4868,6 +5670,8 @@
       return;
     }
 
+    // English / Crane 实琴相邻行错半键；Hayden 靠不等长行居中已呈错位
+    const uniStagger = L.id === "english" || L.id === "crane" ? "alt" : "";
     view.innerHTML =
       '<div class="card uni-board" id="layoutUniBoard">' +
       playGroupHtml +
@@ -4882,11 +5686,13 @@
       '<p class="diff">' +
       escapeHtml(L.blurb) +
       "</p>" +
-      '<div class="side-stack">' +
-      '<div><div class="side-label">左手 Left</div>' +
+      '<div class="side-stack"' +
+      (uniStagger ? ' data-stagger="' + uniStagger + '"' : "") +
+      ">" +
+      '<div class="side-panel" data-side="L"><div class="side-label">左手 Left</div>' +
       renderUniSide(L.sample.left, mode, "L") +
       "</div>" +
-      '<div><div class="side-label">右手 Right</div>' +
+      '<div class="side-panel" data-side="R"><div class="side-label">右手 Right</div>' +
       renderUniSide(L.sample.right, mode, "R") +
       "</div>" +
       "</div></div>";
@@ -4917,6 +5723,7 @@
     bellowsLesson.paint();
     crossrowLesson.paint();
     tunesLesson.paint();
+    koshkaLesson.paint();
     paintProgressLesson();
     paintRhythmLesson();
     paintLayoutGallery();
@@ -4928,6 +5735,7 @@
   bellowsLesson.bind();
   crossrowLesson.bind();
   tunesLesson.bind();
+  koshkaLesson.bind();
 
   document.getElementById("progressSeg").addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-progress]");
@@ -5070,31 +5878,61 @@
     stopFlymePlayback();
     flymeState.key = btn.getAttribute("data-flyme");
     flymeState.step = 0;
+    flymeState.phrase = 0;
     paintFlymeLesson({ silent: true });
     const st = FLYME[flymeState.key].steps[0];
     if (st) playAbcNote(st.note);
+  });
+  function jumpFlymePhrase(delta) {
+    stopFlymePlayback();
+    const song = FLYME[flymeState.key];
+    if (!song) return;
+    const phrases = buildFlymePhrases(song.steps);
+    const cur = flymePhraseIndexForStep(phrases, flymeState.step);
+    const next = cur + delta;
+    if (next < 0 || next >= phrases.length) return;
+    flymeState.phrase = next;
+    flymeState.step = phrases[next].start;
+    const st = song.steps[flymeState.step];
+    const prev =
+      flymeState.step > 0 ? song.steps[flymeState.step - 1] : null;
+    if (st) {
+      playAbcNote(st.note, Math.min(1.05, 0.3 * (st.beats || 1)));
+      if (flymeState.showLh) playFlymeLh(st, prev);
+    }
+    paintFlymeLesson({ silent: true });
+  }
+  document.getElementById("flymePhrasePrev").addEventListener("click", () => {
+    jumpFlymePhrase(-1);
+  });
+  document.getElementById("flymePhraseNext").addEventListener("click", () => {
+    jumpFlymePhrase(1);
   });
   document.getElementById("flymePrev").addEventListener("click", () => {
     stopFlymePlayback();
     if (flymeState.step > 0) {
       flymeState.step -= 1;
-      const st = FLYME[flymeState.key].steps[flymeState.step];
+      const steps = FLYME[flymeState.key].steps;
+      const st = steps[flymeState.step];
+      const prev = flymeState.step > 0 ? steps[flymeState.step - 1] : null;
       if (st) {
         playAbcNote(st.note, Math.min(1.05, 0.3 * (st.beats || 1)));
-        if (flymeState.showLh) playFlymeLh(st);
+        if (flymeState.showLh) playFlymeLh(st, prev);
       }
       paintFlymeLesson({ silent: true });
     }
   });
   document.getElementById("flymeNext").addEventListener("click", () => {
     stopFlymePlayback();
-    const max = FLYME[flymeState.key].steps.length - 1;
+    const steps = FLYME[flymeState.key].steps;
+    const max = steps.length - 1;
     if (flymeState.step < max) {
       flymeState.step += 1;
-      const st = FLYME[flymeState.key].steps[flymeState.step];
+      const st = steps[flymeState.step];
+      const prev = steps[flymeState.step - 1];
       if (st) {
         playAbcNote(st.note, Math.min(1.05, 0.3 * (st.beats || 1)));
-        if (flymeState.showLh) playFlymeLh(st);
+        if (flymeState.showLh) playFlymeLh(st, prev);
       }
       paintFlymeLesson({ silent: true });
     }
@@ -5102,6 +5940,7 @@
   document.getElementById("flymeReset").addEventListener("click", () => {
     stopFlymePlayback();
     flymeState.step = 0;
+    flymeState.phrase = 0;
     paintFlymeLesson({ silent: true });
     const st = FLYME[flymeState.key].steps[0];
     if (st) playAbcNote(st.note);
@@ -5118,6 +5957,15 @@
     flymeState.showLh = !flymeState.showLh;
     paintFlymeLesson({ silent: true });
   });
+  let flymePathResizeTimer = null;
+  window.addEventListener("resize", function () {
+    clearTimeout(flymePathResizeTimer);
+    flymePathResizeTimer = setTimeout(function () {
+      const board = document.getElementById("flymePhraseBoard");
+      if (!board || board.offsetParent === null) return;
+      paintFlymeLesson({ silent: true });
+    }, 120);
+  });
 
   const PANEL_IDS = [
     "compare",
@@ -5129,6 +5977,7 @@
     "progress",
     "rhythm",
     "tunes",
+    "koshka",
     "flyme",
   ];
   const sidebar = document.getElementById("sidebar");
@@ -5156,6 +6005,7 @@
     bellowsLesson.stop();
     crossrowLesson.stop();
     tunesLesson.stop();
+    koshkaLesson.stop();
     stopProgressPlayback();
     stopRhythmPlayback();
     document.querySelectorAll(".panel").forEach((p) => {
@@ -5173,6 +6023,12 @@
       }
     }
     closeSidebarIfNarrow();
+    // 句谱连线依赖可见布局尺寸；切到 Fly Me 后重绘
+    if (name === "flyme") {
+      requestAnimationFrame(function () {
+        paintFlymeLesson({ silent: true });
+      });
+    }
   }
 
   function panelFromHash() {
@@ -5210,6 +6066,7 @@
     bellowsLesson.stop();
     crossrowLesson.stop();
     tunesLesson.stop();
+    koshkaLesson.stop();
     stopProgressPlayback();
     stopRhythmPlayback();
     notationMode.current = notationMode.current === "abc" ? "jianpu" : "abc";

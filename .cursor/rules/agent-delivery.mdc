@@ -1,0 +1,38 @@
+---
+description: Deliver small edits promptly; never claim progress without disk proof
+alwaysApply: true
+---
+
+# Agent 交付：小改动不拖、不谎报、不甩锅
+
+Belaya / 曲目小改（八度、标题、删 tip、1–2 处数组）等 **具体、可一次落地** 的编辑，禁止用长时间后台子代理 + 反复打断拖成「正在改」。
+
+## 1. 简单编辑：直接做完，不要 multitask 卡死
+
+- 小而明确的 HTML / 文案 / 数据修复（例：`ле-` → 低八度 `a'`、俄文标题、删一条 tip、改 1–2 个数组项）应在环境允许时 **本轮直接改完**，或交给 **一个短命 worker 带完整清单一次做完**。
+- **禁止** 把简单活停在会不断被 interrupt 追加需求的后台代理上。
+
+## 2. 未验收不上报「正在改 / 已改完」
+
+- 告诉用户「已落地」之前，必须对 canonical 文件 `grep` / Read，确认 **确切字符串或音高**（例：`ле-` → `a'` 而非 `a''`）。
+- 磁盘上没有 → 如实说「还没写上」；不要暗示进度。
+
+## 3. 不要把「连着提小需求」怪到用户头上
+
+- 同一会话里多条相关小改是正常的；应 **合并成一次编辑**。
+- 延误时道歉并修流程；**禁止** 把 stacking 说成用户的错。
+
+## 4. Canonical 文件（与 `html-single-source` 一致）
+
+- 只改根目录 `index.html`，验证后再 `cp index.html anglo-intro.html`。
+- 不要再造 `anglo-concertina/*.html` 学习页副本。
+
+## 5. Multitask Mode 被迫用后台代理时
+
+- 优先 **一个** worker，prompt 里放 **当前全部待改小项** 的完整清单。
+- 又来新的小需求时：要么 **打断一次** 并给更新后的完整清单，要么先做完当前批次——禁止滴灌式 interrupt，导致几小时反复重启。
+- **时限**：简单批次 wall clock 几分钟仍未落盘 → 停掉卡住的代理，自己改，或开一个 **最小 prompt 的新 worker** 直接落地。
+
+## Incident log
+
+See `错误记录.md` — 2026-07-26 Belaya 小改拖延事件；勿重复。
