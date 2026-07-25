@@ -478,8 +478,16 @@
     line-height: 1;
     font-family: "SF Mono", "Menlo", "Consolas", "PingFang SC", monospace;
     min-height: 0;
+    background: #fff;
   }
-  .half.push { border-bottom: 1.5px solid var(--line); }
+  /* 半键始终收成半圆：高亮 overflow:visible 时填色也不会方块出界 */
+  .half.push {
+    border-bottom: 1.5px solid var(--line);
+    border-radius: 999px 999px 0 0;
+  }
+  .half.pull {
+    border-radius: 0 0 999px 999px;
+  }
   .interactive .half,
   .playable .half { cursor: pointer; }
   .playable .btn.uni:not(.gap) { cursor: pointer; }
@@ -850,9 +858,34 @@
   .half.mark-ahead {
     background: rgba(61, 90, 128, 0.14);
   }
+  /*
+   * 高亮环用 ::after（z-index 低于 .step-badge），避免 box-shadow 画在序号上。
+   * 凡带序号的键：overflow:visible + isolation，保证小圈在最上层。
+   */
+  .btn:has(> .step-badge) {
+    overflow: visible;
+    isolation: isolate;
+    background: transparent;
+  }
+  .btn.hl-step::after,
+  .btn.hl-ahead::after,
+  .btn.hl-path::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 2;
+  }
   .btn.hl-ahead {
-    box-shadow: 0 0 0 2px rgba(61, 90, 128, 0.35);
+    box-shadow: none;
     z-index: 6;
+    overflow: visible;
+    isolation: isolate;
+    background: transparent;
+  }
+  .btn.hl-ahead::after {
+    box-shadow: 0 0 0 2px rgba(61, 90, 128, 0.35);
   }
   .step-badge.ahead {
     opacity: 0.75;
@@ -860,19 +893,16 @@
     background: #5a7a9a;
   }
   .btn.hl-step {
-    box-shadow: 0 0 0 3px var(--active);
+    box-shadow: none;
     transform: scale(1.05);
     z-index: 8;
     overflow: visible;
-    isolation: auto;
-    /* overflow:visible 让序号露边；半键自己收成半圆，避免露出正方角 */
+    isolation: isolate;
+    /* 填色只在半键上；btn 透明，避免 overflow:visible 时方底露角 */
     background: transparent;
   }
-  .btn.hl-step .half.push {
-    border-radius: 999px 999px 0 0;
-  }
-  .btn.hl-step .half.pull {
-    border-radius: 0 0 999px 999px;
+  .btn.hl-step::after {
+    box-shadow: 0 0 0 3px var(--active);
   }
   .btn.hl-step.mc-ring,
   .btn.hl-step.cg-ring {
@@ -880,35 +910,50 @@
     z-index: 8;
     background: transparent;
   }
-  /* 推拉同音：整圆填色（裁在圆内），序号收进圈内以免再开 overflow */
+  .btn.hl-step.mc-ring::after {
+    box-shadow: 0 0 0 3px #e6b422, 0 0 0 6px var(--active);
+  }
+  .btn.hl-step.cg-ring::after {
+    box-shadow: 0 0 0 3px #3a7d6e, 0 0 0 6px var(--active);
+  }
+  /* 推拉同音：填色画在圆形 .half 上，勿画在 .btn（overflow:visible 会方块出界） */
   .uni-board .btn.uni.hl-step,
-  .uni-board .btn.uni.hl-path {
-    overflow: hidden;
-    isolation: auto;
+  .uni-board .btn.uni.hl-path,
+  .uni-board .btn.uni.hl-ahead {
+    overflow: visible;
+    isolation: isolate;
     z-index: 8;
-  }
-  .uni-board .btn.uni.hl-step {
-    background: var(--active-bg);
-  }
-  .uni-board .btn.uni.hl-path {
-    background: var(--same-bg);
-  }
-  .uni-board .btn.uni.hl-step .half.mark-step,
-  .uni-board .btn.uni.hl-path .half.mark-path {
     background: transparent;
   }
-  .uni-board .btn.uni.hl-step .step-badge {
+  .uni-board .btn.uni.hl-step .half {
+    background: var(--active-bg);
+  }
+  .uni-board .btn.uni.hl-path .half {
+    background: var(--same-bg);
+  }
+  .uni-board .btn.uni.hl-step .step-badge,
+  .uni-board .btn.uni.hl-path .step-badge,
+  .uni-board .btn.uni.hl-ahead .step-badge {
     top: 2px;
     right: 2px;
   }
   .btn.hl-path {
+    box-shadow: none;
+    overflow: visible;
+    isolation: isolate;
+    background: transparent;
+  }
+  .btn.hl-path::after {
     box-shadow: 0 0 0 2px var(--same);
+  }
+  .btn.hl-path.hl-step::after {
+    box-shadow: 0 0 0 3px var(--active);
   }
   .step-badge {
     position: absolute;
     top: -3px;
     right: -3px;
-    z-index: 20;
+    z-index: 30;
     width: 14px;
     height: 14px;
     border-radius: 50%;
@@ -1064,33 +1109,63 @@
     margin-bottom: 12px;
   }
   .layout-meta:empty { display: none; margin: 0; }
+  /* Badge + 推/拉 circle: one absolute top-left row (never a row under the blurb). */
   .card .layout-kind {
     position: absolute;
     top: 12px;
     left: 12px;
-    z-index: 2;
+    z-index: 3;
     display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
     margin: 0;
+    max-width: calc(100% - 24px);
   }
-  .card .bellows-legend {
-    display: flex;
-    justify-content: center;
-    margin: 0 0 12px;
+  .card .layout-kind .legend-btn {
+    width: var(--btn-size, 54px);
+    height: var(--btn-size, 54px);
+    font-size: 0.78rem;
+    border: 2.2px solid var(--ink);
+    flex: 0 0 auto;
   }
+  .card .layout-kind .legend-btn::after {
+    left: 7px;
+    right: 7px;
+    height: 1.5px;
+  }
+  /* Kill any leftover centered legend row if present in old markup */
+  .card > .bellows-legend {
+    display: none !important;
+  }
+  /* Static kind label (not a control) — soft tint + matching stroke/text */
   .tag-pill {
     display: inline-flex;
     align-items: center;
-    height: 1.1rem;
-    padding: 0 8px;
+    border: 1.5px solid var(--border);
     border-radius: 999px;
-    font-size: 0.68rem;
+    background: rgba(92, 87, 78, 0.08);
+    padding: 6px 11px;
+    font: inherit;
+    font-size: 0.78rem;
     font-weight: 700;
-    border: 1px solid var(--border);
-    background: #fff;
     color: var(--muted);
+    cursor: default;
+    pointer-events: none;
+    user-select: none;
   }
-  .tag-pill.bi { border-color: var(--opp); color: var(--opp); background: var(--opp-bg); }
-  .tag-pill.uni { border-color: var(--same); color: var(--same); background: var(--same-bg); }
+  .tag-pill.bi {
+    border-color: var(--opp);
+    color: var(--opp);
+    background: var(--opp-bg);
+  }
+  .tag-pill.uni {
+    border-color: var(--same);
+    color: var(--same);
+    background: var(--same-bg);
+  }
 
   .layout-play-btn {
     border: 1.5px solid var(--accent);
@@ -1132,8 +1207,15 @@
   #layoutView {
     position: relative;
   }
-  /* 以 English 高度为基准固定卡片；标题在顶，键区在剩余空间垂直居中 */
+  .layout-anglo-note {
+    margin-top: 12px;
+  }
+  .layout-anglo-note[hidden] {
+    display: none;
+  }
+  /* 以 Anglo 高度为基准固定卡片；标题在顶，键区在剩余空间垂直居中 */
   #layoutView .layout-board {
+    --btn-size: 54px;
     min-height: var(--layout-board-min-h, auto);
     display: flex;
     flex-direction: column;
@@ -1195,7 +1277,10 @@
   .uni-board .btn.uni.mc-ring {
     z-index: 1;
   }
-  .uni-board .btn.uni::after { display: none; }
+  /* 仅隐藏非高亮的占位 ::after；hl-step/path/ahead 的环必须显示且低于序号 */
+  .uni-board .btn.uni:not(.hl-step):not(.hl-path):not(.hl-ahead)::after {
+    display: none;
+  }
   .uni-board .btn.uni .half {
     border: 0 !important;
     flex: 1 1 auto;
@@ -1203,6 +1288,10 @@
     width: 100%;
     height: 100%;
     border-radius: 50%;
+    font-size: 0.7rem;
+  }
+  .uni-board.mode-abc .btn.uni .half .abc-main {
+    font-size: 0.82rem;
   }
   /* 布局观察：hover 按钮切换可视化 */
   .layout-viz-btn:hover,
@@ -1242,13 +1331,17 @@
   .layout-board.viz-oct .btn.uni.viz-oct-7 .half { background: rgba(122, 74, 58, 0.3); }
   .layout-board.viz-oct .half.viz-oct-8,
   .layout-board.viz-oct .btn.uni.viz-oct-8 .half { background: rgba(74, 107, 138, 0.3); }
+  /* 推拉同音：一键一音，圈可小于 Anglo（一键推拉两音）≈0.74× */
   .side-stack {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px 20px;
-    --btn-size: 54px;
-    --btn-gap: 6px;
+    --btn-size: 40px;
+    --btn-gap: 5px;
     --row-stagger: calc((var(--btn-size) + var(--btn-gap)) / 2);
+  }
+  .uni-board .btn.uni .half {
+    font-size: 0.7rem;
   }
   /* English / Crane：相邻行错半键（砖砌），左右手镜像；Hayden 靠不等长行居中已呈错位 */
   .side-stack[data-stagger="alt"] {
@@ -1380,54 +1473,21 @@
   <!-- ========== TAB: Common layouts (first) ========== -->
   <section class="panel active" id="panel-compare" data-panel="compare" role="tabpanel">
     <div class="card prose">
-      <p>常见六角琴家族。你的 Wren 2 是 <strong>Anglo · Wheatstone</strong>（推拉异音）。English / Duet 是<strong>推拉同音</strong>。</p>
+      <p>常见六角琴家族：<strong>Anglo</strong> 是推拉异音，English / Duet 是<strong>推拉同音</strong>。</p>
     </div>
     <div class="layout-picker" id="layoutPicker" role="tablist" aria-label="选择布局"></div>
     <div class="layout-meta" id="layoutMeta"></div>
     <div id="layoutView"></div>
-    <section class="card prose" id="layoutKeyCompare" aria-label="各布局调性">
-      <p><strong>C/G</strong> 是 Anglo 的 <strong>home-row keys</strong>：中行按 C 大调排、底行按 G 大调排。Irish/Folk 里围着 C、G、Am、D 等调很顺；别的调也能弹，但更依赖顶行变化音和跨行。</p>
-      <p>另外三种<strong>没有 C/G home rows</strong>。English 最规律；Hayden 强在同形换调；Crane 中间音区更舒服：</p>
-      <table class="key-compare">
-        <thead>
-          <tr><th>布局</th><th>更顺的调</th><th>原因</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Anglo C/G</td>
-            <td>C / G（及相关调，如 Am、D）</td>
-            <td>home keys 绑在中行 C、底行 G。Wheatstone 与 Jeffries 中/底行同构，主要差顶行。</td>
-          </tr>
-          <tr>
-            <td>English</td>
-            <td>几乎各调都规律好弹；少升降号略更省事</td>
-            <td>
-              <span class="tip-hl" data-layout="english" tabindex="0" role="button" title="悬停：切换布局并标出升/降号">
-                音阶左右手交替；每行<strong>内两列</strong>自然音、<strong>左右外侧</strong>升/降——有升降号也仍成列可摸，比散布好找。
-              </span>
-            </td>
-          </tr>
-          <tr>
-            <td>Hayden</td>
-            <td>各调指法同形（平移换调）</td>
-            <td>
-              <span class="tip-hl" data-layout="hayden" tabindex="0" role="button" title="悬停：切换布局并标出升/降号">
-                同形是优势；但升/降号<strong>散布各处</strong>，不如 English 成列直观。卡点多在音域边缘。
-              </span>
-            </td>
-          </tr>
-          <tr>
-            <td>Crane</td>
-            <td>中间音区更舒服（不完全同形）</td>
-            <td>
-              <span class="tip-hl" data-layout="crane" tabindex="0" role="button" title="悬停：切换布局并标出升/降号">
-                外两列变化音、内三列自然音；中音区<strong>左右重叠</strong>。规律介于 English 与 Hayden 之间。
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+    <div class="card prose layout-anglo-note" id="layoutAngloNote" hidden>
+      <p><strong>Anglo</strong> 指推拉异音（bisonoric）布局，不是单一调性。常见规格都按<strong>两个 home-row 调</strong>命名：中行为第一调，底行为高纯五度的第二调。例如：</p>
+      <ul>
+        <li><strong>C/G</strong> — Irish Folk 最常见</li>
+        <li><strong>G/D</strong> — English Folk、Morris 常用，整体更低</li>
+        <li><strong>Bb/F</strong> — 常给歌手伴奏，音色偏暖</li>
+        <li><strong>Ab/Eb</strong> — 历史上军乐常用</li>
+      </ul>
+      <p>以 <strong>C/G</strong> 为例：中行按 C 大调、底行按 G 大调排。围着 C、G、Am、D 等调很顺；别的调也能弹，但更依赖顶行变化音和跨行。所以<strong>跨行</strong>主要是 Anglo 的难技：在中/底/顶行之间换指，好少倒风箱。English / Duet 没有这套 home-row 逻辑。</p>
+    </div>
   </section>
 
 
@@ -1571,30 +1631,6 @@
       { push: "g'", pull: "a'" },
       { push: "b'", pull: "c''" },
       { push: "d''", pull: "e''" },
-    ],
-  };
-
-  const JEFFRIES_RIGHT = {
-    top: [
-      { push: "d#'", pull: "c#'" },
-      { push: "c#''", pull: "d#''" },
-      { push: "g#''", pull: "g''" },
-      { push: "c#'''", pull: "bb''" },
-      { push: "a'''", pull: "d''''" },
-    ],
-    mid: [
-      { push: "c''", pull: "b'", cg: true },
-      { push: "e''", pull: "d''" },
-      { push: "g''", pull: "f''" },
-      { push: "c'''", pull: "a''" },
-      { push: "e'''", pull: "b''" },
-    ],
-    bot: [
-      { push: "g''", pull: "f#''", cg: true },
-      { push: "b''", pull: "a''" },
-      { push: "d'''", pull: "c'''" },
-      { push: "g'''", pull: "e'''" },
-      { push: "f''''", pull: "f#''''" },
     ],
   };
 
@@ -1778,19 +1814,23 @@
 
     let html = "";
     if (title) html += "<h2>" + escapeHtml(title) + "</h2>";
-    if (kindLabel) {
-      html +=
-        '<div class="layout-kind"><span class="tag-pill' +
-        (kind ? " " + kind : "") +
-        '">' +
-        escapeHtml(kindLabel) +
-        "</span></div>";
+    if (kindLabel || showBellowsLegend) {
+      html += '<div class="layout-kind">';
+      if (kindLabel) {
+        html +=
+          '<span class="tag-pill' +
+          (kind ? " " + kind : "") +
+          '">' +
+          escapeHtml(kindLabel) +
+          "</span>";
+      }
+      if (showBellowsLegend) {
+        html +=
+          '<div class="legend-btn" title="上半推、下半拉"><span>推</span><span>拉</span></div>';
+      }
+      html += "</div>";
     }
     if (subtitle) html += '<p class="diff">' + escapeHtml(subtitle) + "</p>";
-    if (showBellowsLegend) {
-      html +=
-        '<div class="bellows-legend"><div class="legend-btn"><span>推</span><span>拉</span></div></div>';
-    }
     html +=
       '<div class="sides' +
       (interactive ? " interactive" : "") +
@@ -2257,7 +2297,7 @@
     TOP: {
       short: "顶行扫一遍",
       title: "右手顶行 · accidentals 与备用音",
-      tip: "顶行 = 变化音 + 跨行备用。Wheatstone 与 Jeffries 差别最大处；你是 Wheatstone——把推/拉各摸一遍即可。",
+      tip: "顶行 = 变化音 + 跨行备用。把推/拉各摸一遍即可。",
       steps: [
         { side: "R", row: "top", col: 0, dir: "push", note: "c#''", solf: "♯1", why: "升 Do · D 调导音之一" },
         { side: "R", row: "top", col: 0, dir: "pull", note: "d#''", solf: "♯2", why: "升 Re" },
@@ -5293,7 +5333,7 @@
     steps: null,
   };
 
-  // Anglo C major · one octave on RH home (mid) row — same on Wheatstone & Jeffries.
+  // Anglo C major · one octave on RH home (mid) row.
   const ANGLO_OCTAVE = {
     title: "C 大调 · 1 个八度",
     tip: "右手中行：推拉走完一音阶。",
@@ -5521,22 +5561,12 @@
   const LAYOUTS = [
     {
       id: "wheatstone",
-      label: "Anglo · Wheatstone",
+      label: "Anglo · Wheatstone · 30键",
+      tabLabel: "Anglo · 30键",
       kind: "bi",
       kindLabel: "推拉异音",
-      blurb: "Wren 2 就是这种。爱尔兰/民谣最常见。左右中行 = C，底行 = G。",
+      blurb: "Wren 2 就是这种。Irish / Folk 最常见。左右中行 = C，底行 = G。",
       type: "anglo",
-      right: "wheatstone",
-      ref: "https://www.concertina.info/tina.faq/images/finger3.htm",
-    },
-    {
-      id: "jeffries",
-      label: "Anglo · Jeffries",
-      kind: "bi",
-      kindLabel: "推拉异音",
-      blurb: "同样是 Anglo，主要差在右手顶行 accidentals（及底行最右键）。",
-      type: "anglo",
-      right: "jeffries",
       ref: "https://www.concertina.info/tina.faq/images/finger3.htm",
     },
     {
@@ -5694,8 +5724,7 @@
     if (!L || !steps) return steps || [];
     let byNote = {};
     if (kind === "anglo") {
-      const right = L.right === "jeffries" ? JEFFRIES_RIGHT : WHEATSTONE_RIGHT;
-      buildAngloFullWalk(LEFT, right).forEach((s) => {
+      buildAngloFullWalk(LEFT, WHEATSTONE_RIGHT).forEach((s) => {
         byNote[s.note] = s.hits;
       });
     } else if (L.sample) {
@@ -5806,11 +5835,10 @@
     const L = LAYOUTS.find((x) => x.id === layoutState.id);
     if (!L) return;
     if (L.type === "anglo") {
-      const right = L.right === "jeffries" ? JEFFRIES_RIGHT : WHEATSTONE_RIGHT;
       runLayoutPlayback({
         mode: "full",
         kind: "anglo",
-        steps: buildAngloFullWalk(LEFT, right),
+        steps: buildAngloFullWalk(LEFT, WHEATSTONE_RIGHT),
         delay: 180,
         noteDur: 0.15,
       });
@@ -5830,8 +5858,7 @@
     const L = LAYOUTS.find((x) => x.id === layoutState.id);
     if (!L) return null;
     if (L.type === "anglo") {
-      const right = L.right === "jeffries" ? JEFFRIES_RIGHT : WHEATSTONE_RIGHT;
-      return { kind: "anglo", steps: buildAngloFullWalk(LEFT, right) };
+      return { kind: "anglo", steps: buildAngloFullWalk(LEFT, WHEATSTONE_RIGHT) };
     }
     if (!L.sample) return null;
     return { kind: "uni", steps: buildUniFullWalk(L.sample) };
@@ -5979,6 +6006,7 @@
     const picker = document.getElementById("layoutPicker");
     const meta = document.getElementById("layoutMeta");
     const view = document.getElementById("layoutView");
+    const angloNote = document.getElementById("layoutAngloNote");
     if (!picker || !view) return;
 
     picker.innerHTML = LAYOUTS.map((L) => {
@@ -5988,7 +6016,7 @@
         '"' +
         (L.id === layoutState.id ? ' class="on"' : "") +
         ">" +
-        escapeHtml(L.label) +
+        escapeHtml(L.tabLabel || L.label) +
         "</button>"
       );
     }).join("");
@@ -6013,11 +6041,12 @@
       '<button type="button" id="layoutPlayOctave" class="layout-play-btn">▶ 八度</button>' +
       "</div>";
 
+    if (angloNote) angloNote.hidden = L.type !== "anglo";
+
     if (L.type === "anglo") {
-      const right = L.right === "jeffries" ? JEFFRIES_RIGHT : WHEATSTONE_RIGHT;
       view.innerHTML = '<div class="card layout-board" id="layoutAngloBoard"></div>';
       const board = document.getElementById("layoutAngloBoard");
-      renderBoard(board, LEFT, right, {
+      renderBoard(board, LEFT, WHEATSTONE_RIGHT, {
         title: L.label + " · C/G",
         kindLabel: L.kindLabel,
         kind: L.kind,
@@ -6083,33 +6112,6 @@
     wrap.appendChild(keysEl);
   }
 
-  function buildEnglishHeightProbeHtml(mode) {
-    const L = LAYOUTS.find((x) => x.id === "english");
-    if (!L || !L.sample) return "";
-    return (
-      '<div class="card uni-board layout-board" id="layoutHeightProbe">' +
-      "<h2>" +
-      escapeHtml(L.label) +
-      "</h2>" +
-      '<div class="layout-kind"><span class="tag-pill ' +
-      L.kind +
-      '">' +
-      escapeHtml(L.kindLabel) +
-      "</span></div>" +
-      '<p class="diff">' +
-      escapeHtml(L.blurb) +
-      "</p>" +
-      '<div class="layout-board-keys"><div class="side-stack" data-stagger="alt">' +
-      '<div class="side-panel" data-side="L"><div class="side-label">左手 Left</div>' +
-      renderUniSide(L.sample.left, mode, "L", { markAcc: true }) +
-      "</div>" +
-      '<div class="side-panel" data-side="R"><div class="side-label">右手 Right</div>' +
-      renderUniSide(L.sample.right, mode, "R", { markAcc: true }) +
-      "</div>" +
-      "</div></div></div>"
-    );
-  }
-
   function lockLayoutBoardHeight() {
     const view = document.getElementById("layoutView");
     const board =
@@ -6118,15 +6120,28 @@
     if (!view || !board) return;
     const width = Math.round(view.clientWidth);
     if (!layoutState.boardMinH || layoutState.boardMinW !== width) {
+      // 测量时去掉已缓存的 min-height，避免 probe 被旧值撑高
+      view.style.removeProperty("--layout-board-min-h");
       const probeWrap = document.createElement("div");
       probeWrap.style.cssText =
         "position:absolute;left:0;top:0;width:100%;visibility:hidden;pointer-events:none;z-index:-1;";
-      probeWrap.innerHTML = buildEnglishHeightProbeHtml(
-        notationMode.current || "jianpu"
-      );
+      const probe = document.createElement("div");
+      probe.className = "card layout-board";
+      probe.id = "layoutHeightProbe";
+      probeWrap.appendChild(probe);
       view.appendChild(probeWrap);
-      const probe = probeWrap.firstElementChild;
-      const h = probe ? Math.ceil(probe.getBoundingClientRect().height) : 0;
+      const L = LAYOUTS.find((x) => x.id === "wheatstone") || LAYOUTS[0];
+      renderBoard(probe, LEFT, WHEATSTONE_RIGHT, {
+        title: L.label + " · C/G",
+        kindLabel: L.kindLabel,
+        kind: L.kind,
+        subtitle: L.blurb,
+        showBellowsLegend: true,
+        showCg: true,
+        mode: notationMode.current || "jianpu",
+      });
+      wrapLayoutBoardKeys(probe, ".sides");
+      const h = Math.ceil(probe.getBoundingClientRect().height);
       probeWrap.remove();
       if (h > 0) {
         layoutState.boardMinH = h;
