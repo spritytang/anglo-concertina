@@ -1357,6 +1357,37 @@
   .layout-board.viz-oct .btn.uni.viz-oct-7 .half { background: rgba(122, 74, 58, 0.3); }
   .layout-board.viz-oct .half.viz-oct-8,
   .layout-board.viz-oct .btn.uni.viz-oct-8 .half { background: rgba(74, 107, 138, 0.3); }
+  /* Viz legend replaces .diff blurb while acc/oct viz is active */
+  .diff .layout-viz-legend {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .diff .layout-viz-legend .lv-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+  .diff .layout-viz-legend .lv-swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .diff .layout-viz-legend .lv-oct-3 .lv-swatch { background: rgba(139, 105, 20, 0.55); }
+  .diff .layout-viz-legend .lv-oct-4 .lv-swatch { background: rgba(47, 93, 80, 0.55); }
+  .diff .layout-viz-legend .lv-oct-5 .lv-swatch { background: rgba(61, 90, 128, 0.55); }
+  .diff .layout-viz-legend .lv-oct-6 .lv-swatch { background: rgba(196, 92, 38, 0.55); }
+  .diff .layout-viz-legend .lv-oct-7 .lv-swatch { background: rgba(122, 74, 58, 0.55); }
+  .diff .layout-viz-legend .lv-oct-8 .lv-swatch { background: rgba(74, 107, 138, 0.55); }
+  .diff .layout-viz-legend .lv-sharp .lv-swatch { background: rgba(61, 90, 128, 0.7); }
+  .diff .layout-viz-legend .lv-flat .lv-swatch { background: rgba(196, 92, 38, 0.7); }
   /* 推拉同音：一键一音；布局对比页键圈与 Anglo 同大 */
   .side-stack {
     display: grid;
@@ -5964,11 +5995,79 @@
     });
   }
 
+  function layoutBlurbEl(board) {
+    return board ? board.querySelector(".diff") : null;
+  }
+
+  function ensureLayoutBlurbOrig(diff) {
+    if (!diff || diff.dataset.origBlurb != null) return;
+    diff.dataset.origBlurb = diff.textContent || "";
+  }
+
+  function layoutBoardOctaves(board) {
+    const set = new Set();
+    if (!board) return [3, 4, 5, 6];
+    board.querySelectorAll("[data-note]").forEach((el) => {
+      if (el.classList.contains("gap")) return;
+      const note = el.getAttribute("data-note");
+      if (!note) return;
+      const p = parseNote(note);
+      if (!p.letter) return;
+      set.add(3 + (p.primes || 0));
+    });
+    const octs = Array.from(set).sort((a, b) => a - b);
+    return octs.length ? octs : [3, 4, 5, 6];
+  }
+
+  function layoutVizLegendHtml(mode, board) {
+    if (mode === "acc") {
+      return (
+        '<span class="layout-viz-legend" aria-label="升降号图例">' +
+        '<span class="lv-item lv-sharp"><i class="lv-swatch" aria-hidden="true"></i>升号 ♯</span>' +
+        '<span class="lv-item lv-flat"><i class="lv-swatch" aria-hidden="true"></i>降号 ♭</span>' +
+        "</span>"
+      );
+    }
+    if (mode === "oct") {
+      const items = layoutBoardOctaves(board)
+        .map(
+          (n) =>
+            '<span class="lv-item lv-oct-' +
+            n +
+            '"><i class="lv-swatch" aria-hidden="true"></i>八度 ' +
+            n +
+            "</span>"
+        )
+        .join("");
+      return (
+        '<span class="layout-viz-legend" aria-label="八度图例">' +
+        items +
+        "</span>"
+      );
+    }
+    return "";
+  }
+
+  function syncLayoutVizLegend(mode) {
+    const board = layoutPlayBoard();
+    const diff = layoutBlurbEl(board);
+    if (!diff) return;
+    ensureLayoutBlurbOrig(diff);
+    if (mode === "acc" || mode === "oct") {
+      diff.innerHTML = layoutVizLegendHtml(mode, board);
+    } else {
+      diff.textContent = diff.dataset.origBlurb || "";
+    }
+  }
+
   function setLayoutViz(mode) {
     const board = layoutPlayBoard();
     if (!board) return;
     clearLayoutVizMarks(board);
-    if (!mode) return;
+    if (!mode) {
+      syncLayoutVizLegend(null);
+      return;
+    }
     board.classList.add("viz-" + mode);
     board.querySelectorAll("[data-note]").forEach((el) => {
       if (el.classList.contains("gap")) return;
@@ -5982,12 +6081,18 @@
         el.classList.add("viz-oct-" + (3 + (p.primes || 0)));
       }
     });
+    syncLayoutVizLegend(mode);
   }
 
   function syncLayoutVizFromUi() {
-    const vizBtn = document.querySelector(".layout-viz-btn.viz-on");
-    if (vizBtn) {
-      setLayoutViz(vizBtn.getAttribute("data-viz"));
+    // Hover/focus preview wins over sticky click; sticky survives mouseleave.
+    const previewBtn =
+      document.querySelector(".layout-viz-btn[data-viz]:hover") ||
+      document.querySelector(".layout-viz-btn[data-viz]:focus");
+    const stickyBtn = document.querySelector(".layout-viz-btn.viz-on");
+    const activeBtn = previewBtn || stickyBtn;
+    if (activeBtn) {
+      setLayoutViz(activeBtn.getAttribute("data-viz"));
       return;
     }
     const tip = document.querySelector(".tip-hl.tip-on[data-layout]");
@@ -6000,25 +6105,18 @@
     document.querySelectorAll(".layout-viz-btn[data-viz]").forEach((btn) => {
       if (btn.dataset.bound) return;
       btn.dataset.bound = "1";
-      const activate = () => {
-        document.querySelectorAll(".layout-viz-btn.viz-on").forEach((b) => {
-          if (b !== btn) b.classList.remove("viz-on");
-        });
-        btn.classList.add("viz-on");
-        setLayoutViz(btn.getAttribute("data-viz"));
-      };
-      const deactivate = () => {
-        btn.classList.remove("viz-on");
-        syncLayoutVizFromUi();
-      };
-      btn.addEventListener("mouseenter", activate);
-      btn.addEventListener("mouseleave", deactivate);
-      btn.addEventListener("focus", activate);
-      btn.addEventListener("blur", deactivate);
+      btn.addEventListener("mouseenter", syncLayoutVizFromUi);
+      btn.addEventListener("mouseleave", syncLayoutVizFromUi);
+      btn.addEventListener("focus", syncLayoutVizFromUi);
+      btn.addEventListener("blur", syncLayoutVizFromUi);
       btn.addEventListener("click", (e) => {
         e.preventDefault();
-        if (btn.classList.contains("viz-on")) deactivate();
-        else activate();
+        const wasOn = btn.classList.contains("viz-on");
+        document.querySelectorAll(".layout-viz-btn.viz-on").forEach((b) => {
+          b.classList.remove("viz-on");
+        });
+        if (!wasOn) btn.classList.add("viz-on");
+        syncLayoutVizFromUi();
       });
     });
   }
