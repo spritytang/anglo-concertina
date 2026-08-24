@@ -10,7 +10,7 @@ description: >-
 
 # Anglo Arrange (C/G · Wheatstone · Wren 2)
 
-Follow this skill + project rules `anglo-arrangement.mdc` and `jianpu-notation.mdc`. Prefer published / user-given sources over memory.
+Follow this skill + project rules `anglo-arrangement.mdc` and `degree-notation.mdc`. Prefer published / user-given sources over memory.
 
 ## Hard constraints
 
@@ -20,7 +20,7 @@ Follow this skill + project rules `anglo-arrangement.mdc` and `jianpu-notation.m
 4. **Wren 2 corner octaves** (verified on user's box):
    - RH top-right **pull** = **F6** (`f'''`), not F7
    - RH bottom-right **pull** = **♯F6** (`f#'''`), not ♯F7
-5. Edit only `index.html`, then `cp index.html anglo-intro.html`.
+5. Edit only repo-root `index.html` (`anglo-concertina/`, not `Music/`), verify with shell `rg`, then `cp index.html anglo-intro.html`.
 
 ---
 
@@ -104,7 +104,7 @@ When editing these songs, re-run the degree check. If the user supplies a new �
 ### Site checks
 
 - Letter / lyric / chord / beat array lengths match.
-- Jianpu accidentals stay on the same line as the degree (`.jp-deg`).
+- Degree accidentals stay on the same line as the number (`.jp-deg`).
 - Mobile: `unlockAudio` before play sequences.
 - After audio edits: `grep createPeriodicWave index.html`.
 

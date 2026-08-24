@@ -1460,7 +1460,7 @@
   <!-- ========== TAB: Rhythm ========== -->
   <section class="panel" id="panel-rhythm" data-panel="rhythm" role="tabpanel">
     <div class="card prose">
-      <p>左手伴奏不止 oom-pah：先<strong>根音</strong>再<strong>三和弦</strong>，也可练 3/4、切分（先和弦后根音）、以及走音根音。每一步高亮该按的键；可循环。</p>
+      <p>左手节奏型：oom-pah（根→和弦）、3/4、反拍 pah-oom、以及只走根音。换和弦时注意推拉；可循环。</p>
     </div>
     <div class="lesson-controls">
       <div class="seg" id="rhythmSeg" role="group" aria-label="节奏型"></div>
@@ -1501,7 +1501,7 @@
   <!-- ========== TAB 3: Scales ========== -->
   <section class="panel" id="panel-scales" data-panel="scales" role="tabpanel">
     <div class="card prose">
-      <p>右手流畅度：家行 C/G 打底，再练跨行、琶音、G Mixolydian 等 Irish/session 向路径，最后扫一遍顶行。可开声音跟练。</p>
+      <p>右手路径：先摸清 C/G 家行的<strong>换向点</strong>，再练 D 跨行与 Mixolydian 乐句；少练无意义的上下行音阶，多练跳进与顶行备用。</p>
     </div>
     <div class="lesson-controls">
       <div class="seg" id="scaleSeg" role="group" aria-label="课程"></div>
@@ -1520,7 +1520,7 @@
   <!-- ========== TAB 4: Chords ========== -->
   <section class="panel" id="panel-chords" data-panel="chords" role="tabpanel">
     <div class="card prose">
-      <p>左手垫和声。下列形状都在<strong>同一推拉方向</strong>内可同时按满（Anglo 不能推拉混按）。含常用 C/G/F/Am，以及 Em、Dm、省根或全形的 G7。点选后高亮要同时按住的键。</p>
+      <p>左手垫和声。下列形状都在<strong>同一推拉方向</strong>内可同时按满（Anglo 不能推拉混按）。含 C/G/F/Am/Em/Dm，以及全形与省根两种拉的 G7。点选后高亮要同时按住的键。</p>
     </div>
     <div class="chord-grid" id="chordGrid"></div>
     <div class="info-box" id="chordInfo">点上方和弦开始。</div>
@@ -1554,7 +1554,7 @@
   <!-- ========== TAB: Bellows ========== -->
   <section class="panel" id="panel-bellows" data-panel="bellows" role="tabpanel">
     <div class="card prose">
-      <p>Anglo 的核心技能是<strong>推拉换向与风箱行程规划</strong>。同一键推/拉是不同音；乐句里该掉头就掉头，不该掉头就用重复音或跨行换键。下面从同键掉头练到中+底混合乐句。</p>
+      <p>核心是<strong>换向时机与风箱行程</strong>：同键掉头、同向长串、以及「短促换向 + 长行程」的对比。音阶式走音留给「右手走音」；这里练的是风箱决策。</p>
     </div>
     <div class="lesson-controls">
       <div class="seg" id="bellowsSeg" role="group" aria-label="练习"></div>
@@ -1574,7 +1574,7 @@
   <!-- ========== TAB: Cross-row ========== -->
   <section class="panel" id="panel-crossrow" data-panel="crossrow" role="tabpanel">
     <div class="card prose">
-      <p>同一音常有多处可按。跨到<strong>底行 / 顶行</strong>，是为了少倒风箱、给加花留手。先认清 G/A 备选，再练整句级换指。</p>
+      <p>同一音常有多处。先认 G/A 备选，再练<strong>整句推</strong>与<strong>整句拉</strong>跨行，最后是中/底/顶交织的乐句——不为走音阶，为少倒风箱。</p>
     </div>
     <div class="lesson-controls">
       <div class="seg" id="crossrowSeg" role="group" aria-label="练习"></div>
@@ -1594,7 +1594,7 @@
   <!-- ========== TAB: Progressions ========== -->
   <section class="panel" id="panel-progress" data-panel="progress" role="tabpanel">
     <div class="card prose">
-      <p>会和弦形状后，练<strong>换和弦与更长循环</strong>（含 Dm / G7）。先听进行，再跟高亮挪手指；风箱方向看每个和弦是推还是拉。</p>
+      <p>会形状后练<strong>换和弦</strong>：先同向换键，再推↔拉，再上含 Dm / G7 的长循环。盯每个和弦的推拉，不要每拍重新找手位。</p>
     </div>
     <div class="lesson-controls">
       <div class="seg" id="progressSeg" role="group" aria-label="进行"></div>
@@ -1734,7 +1734,7 @@
     return { letter, acc, primes, raw: abc };
   }
 
-  function formatJianpu(abc) {
+  function formatDeg(abc) {
     const p = parseNote(abc);
     if (!p.letter) return escapeHtml(abc);
     const num = letterMap[p.letter];
@@ -1794,7 +1794,7 @@
   }
 
   function formatNote(abc, mode) {
-    return mode === "abc" ? formatAbc(abc) : formatJianpu(abc);
+    return mode === "abc" ? formatAbc(abc) : formatDeg(abc);
   }
 
   function noteName(abc, mode) {
@@ -1856,7 +1856,7 @@
 
   function renderBoard(container, left, right, opts) {
     if (!container) return;
-    const mode = opts.mode || "jianpu";
+    const mode = opts.mode || "deg";
     const interactive = !!opts.interactive;
     const title = opts.title || "";
     const subtitle = opts.subtitle || "";
@@ -2230,150 +2230,126 @@
   // —— Lessons: scales & chords ——
   const SCALES = {
     C: {
-      short: "C家行",
-      title: "C 大调 · 中行家行（上行+下行）",
-      tip: "先把中行推拉点背熟。多数邻音同键掉头；6→7 换键仍拉，7→高1 改推。上下行各走一遍。",
+      short: "C换向点",
+      title: "C 家行 · 换向地图（上行）",
+      tip: "只走上行：盯每一次推↔拉。邻音多同键掉头；6→7 换键仍拉，7→高1 改推。不必再镜像下行。",
       steps: [
-        { side: "R", row: "mid", col: 0, dir: "push", note: "c''", solf: "1" },
-        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2" },
-        { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3" },
-        { side: "R", row: "mid", col: 2, dir: "pull", note: "f''", solf: "4" },
-        { side: "R", row: "mid", col: 2, dir: "push", note: "g''", solf: "5" },
-        { side: "R", row: "mid", col: 3, dir: "pull", note: "a''", solf: "6" },
-        { side: "R", row: "mid", col: 4, dir: "pull", note: "b''", solf: "7" },
-        { side: "R", row: "mid", col: 3, dir: "push", note: "c'''", solf: "1" },
-        { side: "R", row: "mid", col: 4, dir: "pull", note: "b''", solf: "7" },
-        { side: "R", row: "mid", col: 3, dir: "pull", note: "a''", solf: "6" },
-        { side: "R", row: "mid", col: 2, dir: "push", note: "g''", solf: "5" },
-        { side: "R", row: "mid", col: 2, dir: "pull", note: "f''", solf: "4" },
-        { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3" },
-        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2" },
-        { side: "R", row: "mid", col: 0, dir: "push", note: "c''", solf: "1" },
+        { side: "R", row: "mid", col: 0, dir: "push", note: "c''", solf: "1", why: "①推起" },
+        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "②改拉" },
+        { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3", why: "同键改推" },
+        { side: "R", row: "mid", col: 2, dir: "pull", note: "f''", solf: "4", why: "③改拉" },
+        { side: "R", row: "mid", col: 2, dir: "push", note: "g''", solf: "5", why: "同键改推" },
+        { side: "R", row: "mid", col: 3, dir: "pull", note: "a''", solf: "6", why: "④仍拉" },
+        { side: "R", row: "mid", col: 4, dir: "pull", note: "b''", solf: "7", why: "⑤仍拉" },
+        { side: "R", row: "mid", col: 3, dir: "push", note: "c'''", solf: "1", why: "④推高 C" },
       ],
     },
     G: {
       short: "G家行",
-      title: "G 大调 · 底行家行（上行+下行）",
-      tip: "底行 G 调是 session 第二家行。♯4（F#）在底行①拉——与推 G 同键。上下行练匀速。",
+      title: "G 大调 · 底行（含高 F#）",
+      tip: "导音用底⑤拉 f#'''（Wren 2 最右拉 = ♯F6），不要掉到底①的 f#''。上行 e'''→f#'''→g''' 同在高八度。",
       steps: [
-        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5" },
-        { side: "R", row: "bot", col: 1, dir: "pull", note: "a''", solf: "6" },
-        { side: "R", row: "bot", col: 1, dir: "push", note: "b''", solf: "7" },
-        { side: "R", row: "bot", col: 2, dir: "pull", note: "c'''", solf: "1" },
-        { side: "R", row: "bot", col: 2, dir: "push", note: "d'''", solf: "2" },
-        { side: "R", row: "bot", col: 3, dir: "pull", note: "e'''", solf: "3" },
-        { side: "R", row: "bot", col: 0, dir: "pull", note: "f#''", solf: "♯4" },
-        { side: "R", row: "bot", col: 3, dir: "push", note: "g'''", solf: "5" },
-        { side: "R", row: "bot", col: 3, dir: "pull", note: "e'''", solf: "3" },
-        { side: "R", row: "bot", col: 2, dir: "push", note: "d'''", solf: "2" },
-        { side: "R", row: "bot", col: 2, dir: "pull", note: "c'''", solf: "1" },
-        { side: "R", row: "bot", col: 1, dir: "push", note: "b''", solf: "7" },
-        { side: "R", row: "bot", col: 1, dir: "pull", note: "a''", solf: "6" },
-        { side: "R", row: "bot", col: 0, dir: "pull", note: "f#''", solf: "♯4", why: "下行导音：底①拉 F#（无顺手的 f#'''）" },
-        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5" },
-      ],
-    },
-    Cx: {
-      short: "C跨行",
-      title: "C 大调 · 跨行指法（底 G + 顶 A）",
-      tip: "同一音阶的另一条路：G 走底、A 走顶推——少倒风箱，为加花留手。成人曲目里比死守中行更常用。",
-      steps: [
-        { side: "R", row: "mid", col: 0, dir: "push", note: "c''", solf: "1", why: "中行①推" },
-        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "中行②拉" },
-        { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3", why: "中行②推" },
-        { side: "R", row: "mid", col: 2, dir: "pull", note: "f''", solf: "4", why: "中行③拉" },
-        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "改走底行①推" },
-        { side: "R", row: "top", col: 1, dir: "push", note: "a''", solf: "6", why: "顶行②推 La" },
-        { side: "R", row: "bot", col: 1, dir: "push", note: "b''", solf: "7", why: "底行②推 Si" },
-        { side: "R", row: "mid", col: 3, dir: "push", note: "c'''", solf: "1", why: "回中行④推高 Do" },
-      ],
-    },
-    arp: {
-      short: "C琶音",
-      title: "C 大调琶音 · 中+底+顶往返",
-      tip: "分解和弦比音阶更接近真曲子。G/A 故意跨行，练「同向多键」手感。",
-      steps: [
-        { side: "R", row: "mid", col: 0, dir: "push", note: "c''", solf: "1", why: "中①推 C" },
-        { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3", why: "中②推 E" },
-        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "底①推 G" },
-        { side: "R", row: "mid", col: 3, dir: "push", note: "c'''", solf: "1", why: "中④推高 C" },
-        { side: "R", row: "bot", col: 1, dir: "push", note: "b''", solf: "7", why: "底②推 B（同向）" },
-        { side: "R", row: "top", col: 1, dir: "push", note: "a''", solf: "6", why: "顶②推 A" },
-        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "底①推 G" },
-        { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3", why: "中②推 E" },
-        { side: "R", row: "mid", col: 0, dir: "push", note: "c''", solf: "1", why: "中①推收" },
-        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "掉头拉 D" },
-        { side: "R", row: "mid", col: 2, dir: "pull", note: "f''", solf: "4", why: "中③拉 F" },
-        { side: "R", row: "mid", col: 3, dir: "pull", note: "a''", solf: "6", why: "中④拉 A" },
-        { side: "R", row: "mid", col: 2, dir: "pull", note: "f''", solf: "4", why: "回 F" },
-        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "回 D" },
-        { side: "R", row: "mid", col: 0, dir: "push", note: "c''", solf: "1", why: "推回 C" },
+        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "①推 G" },
+        { side: "R", row: "bot", col: 1, dir: "pull", note: "a''", solf: "6", why: "②拉 A" },
+        { side: "R", row: "bot", col: 1, dir: "push", note: "b''", solf: "7", why: "同键推 B" },
+        { side: "R", row: "bot", col: 2, dir: "pull", note: "c'''", solf: "1", why: "③拉高 C" },
+        { side: "R", row: "bot", col: 2, dir: "push", note: "d'''", solf: "2", why: "同键推 D" },
+        { side: "R", row: "bot", col: 3, dir: "pull", note: "e'''", solf: "3", why: "④拉 E" },
+        { side: "R", row: "bot", col: 4, dir: "pull", note: "f#'''", solf: "♯4", why: "⑤拉高 F#（勿用低八度）" },
+        { side: "R", row: "bot", col: 3, dir: "push", note: "g'''", solf: "5", why: "④推高 G" },
+        { side: "R", row: "bot", col: 4, dir: "pull", note: "f#'''", solf: "♯4", why: "下行：⑤拉 F#" },
+        { side: "R", row: "bot", col: 3, dir: "pull", note: "e'''", solf: "3", why: "④拉 E" },
+        { side: "R", row: "bot", col: 2, dir: "push", note: "d'''", solf: "2", why: "③推 D" },
+        { side: "R", row: "bot", col: 2, dir: "pull", note: "c'''", solf: "1", why: "改拉高 C" },
+        { side: "R", row: "bot", col: 1, dir: "push", note: "b''", solf: "7", why: "②推 B" },
+        { side: "R", row: "bot", col: 1, dir: "pull", note: "a''", solf: "6", why: "改拉 A" },
+        { side: "R", row: "bot", col: 0, dir: "pull", note: "f#''", solf: "♯4", why: "①拉低 F#（回低八度导音）" },
+        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "同键推 G 收" },
       ],
     },
     D: {
       short: "D跨行",
-      title: "D 大调 · 中+底+顶（爱尔兰常用）",
-      tip: "F# 用底行，A 和 C# 用顶行——顶行真正开始干活。session 里 D 调极常见。",
+      title: "D 大调 · 中+底+顶（session）",
+      tip: "F# 走底、A/C# 走顶。这是跨行干活，不是家行音阶。",
       steps: [
-        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "中行②拉" },
-        { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3", why: "同键改推" },
-        { side: "R", row: "bot", col: 0, dir: "pull", note: "f#''", solf: "♯4", why: "底行①拉 = F#" },
-        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "同键改推 = G" },
-        { side: "R", row: "top", col: 1, dir: "push", note: "a''", solf: "6", why: "顶行②推 = A（跨到顶行）" },
-        { side: "R", row: "bot", col: 1, dir: "push", note: "b''", solf: "7", why: "底行②推 = B" },
-        { side: "R", row: "top", col: 3, dir: "push", note: "c#'''", solf: "♯1", why: "顶行④推 = 高 C#（导音）" },
-        { side: "R", row: "bot", col: 2, dir: "push", note: "d'''", solf: "2", why: "底行③推 = 高 D" },
-        { side: "R", row: "top", col: 3, dir: "push", note: "c#'''", solf: "♯1", why: "下行：高 C#" },
-        { side: "R", row: "bot", col: 1, dir: "push", note: "b''", solf: "7", why: "底②推 B" },
+        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "中②拉" },
+        { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3", why: "同键推" },
+        { side: "R", row: "bot", col: 0, dir: "pull", note: "f#''", solf: "♯4", why: "底①拉 F#" },
+        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "同键推 G" },
         { side: "R", row: "top", col: 1, dir: "push", note: "a''", solf: "6", why: "顶②推 A" },
-        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "底①推 G" },
-        { side: "R", row: "bot", col: 0, dir: "pull", note: "f#''", solf: "♯4", why: "同键改拉 F#" },
-        { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3", why: "中②推 E" },
-        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "同键改拉收" },
+        { side: "R", row: "bot", col: 1, dir: "push", note: "b''", solf: "7", why: "底②推 B" },
+        { side: "R", row: "top", col: 3, dir: "push", note: "c#'''", solf: "♯1", why: "顶④推高 C#" },
+        { side: "R", row: "bot", col: 2, dir: "push", note: "d'''", solf: "2", why: "底③推高 D" },
+        { side: "R", row: "top", col: 3, dir: "push", note: "c#'''", solf: "♯1", why: "下行 C#" },
+        { side: "R", row: "bot", col: 1, dir: "push", note: "b''", solf: "7", why: "底② B" },
+        { side: "R", row: "top", col: 1, dir: "push", note: "a''", solf: "6", why: "顶② A" },
+        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "底① G" },
+        { side: "R", row: "bot", col: 0, dir: "pull", note: "f#''", solf: "♯4", why: "改拉 F#" },
+        { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3", why: "中② E" },
+        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "改拉收" },
       ],
     },
     mixo: {
       short: "G Mixolydian",
-      title: "G Mixolydian 乐句 · 底行+中行 F♮",
-      tip: "Irish 常见「降 7」色彩。同音区 F♮ 用中行拉 f''（顶行最右拉是更高的 F6，不适合这句）——这是 C/G Anglo 的真实指法，不是简化错误。",
+      title: "G Mixolydian 乐句 · ♭7",
+      tip: "Irish 降 7 色彩。同音区 F♮ 用中③拉 f''（勿用顶行最右更高的 F6）。",
       steps: [
         { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "底①推 G" },
         { side: "R", row: "bot", col: 1, dir: "pull", note: "a''", solf: "6", why: "底②拉 A" },
-        { side: "R", row: "bot", col: 1, dir: "push", note: "b''", solf: "7", why: "底②推 B" },
+        { side: "R", row: "bot", col: 1, dir: "push", note: "b''", solf: "7", why: "推 B" },
         { side: "R", row: "bot", col: 1, dir: "pull", note: "a''", solf: "6", why: "回 A" },
         { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "回 G" },
-        { side: "R", row: "mid", col: 2, dir: "pull", note: "f''", solf: "♭7", why: "中③拉 F♮（Mixolydian 关键）" },
+        { side: "R", row: "mid", col: 2, dir: "pull", note: "f''", solf: "♭7", why: "中③拉 F♮" },
         { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3", why: "中②推 E" },
-        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "中②拉 D" },
-        { side: "R", row: "mid", col: 0, dir: "push", note: "c''", solf: "1", why: "中①推 C" },
+        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "拉 D" },
+        { side: "R", row: "mid", col: 0, dir: "push", note: "c''", solf: "1", why: "推 C" },
         { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "D" },
         { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3", why: "E" },
         { side: "R", row: "mid", col: 2, dir: "pull", note: "f''", solf: "♭7", why: "再点 F♮" },
-        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "底①推 G 收" },
-        { side: "R", row: "bot", col: 1, dir: "pull", note: "a''", solf: "6", why: "加花 A" },
-        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "回 G" },
+        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "G 收" },
+      ],
+    },
+    leap: {
+      short: "跳进跨行",
+      title: "分解 + 跳进 · 推串后掉头",
+      tip: "比音阶更接近曲子：先同向跨行跳进，再一次性掉头走拉的邻音。练手指跨行，不是爬格子。",
+      steps: [
+        { side: "R", row: "mid", col: 0, dir: "push", note: "c''", solf: "1", why: "中①推 C" },
+        { side: "R", row: "mid", col: 1, dir: "push", note: "e''", solf: "3", why: "跳到 E" },
+        { side: "R", row: "bot", col: 0, dir: "push", note: "g''", solf: "5", why: "跨底① G" },
+        { side: "R", row: "mid", col: 3, dir: "push", note: "c'''", solf: "1", why: "跳高 C" },
+        { side: "R", row: "bot", col: 1, dir: "push", note: "b''", solf: "7", why: "底② B" },
+        { side: "R", row: "top", col: 1, dir: "push", note: "a''", solf: "6", why: "顶② A" },
+        { side: "R", row: "bot", col: 2, dir: "push", note: "d'''", solf: "2", why: "跳底③高 D" },
+        { side: "R", row: "mid", col: 3, dir: "push", note: "c'''", solf: "1", why: "回高 C" },
+        { side: "R", row: "mid", col: 3, dir: "pull", note: "a''", solf: "6", why: "掉头：中④拉 A" },
+        { side: "R", row: "mid", col: 2, dir: "pull", note: "f''", solf: "4", why: "拉 F" },
+        { side: "R", row: "mid", col: 1, dir: "pull", note: "d''", solf: "2", why: "拉 D" },
+        { side: "R", row: "mid", col: 4, dir: "pull", note: "b''", solf: "7", why: "跳拉 B" },
+        { side: "R", row: "mid", col: 3, dir: "pull", note: "a''", solf: "6", why: "回 A" },
+        { side: "R", row: "mid", col: 0, dir: "push", note: "c''", solf: "1", why: "推回 C" },
       ],
     },
     TOP: {
-      short: "顶行扫一遍",
-      title: "右手顶行 · accidentals 与备用音",
-      tip: "顶行 = 变化音 + 跨行备用。把推/拉各摸一遍即可。",
+      short: "顶行备用",
+      title: "右手顶行 · 变化音与重复音",
+      tip: "顶行 = accidentals + 跨行备用。推/拉各摸一遍，记住哪颗是备用 G/A。",
       steps: [
-        { side: "R", row: "top", col: 0, dir: "push", note: "c#''", solf: "♯1", why: "升 Do · D 调导音之一" },
+        { side: "R", row: "top", col: 0, dir: "push", note: "c#''", solf: "♯1", why: "升 Do" },
         { side: "R", row: "top", col: 0, dir: "pull", note: "d#''", solf: "♯2", why: "升 Re" },
-        { side: "R", row: "top", col: 1, dir: "push", note: "a''", solf: "6", why: "La 的推备用 · 少倒风箱" },
-        { side: "R", row: "top", col: 1, dir: "pull", note: "g''", solf: "5", why: "Sol 的拉备用" },
+        { side: "R", row: "top", col: 1, dir: "push", note: "a''", solf: "6", why: "推备用 A" },
+        { side: "R", row: "top", col: 1, dir: "pull", note: "g''", solf: "5", why: "拉备用 G" },
         { side: "R", row: "top", col: 2, dir: "push", note: "g#''", solf: "♯5", why: "升 Sol" },
-        { side: "R", row: "top", col: 2, dir: "pull", note: "bb''", solf: "♭7", why: "降 Si · 布鲁斯/小调" },
-        { side: "R", row: "top", col: 3, dir: "push", note: "c#'''", solf: "♯1", why: "高升 Do · D 上行关键" },
+        { side: "R", row: "top", col: 2, dir: "pull", note: "bb''", solf: "♭7", why: "降 Si" },
+        { side: "R", row: "top", col: 3, dir: "push", note: "c#'''", solf: "♯1", why: "高升 Do" },
         { side: "R", row: "top", col: 3, dir: "pull", note: "d#'''", solf: "♯2", why: "高升 Re" },
-        { side: "R", row: "top", col: 4, dir: "push", note: "a'''", solf: "6", why: "更高 La" },
-        { side: "R", row: "top", col: 4, dir: "pull", note: "f'''", solf: "4", why: "高 Fa（F6 · Wren 2）" },
+        { side: "R", row: "top", col: 4, dir: "push", note: "a'''", solf: "6", why: "更高 A" },
+        { side: "R", row: "top", col: 4, dir: "pull", note: "f'''", solf: "4", why: "F6 · Wren 2" },
       ],
     },
   };
 
-  const SCALE_ORDER = ["C", "G", "Cx", "arp", "D", "mixo", "TOP"];
+  const SCALE_ORDER = ["C", "G", "D", "mixo", "leap", "TOP"];
 
   const CHORDS = {
     C: {
@@ -2447,6 +2423,16 @@
         { side: "L", row: "mid", col: 3, dir: "pull", note: "f'" },
       ],
     },
+    G7r: {
+      name: "G7−",
+      dir: "pull",
+      tip: "省根属七：中②③④ 同拉 B–D–F。右手占低音区时常用；比全形少按中①的 G。",
+      buttons: [
+        { side: "L", row: "mid", col: 1, dir: "pull", note: "b" },
+        { side: "L", row: "mid", col: 2, dir: "pull", note: "d'" },
+        { side: "L", row: "mid", col: 3, dir: "pull", note: "f'" },
+      ],
+    },
   };
 
   // —— Fly Me to the Moon (cross-row, fewer bellows flips; LH = matching-dir chords) ——
@@ -2471,6 +2457,12 @@
     v: { row: "top", col: 1, dir: "pull", note: "g''", solf: "5" },
     p: { row: "bot", col: 2, dir: "pull", note: "c'''", solf: "1" },
     s: { row: "top", col: 2, dir: "push", note: "g#''", solf: "♯5" },
+    // Artemis (Cm): same top③ push as s, spelled Ab for degree ♭6
+    u: { row: "top", col: 2, dir: "push", note: "ab''", solf: "♭6" },
+    // Artemis: RH top① pull Eb
+    h: { row: "top", col: 0, dir: "pull", note: "eb''", solf: "♭3" },
+    // Artemis: RH top③ pull Bb
+    j: { row: "top", col: 2, dir: "pull", note: "bb''", solf: "♭7" },
     y: {
       side: "L",
       row: "bot",
@@ -3832,7 +3824,7 @@
     const pitchPlain = step.note
       ? m === "abc"
         ? abcPlain(step.note)
-        : noteName(step.note, "jianpu")
+        : noteName(step.note, "deg")
       : step.solf || "";
     const fallback = step.label || step.name || pitchPlain || lyric || String(i + 1);
     let body;
@@ -4114,8 +4106,8 @@
   const BELLOWS = {
     flip: {
       short: "同键掉头",
-      title: "同键推↔拉 · 加长乐句",
-      tip: "中行邻音多半同键掉头。把 E↔D、G↔F、高区来回串成一句，风箱短促、手指少挪。",
+      title: "同键推↔拉 · 短促换向",
+      tip: "中行邻音多半同键掉头。风箱短促、手指少挪——这是换向基本功，不是音阶。",
       steps: [
         rhMid("E", "②推 = E", "3"),
         rhMid("D", "同键改拉 = D", "2"),
@@ -4134,79 +4126,10 @@
         rhMid("C", "①推收", "1"),
       ],
     },
-    scale: {
-      short: "音阶换向",
-      title: "C 大调上下行：标出每一次换向",
-      tip: "1→2 换键+改拉；2→3 同键改推。上下行各走一遍，把换向点练成肌肉记忆。",
-      steps: [
-        rhMid("C", "①推起", "1"),
-        rhMid("D", "②改拉", "2"),
-        rhMid("E", "②改推", "3"),
-        rhMid("F", "③改拉", "4"),
-        rhMid("G", "③改推", "5"),
-        rhMid("A", "④仍拉", "6"),
-        {
-          side: "R",
-          row: "mid",
-          col: 4,
-          dir: "pull",
-          note: "b''",
-          solf: "7",
-          label: "7",
-          why: "⑤拉 = B",
-        },
-        {
-          side: "R",
-          row: "mid",
-          col: 3,
-          dir: "push",
-          note: "c'''",
-          solf: "1",
-          label: "1",
-          why: "④推 = 高 C",
-        },
-        {
-          side: "R",
-          row: "mid",
-          col: 4,
-          dir: "pull",
-          note: "b''",
-          solf: "7",
-          label: "7",
-          why: "下行：⑤拉 B",
-        },
-        rhMid("A", "④拉 A", "6"),
-        rhMid("G", "③推 G", "5"),
-        rhMid("F", "③拉 F", "4"),
-        rhMid("E", "②推 E", "3"),
-        rhMid("D", "②拉 D", "2"),
-        rhMid("C", "①推收", "1"),
-      ],
-    },
-    wave: {
-      short: "波浪乐句",
-      title: "民谣型波浪 · C–D–E–F–G–A–G–F–E–D–C",
-      tip: "比三音玩具波浪更接近真乐句：推拉在句中来回切。慢到风箱与手指同步，再加速。",
-      steps: [
-        rhMid("C", "推起", "1"),
-        rhMid("D", "改拉", "2"),
-        rhMid("E", "改推", "3"),
-        rhMid("F", "改拉", "4"),
-        rhMid("G", "改推", "5"),
-        rhMid("A", "仍拉", "6"),
-        rhMid("G", "改推", "5"),
-        rhMid("F", "改拉", "4"),
-        rhMid("E", "改推", "3"),
-        rhMid("D", "改拉", "2"),
-        rhMid("E", "改推", "3"),
-        rhMid("D", "改拉", "2"),
-        rhMid("C", "改推收", "1"),
-      ],
-    },
     hold: {
       short: "同向长串",
-      title: "同向行程规划 · 连推后掉头连拉",
-      tip: "一串同向要提前留风箱行程。先连推 C–E–G–c，再掉头连拉 A–F–D，最后推回 C。",
+      title: "同向行程 · 连推后掉头连拉",
+      tip: "一串同向要提前留行程。先连推 C–E–G–c，再掉头连拉 A–F–D，最后推回。",
       steps: [
         rhMid("C", "连推 C", "1"),
         rhMid("E", "连推 E", "3"),
@@ -4234,14 +4157,18 @@
         rhMid("C", "连推收", "1"),
       ],
     },
-    mix: {
-      short: "中+底规划",
-      title: "中行+底行混合 · 风箱规划乐句",
-      tip: "真曲子很少只停在一行。这句在中/底之间换指，逼你提前想：下一音要推还是拉、要不要跨行。",
+    burst: {
+      short: "短促+长程",
+      title: "短促换向后接同向长串",
+      tip: "先用同键短促推拉「烧」风箱，再立刻进入同向长串。对比两种行程感。",
       steps: [
-        rhMid("C", "中①推 C", "1"),
-        rhMid("D", "中②拉 D", "2"),
-        rhMid("E", "中②推 E", "3"),
+        rhMid("E", "短促推 E", "3"),
+        rhMid("D", "短促拉 D", "2"),
+        rhMid("E", "短促推 E", "3"),
+        rhMid("D", "短促拉 D", "2"),
+        rhMid("C", "改推 C · 进入长程", "1"),
+        rhMid("E", "连推 E", "3"),
+        rhMid("G", "连推 G", "5"),
         {
           side: "R",
           row: "bot",
@@ -4250,17 +4177,17 @@
           note: "g''",
           solf: "5",
           label: "5",
-          why: "跨底①推 G（同向）",
+          why: "跨底仍推 G",
         },
         {
           side: "R",
-          row: "bot",
+          row: "top",
           col: 1,
-          dir: "pull",
+          dir: "push",
           note: "a''",
           solf: "6",
           label: "6",
-          why: "底②拉 A",
+          why: "顶②仍推 A",
         },
         {
           side: "R",
@@ -4270,37 +4197,50 @@
           note: "b''",
           solf: "7",
           label: "7",
-          why: "底②推 B",
+          why: "底②仍推 B",
         },
         {
           side: "R",
-          row: "bot",
-          col: 2,
-          dir: "pull",
+          row: "mid",
+          col: 3,
+          dir: "push",
           note: "c'''",
           solf: "1",
           label: "1",
-          why: "底③拉高 C",
+          why: "中④推高 C",
         },
+        rhMid("A", "掉头拉 A", "6"),
+        rhMid("F", "连拉 F", "4"),
+        rhMid("D", "连拉 D", "2"),
+        rhMid("C", "推回收", "1"),
+      ],
+    },
+    budget: {
+      short: "行程预算",
+      title: "乐句级风箱预算 · 该掉头才掉头",
+      tip: "真乐句节奏：同向跨行尽量拖住，只在没有同向音时掉头。数换向次数——目标 ≤3。",
+      steps: [
+        rhMid("C", "推起 C", "1"),
+        rhMid("E", "同向 E", "3"),
         {
           side: "R",
           row: "bot",
-          col: 2,
+          col: 0,
           dir: "push",
-          note: "d'''",
-          solf: "2",
-          label: "2",
-          why: "底③推 D",
+          note: "g''",
+          solf: "5",
+          label: "5",
+          why: "底①同向 G",
         },
         {
           side: "R",
-          row: "bot",
+          row: "top",
           col: 1,
           dir: "push",
-          note: "b''",
-          solf: "7",
-          label: "7",
-          why: "底②推 B",
+          note: "a''",
+          solf: "6",
+          label: "6",
+          why: "顶②同向 A",
         },
         {
           side: "R",
@@ -4310,13 +4250,27 @@
           note: "g''",
           solf: "5",
           label: "5",
-          why: "底①推 G",
+          why: "回 G 仍推",
         },
-        rhMid("E", "回中②推 E", "3"),
-        rhMid("F", "中③拉 F", "4"),
-        rhMid("E", "中②推 E", "3"),
-        rhMid("D", "中②拉 D", "2"),
-        rhMid("C", "中①推收", "1"),
+        rhMid("E", "回 E 仍推", "3"),
+        rhMid("C", "回 C 仍推", "1"),
+        rhMid("D", "①掉头拉 D", "2"),
+        rhMid("F", "同向拉 F", "4"),
+        rhMid("A", "同向拉 A", "6"),
+        {
+          side: "R",
+          row: "mid",
+          col: 4,
+          dir: "pull",
+          note: "b''",
+          solf: "7",
+          label: "7",
+          why: "⑤同向拉 B",
+        },
+        rhMid("A", "回 A", "6"),
+        rhMid("F", "回 F", "4"),
+        rhMid("D", "回 D", "2"),
+        rhMid("C", "②掉头推收", "1"),
       ],
     },
   };
@@ -4325,7 +4279,7 @@
     gopts: {
       short: "G 的三处",
       title: "同一个 G：中 / 底 / 顶",
-      tip: "中行③推、底行①推、顶行②拉都是 g''。选哪处取决于当前风箱方向。",
+      tip: "中③推、底①推、顶②拉都是 g''。选哪处取决于当前风箱方向。",
       steps: [
         {
           side: "R",
@@ -4372,7 +4326,7 @@
     aopts: {
       short: "A 的两处",
       title: "同一个 A：中行拉 vs 顶行推",
-      tip: "中行④拉是常用 A；整句都在推时，改用顶行②推的 A，可少倒风箱。",
+      tip: "中④拉是常用 A；整句都在推时，改用顶②推的 A，可少倒风箱。",
       steps: [
         {
           side: "R",
@@ -4416,95 +4370,10 @@
         },
       ],
     },
-    avoid: {
-      short: "少倒风箱",
-      title: "推方向走完 C–E–G–A–G–E–C",
-      tip: "若死守中行，A 只能拉；这里 A 改顶行推，整句可更久停在推。",
-      steps: [
-        {
-          side: "R",
-          row: "mid",
-          col: 0,
-          dir: "push",
-          note: "c''",
-          solf: "1",
-          label: "1",
-          why: "中①推",
-        },
-        {
-          side: "R",
-          row: "mid",
-          col: 1,
-          dir: "push",
-          note: "e''",
-          solf: "3",
-          label: "3",
-          why: "中②推",
-        },
-        {
-          side: "R",
-          row: "bot",
-          col: 0,
-          dir: "push",
-          note: "g''",
-          solf: "5",
-          label: "5",
-          why: "底①推 G",
-        },
-        {
-          side: "R",
-          row: "top",
-          col: 1,
-          dir: "push",
-          note: "a''",
-          solf: "6",
-          label: "6",
-          why: "顶②推 A（关键：不改拉）",
-        },
-        {
-          side: "R",
-          row: "bot",
-          col: 0,
-          dir: "push",
-          note: "g''",
-          solf: "5",
-          label: "5",
-          why: "回底①推 G",
-        },
-        {
-          side: "R",
-          row: "mid",
-          col: 1,
-          dir: "push",
-          note: "e''",
-          solf: "3",
-          label: "3",
-          why: "中②推",
-        },
-        {
-          side: "R",
-          row: "mid",
-          col: 0,
-          dir: "push",
-          note: "c''",
-          solf: "1",
-          label: "1",
-          why: "中①推收",
-        },
-      ],
-    },
-    cx: {
-      short: "C跨行音阶",
-      title: "C 大调跨行指法",
-      tip: "与「右手走音 · C跨行」相同：G 走底、A 走顶。",
-      steps: SCALES.Cx.steps.map(function (s) {
-        return Object.assign({}, s, { label: s.solf, why: s.why || "" });
-      }),
-    },
-    phrase: {
-      short: "跨行乐句",
-      title: "推方向跨行乐句 · C–E–G–A–B–c–A–G–E–C",
-      tip: "整句尽量停在推：G 走底、A 走顶、B 走底。若死守中行，A/B 往往要拉——这句逼你用重复音。",
+    pushline: {
+      short: "整句推",
+      title: "推方向跨行 · C–E–G–A–B–c–A–G–E–C",
+      tip: "G 走底、A 走顶、B 走底。若死守中行，A/B 往往要拉——这句逼你用重复音，全程不掉头。",
       steps: [
         {
           side: "R",
@@ -4608,6 +4477,240 @@
         },
       ],
     },
+    pullline: {
+      short: "整句拉",
+      title: "拉方向跨行 · D–F–A–G–A–B–c–A–F–D",
+      tip: "对称练习：G 改走顶②拉，高 C 走底③拉。全程停在拉，体会「重复音换行」。",
+      steps: [
+        {
+          side: "R",
+          row: "mid",
+          col: 1,
+          dir: "pull",
+          note: "d''",
+          solf: "2",
+          label: "2",
+          why: "中②拉 D",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 2,
+          dir: "pull",
+          note: "f''",
+          solf: "4",
+          label: "4",
+          why: "中③拉 F",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 3,
+          dir: "pull",
+          note: "a''",
+          solf: "6",
+          label: "6",
+          why: "中④拉 A",
+        },
+        {
+          side: "R",
+          row: "top",
+          col: 1,
+          dir: "pull",
+          note: "g''",
+          solf: "5",
+          label: "5",
+          why: "顶②拉 G（关键备用）",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 3,
+          dir: "pull",
+          note: "a''",
+          solf: "6",
+          label: "6",
+          why: "回中④ A",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 4,
+          dir: "pull",
+          note: "b''",
+          solf: "7",
+          label: "7",
+          why: "中⑤拉 B",
+        },
+        {
+          side: "R",
+          row: "bot",
+          col: 2,
+          dir: "pull",
+          note: "c'''",
+          solf: "1",
+          label: "1",
+          why: "底③拉高 C",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 3,
+          dir: "pull",
+          note: "a''",
+          solf: "6",
+          label: "6",
+          why: "回 A",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 2,
+          dir: "pull",
+          note: "f''",
+          solf: "4",
+          label: "4",
+          why: "回 F",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 1,
+          dir: "pull",
+          note: "d''",
+          solf: "2",
+          label: "2",
+          why: "拉 D 收",
+        },
+      ],
+    },
+    weave: {
+      short: "交织乐句",
+      title: "中/底/顶交织 · 少换向乐句",
+      tip: "接近真曲子：推串跨行上到高 D，掉头走拉的 A–G–F–D，再推回收。换向约 2 次。",
+      steps: [
+        {
+          side: "R",
+          row: "mid",
+          col: 0,
+          dir: "push",
+          note: "c''",
+          solf: "1",
+          label: "1",
+          why: "中①推",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 1,
+          dir: "push",
+          note: "e''",
+          solf: "3",
+          label: "3",
+          why: "中②推",
+        },
+        {
+          side: "R",
+          row: "bot",
+          col: 0,
+          dir: "push",
+          note: "g''",
+          solf: "5",
+          label: "5",
+          why: "底①推 G",
+        },
+        {
+          side: "R",
+          row: "top",
+          col: 1,
+          dir: "push",
+          note: "a''",
+          solf: "6",
+          label: "6",
+          why: "顶②推 A",
+        },
+        {
+          side: "R",
+          row: "bot",
+          col: 1,
+          dir: "push",
+          note: "b''",
+          solf: "7",
+          label: "7",
+          why: "底②推 B",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 3,
+          dir: "push",
+          note: "c'''",
+          solf: "1",
+          label: "1",
+          why: "中④高 C",
+        },
+        {
+          side: "R",
+          row: "bot",
+          col: 2,
+          dir: "push",
+          note: "d'''",
+          solf: "2",
+          label: "2",
+          why: "底③高 D",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 3,
+          dir: "pull",
+          note: "a''",
+          solf: "6",
+          label: "6",
+          why: "①掉头：中④拉 A",
+        },
+        {
+          side: "R",
+          row: "top",
+          col: 1,
+          dir: "pull",
+          note: "g''",
+          solf: "5",
+          label: "5",
+          why: "顶②拉 G",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 2,
+          dir: "pull",
+          note: "f''",
+          solf: "4",
+          label: "4",
+          why: "中③拉 F",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 1,
+          dir: "pull",
+          note: "d''",
+          solf: "2",
+          label: "2",
+          why: "中②拉 D",
+        },
+        {
+          side: "R",
+          row: "mid",
+          col: 0,
+          dir: "push",
+          note: "c''",
+          solf: "1",
+          label: "1",
+          why: "②推回收",
+        },
+      ],
+    },
   };
 
   function tuneFromLetters(letters, lyrics, beatsStr) {
@@ -4637,7 +4740,7 @@
     return steps;
   }
 
-  // Source jianpu (user): 3-5-6-676-5-3---21-6-2-232-1-2- → degrees 35667653216223212
+  // Source degree string (user): 3-5-6-676-5-3---21-6-2-232-1-2- → degrees 35667653216223212
   // «ле-» MUST be letter w → note a' (plain 6), NEVER letter A → a'' (·6)
   const TUNES = {
     koshka: {
@@ -4649,7 +4752,7 @@
       noteDur: 0.4,
       sourceDegrees: "35667653216223212",
       // Обернусь я белой кошкой (3-5-6-676-5-3---) | Да залезу в колыбель (21-6-2-232-1-2-)
-      // Beats follow jianpu dashes: 3-/5-/6- =2, 3--- =4, 1-/6-/2-/1-/2- =2
+      // Beats follow degree dashes: 3-/5-/6- =2, 3--- =4, 1-/6-/2-/1-/2- =2
       steps: tuneFromLetters(
         "EGA ABAGE DC w D DED C D",
         [
@@ -4855,12 +4958,35 @@
         "1 1 1 1 1 1 1 2  1 1 1 1 1 1 1 2  1 1 1 1 1 1 1 2  1 1 1 1 1 1 1 2"
       ),
     },
+    artemis: {
+      short: "Artemis",
+      title: "Artemis · bandoneon 独奏（节选）",
+      tip: "AURORA · C 小调 · 歌词视频 0:52–1:25。格子=十六分（约 123 BPM）。上一版错把乐句收成 47 音的 2-1-1-2，短音和半音跑都被砍掉了。这一版按录音时值留 16 分与半音；1:15–1:19 原曲偏低八度，谱上抬高以便右手。仍是频谱草稿，请对视频。♭6 只能推。",
+      delay: 125,
+      noteDur: 0.14,
+      sourceDegrees: "5262b725#45b65#45b65454b34b34b342b345b7#45b65b71b71b654b32b345#4517b76b65#452176b65#45b3217145b6b7b64b645#4545#443b32b345b65#45b6#4b65#45",
+      // 0:52 pickup | 0:56 motif | 1:01 descent | 1:05 rise | 1:09 chrom | 1:11 chrom2 | 1:15 low(+8ve) | 1:20 into verse
+      steps: tuneFromLetters(
+        "vDADjD vxvuGxvuG FvFhFhFhFDhFvj xvuGjpjpuGFhDhFv xvpBjAuGxvD pBAuGxvhDpBpFvuj uFuFvxvFv xFEhDhFvuGxvuxuGxv",
+        [
+          "0:52","","","","","",
+          "0:56","","","","","","","","",
+          "1:01","","","","","","","","","","","","","",
+          "1:05","","","","","","","","","","","","","","","",
+          "1:09","","","","","","","","","","",
+          "1:11","","","","","","","","","","","","","","","",
+          "1:15","","","","","","","","",
+          "1:20","","","","","","","","","","","","","","","","","",
+        ],
+        "4 0.5 0.5 6 1 2  6 0.5 0.5 3 2 1 1 5 1  0.5 0.5 1 2 1 0.5 0.5 1 0.5 1 0.5 1 3 1  0.5 0.5 3 0.5 0.5 0.5 0.5 0.5 1 0.5 0.5 0.5 0.5 0.5 0.5 3  0.5 1 3 0.5 0.5 0.5 0.5 1 0.5 0.5 3  0.5 0.5 1 0.5 1 0.5 1 2 0.5 2 0.5 1 0.5 0.5 0.5 0.5  3 1 1 2 3 1 2 2 3  0.5 0.5 0.5 0.5 1 1 1 1 3 0.5 0.5 0.5 3 0.5 0.5 0.5 4 2"
+      ),
+    },
   };
 
   const bellowsLesson = createStepLesson({
     id: "bellows",
     catalog: BELLOWS,
-    order: ["flip", "scale", "wave", "hold", "mix"],
+    order: ["flip", "hold", "burst", "budget"],
     focusSide: "R",
     delay: 480,
   });
@@ -4868,7 +4994,7 @@
   const crossrowLesson = createStepLesson({
     id: "crossrow",
     catalog: CROSSROW,
-    order: ["gopts", "aopts", "avoid", "cx", "phrase"],
+    order: ["gopts", "aopts", "pushline", "pullline", "weave"],
     focusSide: "R",
     delay: 600,
   });
@@ -4876,7 +5002,7 @@
   const tunesLesson = createStepLesson({
     id: "tunes",
     catalog: TUNES,
-    order: ["saints", "grace", "susanna", "gifts", "koshka"],
+    order: ["saints", "grace", "susanna", "gifts", "koshka", "artemis"],
     focusSide: "R",
     delay: 420,
     noteDur: 0.36,
@@ -4887,9 +5013,9 @@
   const PROGRESSIONS = {
     cgc: {
       short: "C–G 热身",
-      title: "主–属循环（都推）",
-      tip: "C 与 G 都是推。先练「换键不换向」，再上带拉的进行。",
-      steps: ["C", "G", "C", "G", "C", "G", "C"].map(function (name) {
+      title: "主–属 · 换键不换向",
+      tip: "C 与 G 都是推。两拍一轮即可——重点是形状切换，不是循环次数。",
+      steps: ["C", "G", "C", "G", "C"].map(function (name) {
         return Object.assign({}, CHORDS[name], { label: name, name: name });
       }),
     },
@@ -4897,31 +5023,31 @@
       short: "C–F 换向",
       title: "主–下属 · 推↔拉",
       tip: "C 推、F 拉。换和弦时顺带掉头——左手最常见的换向。",
-      steps: ["C", "F", "C", "F", "C", "F", "C"].map(function (name) {
+      steps: ["C", "F", "C", "F", "C"].map(function (name) {
         return Object.assign({}, CHORDS[name], { label: name, name: name });
       }),
     },
     pop: {
       short: "I–vi–IV–V",
-      title: "C–Am–F–G 流行长循环",
-      tip: "推(C)→拉(Am)→拉(F)→推(G)。走两遍，练换和弦的连贯，不要每和弦重新找手位。",
-      steps: ["C", "Am", "F", "G", "C", "Am", "F", "G", "C"].map(function (name) {
+      title: "C–Am–F–G · 推拉地图",
+      tip: "推(C)→拉(Am)→拉(F)→推(G)。Am→F 同向换键；盯住两次掉头点。",
+      steps: ["C", "Am", "F", "G", "C", "Am", "F", "G"].map(function (name) {
         return Object.assign({}, CHORDS[name], { label: name, name: name });
       }),
     },
     folk: {
       short: "民歌向",
       title: "C–Am–Dm–G7–C",
-      tip: "民谣常见色彩：加入 Dm（拉）与 G7（拉）。注意 G（推三和弦）与 G7（拉）是不同形状、不同方向。",
-      steps: ["C", "Am", "Dm", "G7", "C", "Am", "Dm", "G7", "C"].map(function (name) {
+      tip: "Dm 与 G7 都是拉。G（推三和弦）与 G7（拉）形状、方向都不同——可对比点开「左手和弦」里的 G7−。",
+      steps: ["C", "Am", "Dm", "G7", "C", "Am", "Dm", "G7"].map(function (name) {
         return Object.assign({}, CHORDS[name], { label: name, name: name });
       }),
     },
     turn: {
-      short: "Jazz 回合",
-      title: "Am–Dm–G–C–F–Dm–G7–C",
-      tip: "更接近 Fly Me A 段色彩（Am 起），属七用拉的 G7。曲目页左手还可练单音根音 Dm / E。",
-      steps: ["Am", "Dm", "G", "C", "F", "Dm", "G7", "C"].map(function (name) {
+      short: "小调回合",
+      title: "Am–Dm–G–C–F–Em–G7–C",
+      tip: "小调起，含推的 Em（iii）与拉的 G7。比流行圈多一次同向替代练习：Am 句里可想 Em。",
+      steps: ["Am", "Dm", "G", "C", "F", "Em", "G7", "C"].map(function (name) {
         return Object.assign({}, CHORDS[name], { label: name, name: name });
       }),
     },
@@ -5188,44 +5314,38 @@
     cgc: {
       short: "C–G oom-pah",
       title: "C–G 根音 + 和弦",
-      tip: "先根音、再三和弦。C 与 G 都是推，适合先稳住节奏再换向。",
-      steps: makeOomPah(["C", "G", "C", "G", "C", "G"]),
+      tip: "根→和弦。C/G 都推：先把节奏钉住，再上带拉的型。",
+      steps: makeOomPah(["C", "G", "C", "G"]),
     },
     cfc: {
       short: "C–F oom-pah",
       title: "C–F 推拉交替",
-      tip: "C 推、F 拉。根音与和弦同向，换和弦时掉头。",
-      steps: makeOomPah(["C", "F", "C", "F", "C", "F"]),
+      tip: "C 推、F 拉。根与和弦同向；换和弦才掉头。",
+      steps: makeOomPah(["C", "F", "C", "F"]),
     },
     pop: {
       short: "流行 oom-pah",
       title: "C–Am–F–G 节奏型",
-      tip: "常见流行进行。盯住每一步是「根」还是「和弦」。",
+      tip: "推(C)→拉(Am/F)→推(G)。每步分清「根」还是「和弦」。",
       steps: makeOomPah(["C", "Am", "F", "G", "C", "Am", "F", "G"]),
     },
     waltz: {
       short: "3/4 圆舞",
       title: "C–G–Am–G · oom-pah-pah",
-      tip: "三拍子：根音 + 和弦 + 和弦。民谣华尔兹常用；数拍「1–2–3」。",
+      tip: "三拍：根 + 和弦 + 和弦。数「1–2–3」；G→Am 要掉头。",
       steps: makeOomPahPah(["C", "G", "Am", "G"]),
     },
     sync: {
-      short: "切分 pah-oom",
+      short: "反拍 pah-oom",
       title: "Am–Dm–G7–C · 先和弦后根音",
-      tip: "相对普通 oom-pah 反过来：先打和弦再落根音，右手旋律时左手不易「抢拍」。",
+      tip: "反 oom-pah：先和弦、后根音，左手偏后拍。推拉：Am/Dm/G7 拉，C 推。",
       steps: makePahOom(["Am", "Dm", "G7", "C", "Am", "Dm", "G7", "C"]),
     },
     walk: {
       short: "走音根音",
       title: "C–Am–F–G–Em–Am–Dm–G7",
-      tip: "只走根音，练左手低音线条与推拉切换。合旋律前先把这条贝斯走顺。",
+      tip: "只走根音贝斯线。Em 推、Dm/G7 拉——合旋律前先把推拉切换走顺。",
       steps: makeWalkingRoots(["C", "Am", "F", "G", "Em", "Am", "Dm", "G7"]),
-    },
-    flyme: {
-      short: "Fly Me 回合",
-      title: "Am–Dm–G–C（Fly Me 向）",
-      tip: "接近 Fly Me 和声色彩（Am 起，含 Dm）。曲目页还可练 E 单音根音。",
-      steps: makeOomPah(["Am", "Dm", "G", "C"]),
     },
   };
 
@@ -5236,7 +5356,7 @@
     timer: null,
     loop: false,
   };
-  const RHYTHM_ORDER = ["cgc", "cfc", "pop", "waltz", "sync", "walk", "flyme"];
+  const RHYTHM_ORDER = ["cgc", "cfc", "pop", "waltz", "sync", "walk"];
 
   function stopRhythmPlayback() {
     if (rhythmState.timer) {
@@ -6269,7 +6389,7 @@
         subtitle: L.blurb,
         showBellowsLegend: true,
         showCg: true,
-        mode: notationMode.current || "jianpu",
+        mode: notationMode.current || "deg",
       });
       wrapLayoutBoardKeys(probe, ".sides");
       const h = Math.ceil(probe.getBoundingClientRect().height);
@@ -6415,7 +6535,7 @@
   }
 
   // —— Init boards ——
-  const notationMode = { current: "jianpu" };
+  const notationMode = { current: "deg" };
 
   function syncToggleLabel() {
     const btn = document.getElementById("globalNotationToggle");
@@ -6846,7 +6966,7 @@
     tunesLesson.stop();
     stopProgressPlayback();
     stopRhythmPlayback();
-    notationMode.current = notationMode.current === "abc" ? "jianpu" : "abc";
+    notationMode.current = notationMode.current === "abc" ? "deg" : "abc";
     paintAll();
   });
 

@@ -48,4 +48,4 @@ Wren 2 · C/G · Wheatstone。改 Fly Me、民谣谱、左手伴奏或跨行指�
 
 - 只改 canonical `index.html`，验证后同步 `anglo-intro.html`（见 `html-single-source` 规则）。
 - Fly Me 字母表与 `FLYME_RH` / `flymePhrase` 数组长度必须一致后再交付。
-- 简谱升降号与度数同一行（见 `jianpu-notation` 规则）；改 `formatJianpu` 时勿把 `.acc` 放到 `.oct` 外。
+- 简谱升降号与度数同一行（见 `degree-notation` 规则）；改 `formatDeg` 时勿把 `.acc` 放到 `.oct` 外。
